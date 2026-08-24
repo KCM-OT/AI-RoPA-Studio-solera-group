@@ -119,7 +119,7 @@ export function FileDropZone({
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
         className={cn(
-          'flex min-h-[150px] flex-col items-center justify-center gap-2.5 rounded border border-dashed border-[#0066FF] p-[30px] text-center transition-colors',
+          'flex min-h-[150px] flex-col items-center justify-center gap-2.5 rounded border border-dashed border-primary p-[30px] text-center transition-colors',
           dragOver ? 'bg-[#EEF7FF]' : 'bg-background',
         )}
       >
@@ -132,7 +132,7 @@ export function FileDropZone({
         <Button
           variant="outline"
           onClick={() => inputRef.current?.click()}
-          className="border-[#2C6145] font-semibold text-[#2C6145] hover:bg-[#2C6145]/5 hover:text-[#2C6145]"
+          className="border-primary font-semibold text-primary hover:bg-primary/5 hover:text-primary"
         >
           Select File
         </Button>
