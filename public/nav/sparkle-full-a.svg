@@ -1,0 +1,14 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="6.0952" height="6.09524" viewBox="0 0 6.0952 6.09524" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="sparkle-solid-full" clip-path="url(#clip0_0_56)">
+<path id="Vector" d="M3.31545 0.185714C3.27379 0.0738095 3.16665 0 3.0476 0C2.92855 0 2.82141 0.0738095 2.77974 0.185714L2.0738 2.07381L0.185713 2.77976C0.073809 2.82143 0 2.92857 0 3.04762C0 3.16667 0.073809 3.27381 0.185713 3.31548L2.0738 4.02262L2.78093 5.91072C2.82141 6.02143 2.92855 6.09524 3.0476 6.09524C3.16665 6.09524 3.27379 6.02143 3.31545 5.90953L4.02259 4.02143L5.91068 3.31429C6.02139 3.27381 6.0952 3.16667 6.0952 3.04762C6.0952 2.92857 6.02139 2.82143 5.90949 2.77976L4.0214 2.07381L3.31545 0.185714Z" fill="url(#paint0_linear_0_56)"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_56" x1="6.0952" y1="7.26609e-07" x2="-4.07581e-05" y2="6.0952" gradientUnits="userSpaceOnUse">
+<stop offset="0.25" stop-color="#976FE6"/>
+<stop offset="1" stop-color="#0788F7"/>
+</linearGradient>
+<clipPath id="clip0_0_56">
+<rect width="6.0952" height="6.09524" fill="white"/>
+</clipPath>
+</defs>
+</svg>
