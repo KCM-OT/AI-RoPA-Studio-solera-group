@@ -40,7 +40,7 @@ function TopBar() {
             type="search"
             placeholder="Search…"
             onBlur={() => setSearchOpen(false)}
-            className="h-9 w-56 rounded-md border border-[#b1b1b1] bg-white px-3 text-sm text-[#282828] outline-none placeholder:text-[#282828]/50 focus-visible:border-[#7e57c2]"
+            className="h-9 w-56 rounded-md border border-[#b1b1b1] bg-white px-3 text-sm text-[#282828] outline-none placeholder:text-[#282828]/50 focus-visible:border-primary"
           />
         ) : (
           <button
@@ -77,7 +77,7 @@ function TopBar() {
         <TopBarIconButton src="/topbar/icon-cog.svg" label="Settings" href="/settings" />
 
         <button type="button" title="Account" aria-label="Account" className="flex size-10 shrink-0 items-center justify-center rounded-md hover:bg-black/5">
-          <span className="flex size-[21px] items-center justify-center rounded-full bg-[#7e57c2] text-[11px] text-white">
+          <span className="flex size-[21px] items-center justify-center rounded-full bg-primary text-[11px] text-primary-foreground">
             AR
           </span>
         </button>

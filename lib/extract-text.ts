@@ -5,7 +5,7 @@
 //   - .rtf is stripped of control words by a small scanner
 //   - .docx is unzipped with DecompressionStream and its XML flattened
 //
-// Formats that genuinely need a heavy parser (.pdf, legacy binary .doc, .png OCR)
+// Formats that genuinely need a heavy parser (legacy binary .doc, .png OCR)
 // are deliberately excluded — the drop zone reports that rather than pretending.
 
 /** Extensions whose text this module can extract. */

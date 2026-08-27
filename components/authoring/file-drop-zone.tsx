@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { extensionOf, extractTextFromFile, isExtractable } from '@/lib/extract-text'
 
-// Formats the picker accepts. The scannable ones lead; .doc/.pdf/.png are kept
+// Formats the picker accepts. The scannable ones lead; .doc/.png are kept
 // from the design's list but still need a parser this prototype doesn't have.
-const ACCEPTED = ['.docx', '.rtf', '.txt', '.csv', '.md', '.json', '.doc', '.pdf', '.png']
+const ACCEPTED = ['.docx', '.rtf', '.txt', '.csv', '.md', '.json', '.doc', '.png']
 
 const MAX_BYTES = 64 * 1024 * 1024
 
@@ -16,7 +16,6 @@ const KIND_BY_EXT: Record<string, string> = {
   '.csv': 'Spreadsheet',
   '.doc': 'Word document',
   '.docx': 'Word document',
-  '.pdf': 'PDF document',
   '.png': 'Image',
   '.rtf': 'Rich text document',
   '.txt': 'Document',
@@ -51,7 +50,7 @@ export function FileDropZone({
 
     if (!ACCEPTED.includes(ext)) {
       onError(
-        `${ext || 'That file type'} isn’t supported. Accepted formats: .docx, .rtf, .txt, .csv, .doc, .pdf, .png`,
+        `${ext || 'That file type'} isn’t supported. Accepted formats: .docx, .rtf, .txt, .csv, .doc, .png`,
       )
       return
     }
@@ -120,20 +119,20 @@ export function FileDropZone({
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
         className={cn(
-          'flex min-h-[150px] flex-col items-center justify-center gap-2.5 rounded border border-dashed border-[#0066FF] p-[30px] text-center transition-colors',
+          'flex min-h-[150px] flex-col items-center justify-center gap-2.5 rounded border border-dashed border-primary p-[30px] text-center transition-colors',
           dragOver ? 'bg-[#EEF7FF]' : 'bg-background',
         )}
       >
         <div className="flex flex-col gap-1.5">
           <p className="text-[13px] font-medium leading-5 text-[#1a1a1a]">Drag &amp; Drop files here</p>
           <p className="text-[13px] leading-5 text-[#4d4d4d]">
-            Accepted formats: .docx, .rtf, .txt, .csv, .doc, .pdf, .png (max 64MB)
+            Accepted formats: .docx, .rtf, .txt, .csv, .doc, .png (max 64MB)
           </p>
         </div>
         <Button
           variant="outline"
           onClick={() => inputRef.current?.click()}
-          className="border-[#2C6145] font-semibold text-[#2C6145] hover:bg-[#2C6145]/5 hover:text-[#2C6145]"
+          className="border-primary font-semibold text-primary hover:bg-primary/5 hover:text-primary"
         >
           Select File
         </Button>
