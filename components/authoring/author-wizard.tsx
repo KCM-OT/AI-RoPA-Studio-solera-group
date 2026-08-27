@@ -14,6 +14,10 @@ import {
   TriangleAlert,
   Link2,
   Undo2,
+  Eye,
+  ShieldCheck,
+  GitMerge,
+  Network,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -94,8 +98,15 @@ export function AuthorWizard() {
   const [duplicate, setDuplicate] = useState<DuplicateMatch | null>(null)
   const [dupDismissed, setDupDismissed] = useState(false)
   const [committedId, setCommittedId] = useState<string | null>(null)
+  const [processChoice, setProcessChoice] = useState<'existing' | 'new' | null>(null)
+  const [vendorChoice, setVendorChoice] = useState<'related' | 'merge' | null>(null)
+  const [processDuplicateChoice, setProcessDuplicateChoice] = useState<'consolidate' | 'new' | null>(null)
+  const [rolesConfirmed, setRolesConfirmed] = useState(false)
+  const [showEvidence, setShowEvidence] = useState(false)
 
   const target = targetId ? activities.find((a) => a.id === targetId) : null
+  const isTalentSprintDemo = /talentsprint/i.test(docText)
+  const demoReady = !isTalentSprintDemo || (processChoice === 'existing' && vendorChoice === 'related' && processDuplicateChoice === 'consolidate' && rolesConfirmed)
 
   function pickSample(doc: SampleDoc) {
     setSelectedSample(doc.id)
@@ -149,6 +160,11 @@ export function AuthorWizard() {
   }
 
   function applyScan(data: ScanResult) {
+    setProcessChoice(null)
+    setVendorChoice(null)
+    setProcessDuplicateChoice(null)
+    setRolesConfirmed(false)
+    setShowEvidence(false)
     setSummary(data.summary || '')
     if (data.documentKind) setDocMeta((m) => ({ ...m, kind: data.documentKind }))
 
@@ -479,8 +495,36 @@ export function AuthorWizard() {
           </CardContent>
         </Card>
 
+        {isTalentSprintDemo && (
+          <div className="space-y-3">
+            <Card className="border-primary/30 bg-primary/5">
+              <CardContent className="flex items-start gap-3 p-4">
+                <Network className="mt-0.5 size-5 shrink-0 text-primary" />
+                <div className="flex-1 space-y-3">
+                  <div>
+                    <p className="font-medium">This looks related to an existing or new processing activity</p>
+                    <p className="text-sm text-muted-foreground">Keep the contract attached as a vendor relationship under the process-first RoPA record.</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant={processChoice === 'existing' ? 'default' : 'outline'} onClick={() => { setProcessChoice('existing'); setMode('enrich'); setTargetId(activities.find((a) => /candidate screening/i.test(a.name))?.id ?? null) }}>Add under AI-Assisted Candidate Screening</Button>
+                    <Button size="sm" variant={processChoice === 'new' ? 'default' : 'outline'} onClick={() => setProcessChoice('new')}>Create new activity</Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-3"><CardTitle className="flex items-center gap-2 text-sm"><GitMerge className="size-4 text-warning-foreground" />Duplicate review</CardTitle></CardHeader>
+              <CardContent className="space-y-3 pt-0 text-sm">
+                <div className="rounded-lg border border-warning/40 bg-warning-muted/40 p-3"><p className="font-medium">Vendor-level match</p><p className="text-muted-foreground">CandidateAI Screener was logged by the UK subsidiary. These appear to be different products.</p><div className="mt-2 flex gap-2"><Button size="sm" variant={vendorChoice === 'related' ? 'default' : 'outline'} onClick={() => setVendorChoice('related')}>Link as related</Button><Button size="sm" variant={vendorChoice === 'merge' ? 'default' : 'outline'} onClick={() => setVendorChoice('merge')}>Merge vendors</Button></div></div>
+                <div className="rounded-lg border border-warning/40 bg-warning-muted/40 p-3"><p className="font-medium">Process-level match</p><p className="text-muted-foreground">US Recruitment RoPA may be the same process. Consolidate into the earlier record and add TalentSprint.</p><div className="mt-2 flex gap-2"><Button size="sm" variant={processDuplicateChoice === 'consolidate' ? 'default' : 'outline'} onClick={() => setProcessDuplicateChoice('consolidate')}>Consolidate process</Button><Button size="sm" variant={processDuplicateChoice === 'new' ? 'default' : 'outline'} onClick={() => setProcessDuplicateChoice('new')}>Keep separate</Button></div></div>
+              </CardContent>
+            </Card>
+            <Card className="border-ai/30 bg-ai-muted/30"><CardContent className="space-y-3 p-4"><div className="flex items-start gap-3"><ShieldCheck className="mt-0.5 size-5 shrink-0 text-ai" /><div><p className="font-medium">Controller / processor nuance</p><p className="text-sm text-muted-foreground">Solera is controller and TalentSprint is processor for screening. Aggregated resume data used to improve TalentSprint&apos;s model may be a separate independent-controller purpose.</p></div></div><Button size="sm" variant={rolesConfirmed ? 'default' : 'outline'} onClick={() => setRolesConfirmed((v) => !v)}>{rolesConfirmed ? 'Role designation confirmed' : 'Confirm role designation'}</Button></CardContent></Card>
+          </div>
+        )}
+
         {/* Duplicate banner */}
-        {mode === 'create' && duplicate && !dupDismissed && (
+        {mode === 'create' && duplicate && !dupDismissed && !isTalentSprintDemo && (
           <Card className="border-warning/40 bg-warning-muted/50">
             <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-start gap-2.5">
@@ -532,6 +576,15 @@ export function AuthorWizard() {
           </div>
         </div>
 
+        {isTalentSprintDemo && (
+          <Card className="border-border">
+            <CardContent className="p-4">
+              <Button variant="ghost" size="sm" className="-ml-2 gap-2" onClick={() => setShowEvidence((v) => !v)}><Eye className="size-4" />{showEvidence ? 'Hide source trace' : 'Show source trace for retention'}</Button>
+              {showEvidence && <div className="mt-3 grid gap-3 md:grid-cols-2"><div className="rounded-lg border bg-muted/30 p-3"><p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Auto-populated field</p><p className="text-sm font-medium">Retention period</p><p className="mt-1 text-sm">90 days after recruitment ends</p></div><div className="rounded-lg border border-ai/30 bg-ai-muted/20 p-3"><p className="mb-1 text-xs font-semibold uppercase tracking-wide text-ai">Source DPA clause</p><p className="text-sm italic text-muted-foreground">“TalentSprint deletes candidate data within 90 days after the recruitment process ends…”</p></div></div>}
+            </CardContent>
+          </Card>
+        )}
+
         {/* Relationships */}
         {rels.length > 0 && (
           <div>
@@ -555,7 +608,7 @@ export function AuthorWizard() {
             Nothing is saved until you commit. {acceptedFields.length} field(s) &{' '}
             {acceptedRels.length} relationship(s) will be committed.
           </p>
-          <Button onClick={commit} disabled={acceptedFields.length === 0 && mode === 'create'}>
+          <Button onClick={commit} disabled={(acceptedFields.length === 0 && mode === 'create') || !demoReady}>
             <Check className="size-4" />
             {mode === 'enrich' ? 'Commit updates' : 'Create record'}
           </Button>

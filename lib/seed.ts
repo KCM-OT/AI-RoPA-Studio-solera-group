@@ -372,6 +372,24 @@ export interface SampleDoc {
 
 export const SAMPLE_DOCS: SampleDoc[] = [
   {
+    id: 'doc-talentsprint-dpa',
+    title: 'TalentSprint AI — Signed DPA & SOW',
+    kind: 'Vendor contract',
+    text: `DATA PROCESSING AGREEMENT & STATEMENT OF WORK — TalentSprint AI
+
+Relationship: TalentSprint AI acts as a processor within Solera Group’s existing AI-Assisted Candidate Screening & Recruitment activity. TalentSprint provides automated resume screening and candidate ranking for Talent Acquisition.
+
+Categories of personal data: Candidate name, contact information, resume and work history, education, and video interview recordings.
+
+Retention: TalentSprint deletes candidate data within 90 days after the recruitment process ends, unless Solera instructs otherwise in writing.
+
+Transfers: TalentSprint processes EU candidate data in US-hosted infrastructure. Standard Contractual Clauses (SCCs) apply to the transfer.
+
+Roles: Solera is the controller and TalentSprint is the processor for resume screening and candidate ranking. TalentSprint may use aggregated resume data to improve its underlying model; for this secondary use, TalentSprint may act as an independent controller.
+
+Owner: Elena Marín, Global Talent Acquisition. Applicant Tracking System: Greenhouse. Background checks: Checkr.`,
+  },
+  {
     id: 'doc-recruitment',
     title: 'AI Candidate Screening — Project Brief',
     kind: 'Project brief',
