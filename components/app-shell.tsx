@@ -31,7 +31,7 @@ function TopBar() {
 
   return (
     <div className="flex h-[66px] shrink-0 items-center justify-between border-b border-[#b1b1b1] bg-[#f6f6f6] px-4">
-      <div className="text-lg font-semibold text-[#1a1a1a]">Meridian Brands</div>
+      <div className="text-lg font-semibold text-[#1a1a1a]">Solera Group</div>
 
       <div className="flex items-center gap-1">
         {searchOpen ? (
