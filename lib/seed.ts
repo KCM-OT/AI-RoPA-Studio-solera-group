@@ -14,27 +14,24 @@ function iso(daysFromNow: number): string {
 }
 
 export const VENDORS: Vendor[] = [
-  { id: 'ven-zendesk', name: 'Zendesk', category: 'Customer Support', location: 'United States', dpaStatus: 'Signed' },
-  { id: 'ven-mailchimp', name: 'Mailchimp', category: 'Marketing Automation', location: 'United States', dpaStatus: 'Signed' },
-  { id: 'ven-workday', name: 'Workday', category: 'HR / Payroll', location: 'United States', dpaStatus: 'Signed' },
-  { id: 'ven-stripe', name: 'Stripe', category: 'Payments', location: 'United States', dpaStatus: 'Signed' },
+  { id: 'ven-talentsprint', name: 'TalentSprint AI', category: 'AI candidate screening', location: 'United States', dpaStatus: 'Pending' },
+  { id: 'ven-greenhouse', name: 'Greenhouse', category: 'Applicant Tracking System', location: 'United States', dpaStatus: 'Signed' },
+  { id: 'ven-checkr', name: 'Checkr', category: 'Background checks', location: 'United States', dpaStatus: 'Signed' },
   { id: 'ven-aws', name: 'Amazon Web Services', category: 'Cloud Infrastructure', location: 'Global', dpaStatus: 'Signed' },
+  { id: 'ven-zoom', name: 'Zoom', category: 'Video interviews', location: 'United States', dpaStatus: 'Pending' },
+  { id: 'ven-workday', name: 'Workday', category: 'HR / Payroll', location: 'United States', dpaStatus: 'Signed' },
   { id: 'ven-salesforce', name: 'Salesforce', category: 'CRM', location: 'United States', dpaStatus: 'Signed' },
   { id: 'ven-okta', name: 'Okta', category: 'Identity', location: 'United States', dpaStatus: 'Signed' },
-  { id: 'ven-snowflake', name: 'Snowflake', category: 'Data Warehouse', location: 'United States', dpaStatus: 'Pending' },
-  { id: 'ven-twilio', name: 'Twilio', category: 'Communications', location: 'United States', dpaStatus: 'Signed' },
-  { id: 'ven-hubspot', name: 'HubSpot', category: 'Marketing / CRM', location: 'United States', dpaStatus: 'Signed' },
 ]
 
 export const ASSETS: Asset[] = [
-  { id: 'ast-support', name: 'Support Portal', type: 'Application', hostingRegion: 'EU (Frankfurt)' },
-  { id: 'ast-crm', name: 'Marketing CRM', type: 'Application', hostingRegion: 'US (Virginia)' },
+  { id: 'ast-ats', name: 'Candidate ATS', type: 'Application', hostingRegion: 'US (Virginia)' },
+  { id: 'ast-video', name: 'Recorded Interview Workspace', type: 'Application', hostingRegion: 'US (Oregon)' },
+  { id: 'ast-screening', name: 'TalentSprint Screening Console', type: 'Application', hostingRegion: 'US (Virginia)' },
   { id: 'ast-hris', name: 'HRIS', type: 'System', hostingRegion: 'US (Virginia)' },
-  { id: 'ast-warehouse', name: 'Data Warehouse', type: 'Data store', hostingRegion: 'EU (Frankfurt)' },
-  { id: 'ast-payment', name: 'Payment Gateway', type: 'System', hostingRegion: 'US (Virginia)' },
+  { id: 'ast-background', name: 'Background Check Repository', type: 'Data store', hostingRegion: 'EU (Frankfurt)' },
   { id: 'ast-idp', name: 'Identity Provider', type: 'System', hostingRegion: 'Global' },
-  { id: 'ast-web', name: 'Corporate Website', type: 'Application', hostingRegion: 'Global (CDN)' },
-  { id: 'ast-mobile', name: 'Mobile App', type: 'Application', hostingRegion: 'Global' },
+  { id: 'ast-warehouse', name: 'People Analytics Warehouse', type: 'Data store', hostingRegion: 'US (Virginia)' },
 ]
 
 export const PERSONAL_DATA_CATEGORIES: PersonalDataCategory[] = [
@@ -47,7 +44,10 @@ export const PERSONAL_DATA_CATEGORIES: PersonalDataCategory[] = [
   { id: 'pdc-device', name: 'Device identifiers', sensitivity: 'standard' },
   { id: 'pdc-payment', name: 'Payment card data', sensitivity: 'standard' },
   { id: 'pdc-govid', name: 'Government ID number', sensitivity: 'standard' },
-  { id: 'pdc-employment', name: 'Employment records', sensitivity: 'standard' },
+  { id: 'pdc-employment', name: 'Employment history', sensitivity: 'standard' },
+  { id: 'pdc-education', name: 'Education and qualifications', sensitivity: 'standard' },
+  { id: 'pdc-interview', name: 'Interview recordings', sensitivity: 'standard' },
+  { id: 'pdc-inferred', name: 'Inferred candidate scores', sensitivity: 'standard' },
   { id: 'pdc-financial', name: 'Financial account data', sensitivity: 'standard' },
   { id: 'pdc-health', name: 'Health data', sensitivity: 'special' },
   { id: 'pdc-biometric', name: 'Biometric data', sensitivity: 'special' },
@@ -67,38 +67,55 @@ function pdcRel(id: string, name: string): {
 
 export const SEED_ACTIVITIES: ProcessingActivity[] = [
   {
-    id: 'pa-support',
-    name: 'Customer Support Ticketing',
+    id: 'pa-recruitment',
+    name: 'AI-Assisted Candidate Screening & Recruitment',
     description:
-      'Handling inbound customer support requests across email, chat, and phone, including tracking and resolution of tickets.',
-    status: 'active',
-    purpose: 'Provide customer support and resolve product issues',
-    legalBasis: 'Contract',
-    managingOrganization: 'Global Customer Success',
-    businessProcessOwner: 'Dana Ortiz',
-    dataSubjectCategories: ['Customers', 'Prospective customers'],
-    retentionPeriod: '24 months after ticket closure',
-    recipients: 'Support team, Engineering (escalations)',
-    internationalTransfers: 'US — SCCs in place',
-    securityMeasures: 'Encryption at rest and in transit, RBAC, SSO',
-    jurisdiction: 'Global',
-    fieldMeta: {},
+      'Sourcing, screening, interviewing, and hiring candidates for open roles across Solera Group. TalentSprint AI ranks resumes and scores recorded interviews, with every recommendation reviewed by Talent Acquisition before a decision.',
+    status: 'under_review',
+    purpose: 'Support fair, consistent recruitment and make significant employment decisions with human oversight',
+    legalBasis: 'Legitimate interests',
+    managingOrganization: 'Global Talent Acquisition',
+    businessProcessOwner: 'Elena Marín',
+    dataSubjectCategories: ['Job applicants', 'Candidates', 'Employees'],
+    retentionPeriod: '12 months after requisition closure; retain hired-candidate records in HRIS',
+    recipients: 'Talent Acquisition, hiring managers, HR Compliance',
+    internationalTransfers: 'US and Singapore processing for global candidates; SCCs and transfer assessment required',
+    securityMeasures: 'Encryption at rest and in transit, role-based access, audit logging, reviewer approval controls',
+    jurisdiction: 'United States, Germany, France, Brazil, Singapore, United Kingdom',
+    fieldMeta: {
+      description: { provenance: 'ai', confidence: 0.96, evidence: 'AI vendor to screen resumes and rank candidates' },
+      purpose: { provenance: 'ai', confidence: 0.91, evidence: 'sourcing, screening, and hiring candidates' },
+      legalBasis: { provenance: 'ai', confidence: 0.78, evidence: 'candidate screening and recruitment' },
+    },
     relationships: [
-      { id: 'r1', type: 'vendor', name: 'Zendesk', inventoryId: 'ven-zendesk', provenance: 'manual', status: 'accepted' },
-      { id: 'r2', type: 'asset', name: 'Support Portal', inventoryId: 'ast-support', provenance: 'manual', status: 'accepted' },
+      { id: 'r-recruit-talentsprint', type: 'vendor', name: 'TalentSprint AI', inventoryId: 'ven-talentsprint', provenance: 'ai', confidence: 0.98, status: 'accepted', note: 'Processor relationship inside the recruitment activity' },
+      { id: 'r-recruit-ats', type: 'vendor', name: 'Greenhouse', inventoryId: 'ven-greenhouse', provenance: 'manual', status: 'accepted' },
+      { id: 'r-recruit-checkr', type: 'vendor', name: 'Checkr', inventoryId: 'ven-checkr', provenance: 'manual', status: 'accepted' },
+      { id: 'r-recruit-screening', type: 'asset', name: 'TalentSprint Screening Console', inventoryId: 'ast-screening', provenance: 'ai', confidence: 0.94, status: 'accepted' },
+      { id: 'r-recruit-video', type: 'asset', name: 'Recorded Interview Workspace', inventoryId: 'ast-video', provenance: 'manual', status: 'accepted' },
       pdcRel('pdc-name', 'Name'),
       pdcRel('pdc-email', 'Email address'),
       pdcRel('pdc-phone', 'Phone number'),
+      pdcRel('pdc-govid', 'Government ID number'),
+      pdcRel('pdc-employment', 'Employment history'),
+      pdcRel('pdc-education', 'Education and qualifications'),
+      pdcRel('pdc-interview', 'Interview recordings'),
+      pdcRel('pdc-inferred', 'Inferred candidate scores'),
+      pdcRel('pdc-ethnicity', 'Racial or ethnic origin'),
     ],
-    sourceDocuments: [],
-    createdWithAI: false,
-    updatedWithAI: false,
-    reviewCadenceDays: 365,
-    lastReviewedAt: iso(-120),
-    nextReviewAt: iso(245),
+    sourceDocuments: [
+      { id: 'sd-recruit-brief', name: 'TalentSprint AI rollout brief.pdf', kind: 'Project brief', addedAt: iso(-18), excerpt: 'Resume ranking and recorded interview scoring introduced to the existing recruitment process.' },
+      { id: 'sd-recruit-dpia', name: 'Candidate screening DPIA.docx', kind: 'DPIA', addedAt: iso(-10), excerpt: 'Human review, candidate notice, and challenge pathways are required before deployment.' },
+      { id: 'sd-recruit-dpa', name: 'TalentSprint AI DPA.pdf', kind: 'Vendor contract', addedAt: iso(-8) },
+    ],
+    createdWithAI: true,
+    updatedWithAI: true,
+    reviewCadenceDays: 180,
+    lastReviewedAt: iso(-22),
+    nextReviewAt: iso(-4),
     parentId: null,
-    createdAt: iso(-400),
-    updatedAt: iso(-120),
+    createdAt: iso(-240),
+    updatedAt: iso(-8),
   },
   {
     id: 'pa-marketing',
@@ -312,18 +329,18 @@ export const SEED_LOG: ActivityLogEntry[] = [
     timestamp: iso(-45),
     actor: 'AI Agent',
     action: 'variation_created',
-    recordId: 'pa-onboarding-de',
-    recordName: 'Customer Onboarding — Germany',
-    detail: 'Created local variation of "Customer Onboarding (Global)" with 1 approved override (retention period).',
+    recordId: 'pa-recruitment',
+    recordName: 'AI-Assisted Candidate Screening & Recruitment',
+    detail: 'Expanded recorded interview scoring in the recruitment activity and flagged the material change for recertification.',
   },
   {
     id: 'log-2',
     timestamp: iso(-45),
     actor: 'You',
     action: 'field_edited',
-    recordId: 'pa-onboarding-de',
-    recordName: 'Customer Onboarding — Germany',
-    detail: 'Edited retention period override before commit.',
+    recordId: 'pa-recruitment',
+    recordName: 'AI-Assisted Candidate Screening & Recruitment',
+    detail: 'Confirmed human review and candidate challenge controls before the TalentSprint AI rollout.',
   },
   {
     id: 'log-3',
@@ -355,10 +372,26 @@ export interface SampleDoc {
 
 export const SAMPLE_DOCS: SampleDoc[] = [
   {
-    id: 'doc-mobile',
-    title: 'Mobile App Push Notifications — Project Brief',
+    id: 'doc-recruitment',
+    title: 'AI Candidate Screening — Project Brief',
     kind: 'Project brief',
-    text: `PROJECT BRIEF — Push Notification Service for Mobile App
+    text: `PROJECT BRIEF - AI-Assisted Candidate Screening & Recruitment
+
+Overview: Solera Group is adding TalentSprint AI to the existing recruitment process to screen resumes and rank candidates for open roles. Recorded interview scoring is planned as a later capability and requires human review.
+
+Data used: Candidate name, contact details, employment history, education, interview recordings, inferred scores, and limited special-category data where voluntarily provided.
+
+Systems & vendors: Greenhouse remains the system of record. TalentSprint AI provides ranking suggestions. Recorded interviews are held in Zoom and background checks are handled by Checkr.
+
+Governance: Talent Acquisition reviews every recommendation. Candidate notice, challenge rights, a DPIA, transfer assessment, and AI risk review are required before expanded use.
+
+Owner: Elena Marín, Global Talent Acquisition. Data may be processed in the US, Germany, France, Brazil, Singapore, and the UK.`,
+  },
+  {
+    id: 'doc-mobile',
+    title: 'Mobile App Push Notifications - Project Brief',
+    kind: 'Project brief',
+    text: `PROJECT BRIEF - Push Notification Service for Mobile App
 
 Overview: The product team is launching in-app and push notifications for our iOS and Android mobile apps to increase engagement and re-activation. Notifications include order updates, personalized product recommendations, and re-engagement campaigns for lapsed users.
 
