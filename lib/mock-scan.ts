@@ -72,6 +72,11 @@ const KNOWN_VENDORS = [
   'HubSpot',
   'MindWell Inc.',
   'MindWell',
+  'TalentSprint AI',
+  'CandidateAI Screener',
+  'Greenhouse',
+  'Checkr',
+  'Zoom',
 ]
 
 const KNOWN_ASSETS = [
@@ -95,7 +100,8 @@ const PDC_SYNONYMS: { name: string; needles: string[]; special?: boolean }[] = [
   { name: 'Device identifiers', needles: ['device identifier', 'device push token', 'push token'] },
   { name: 'Payment card data', needles: ['payment card', 'card details'] },
   { name: 'Government ID number', needles: ['government id', 'passport number', 'national id'] },
-  { name: 'Employment records', needles: ['employee id', 'employment record'] },
+  { name: 'Employment records', needles: ['employee id', 'employment record', 'work history', 'resume'] },
+  { name: 'Video interview recordings', needles: ['video interview recordings', 'interview recordings', 'recorded interviews'] },
   { name: 'Financial account data', needles: ['financial account', 'bank account'] },
   {
     name: 'Health data',
