@@ -7,13 +7,11 @@ import {
   FileText,
   Loader2,
   Check,
-  X,
   Pencil,
   ArrowLeft,
   CircleCheck,
   TriangleAlert,
   Link2,
-  Undo2,
   Eye,
   ShieldCheck,
   GitMerge,
@@ -174,7 +172,7 @@ export function AuthorWizard() {
       confidence: f.confidence,
       evidence: f.evidence,
       rationale: f.rationale,
-      accepted: f.confidence >= 0.6, // low-confidence defaults to suggestion only
+      accepted: false, // every extracted attribute requires explicit human approval
       edited: false,
     }))
     // de-dupe field keys, keep highest confidence
@@ -194,7 +192,7 @@ export function AuthorWizard() {
         evidence: r.evidence,
         rationale: r.rationale,
         inventoryId,
-        accepted: r.confidence >= 0.6,
+        accepted: false,
       }
     })
     setRels(relReviews)
@@ -553,12 +551,15 @@ export function AuthorWizard() {
         {/* Fields */}
         <div>
           <div className="mb-2 flex items-center justify-between px-1">
-            <h3 className="text-sm font-semibold">
-              Extracted attributes{' '}
-              <span className="font-normal text-muted-foreground">
-                ({acceptedFields.length}/{fields.length} approved)
-              </span>
-            </h3>
+            <div>
+              <h3 className="text-sm font-semibold">
+                Extracted attributes{' '}
+                <span className="font-normal text-muted-foreground">
+                  ({acceptedFields.length}/{fields.length} approved)
+                </span>
+              </h3>
+              <p className="mt-1 text-xs text-muted-foreground">please review and approve the extracted attributes</p>
+            </div>
           </div>
           <div className="space-y-2.5">
             {fields.map((f) => (
@@ -588,12 +589,15 @@ export function AuthorWizard() {
         {/* Relationships */}
         {rels.length > 0 && (
           <div>
-            <h3 className="mb-2 px-1 text-sm font-semibold">
-              Suggested relationships{' '}
-              <span className="font-normal text-muted-foreground">
-                ({acceptedRels.length}/{rels.length} approved)
-              </span>
-            </h3>
+            <div className="mb-2 px-1">
+              <h3 className="text-sm font-semibold">
+                Suggested relationships{' '}
+                <span className="font-normal text-muted-foreground">
+                  ({acceptedRels.length}/{rels.length} approved)
+                </span>
+              </h3>
+              <p className="mt-1 text-xs text-muted-foreground">please review and approve the suggested relationships</p>
+            </div>
             <div className="space-y-2.5">
               {rels.map((r, i) => (
                 <RelRow key={`${r.type}-${r.name}-${i}`} rel={r} onChange={(p) => updateRel(i, p)} />
@@ -815,27 +819,13 @@ function FieldRow({
           >
             <Pencil className="size-3.5" />
           </Button>
-          {field.accepted ? (
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              aria-label="Reject"
-              className="text-danger"
-              onClick={() => onChange({ accepted: false })}
-            >
-              <X className="size-4" />
-            </Button>
-          ) : (
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              aria-label="Accept"
-              className="text-success"
-              onClick={() => onChange({ accepted: true })}
-            >
-              <Check className="size-4" />
-            </Button>
-          )}
+  <input
+  type="checkbox"
+  checked={field.accepted}
+  onChange={(event) => onChange({ accepted: event.target.checked })}
+  aria-label={`Approve ${FIELD_LABELS[field.key]}`}
+  className="size-4 accent-primary"
+  />
         </div>
       </div>
     </div>
@@ -885,27 +875,13 @@ function RelRow({
           </p>
         )}
       </div>
-      {rel.accepted ? (
-        <Button
-          size="icon-sm"
-          variant="ghost"
-          aria-label="Reject"
-          className="text-danger"
-          onClick={() => onChange({ accepted: false })}
-        >
-          <X className="size-4" />
-        </Button>
-      ) : (
-        <Button
-          size="icon-sm"
-          variant="ghost"
-          aria-label="Accept"
-          className="text-success"
-          onClick={() => onChange({ accepted: true })}
-        >
-          <Undo2 className="size-4" />
-        </Button>
-      )}
+  <input
+  type="checkbox"
+  checked={rel.accepted}
+  onChange={(event) => onChange({ accepted: event.target.checked })}
+  aria-label={`Approve ${rel.name} relationship`}
+  className="size-4 accent-primary"
+  />
     </div>
   )
 }
