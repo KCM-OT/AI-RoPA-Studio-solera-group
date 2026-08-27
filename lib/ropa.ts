@@ -15,6 +15,7 @@ export const CONFIDENCE_LABEL: Record<'high' | 'medium' | 'low', string> = {
 export function formatDate(iso: string | null): string {
   if (!iso) return '—'
   return new Date(iso).toLocaleDateString('en-US', {
+    timeZone: 'UTC',
     year: 'numeric',
     month: 'short',
     day: 'numeric',
