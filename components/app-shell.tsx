@@ -194,7 +194,7 @@ function NavRow({
 
 function EdisonToggle() {
   return (
-    <section className="bg-black px-4 pb-10 pt-3 text-white" aria-label="Edison mode toggle">
+    <section className="bg-black px-4 pb-5 pt-3 text-white" aria-label="Edison mode toggle">
       <div className="flex flex-col gap-4">
         <div className="flex h-[42px] w-full items-center gap-1 rounded-[4px] border border-[#333333] p-1">
           <button
@@ -276,7 +276,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {!collapsed && (
           <>
             <EdisonToggle />
-            <div className="px-4 pb-4 pt-3">
+            <div className="px-4 pb-4 pt-0">
               <div className="text-base leading-tight">Cartographer</div>
               <div className="text-xs leading-tight text-sidebar-foreground/60">AI RoPA Studio</div>
             </div>
