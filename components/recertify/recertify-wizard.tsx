@@ -20,7 +20,7 @@ import {
   ClipboardCheck,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { PageHeader } from '@/components/app-shell'
 import { useStore } from '@/lib/store'
@@ -917,13 +917,13 @@ function DoneStep({
           </p>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-2">
-          <Button asChild variant="outline">
-            <Link href={`/records/${record.id}`}>View record</Link>
-          </Button>
+          <Link href={`/records/${record.id}`} className={buttonVariants({ variant: 'outline' })}>
+            View record
+          </Link>
           {submissionId && (
-            <Button asChild>
-              <Link href={`/review/${submissionId}`}>See analyst review</Link>
-            </Button>
+            <Link href={`/review/${submissionId}`} className={buttonVariants()}>
+              See analyst review
+            </Link>
           )}
         </div>
       </CardContent>

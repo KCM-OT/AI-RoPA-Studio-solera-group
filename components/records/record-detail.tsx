@@ -13,9 +13,10 @@ import {
   GitBranch,
   CalendarClock,
   User,
+  ClipboardCheck,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
   StatusBadge,
@@ -41,8 +42,13 @@ function fieldValue(pa: ProcessingActivity, key: FieldKey): string {
 
 export function RecordDetail({ id }: { id: string }) {
   const router = useRouter()
-  const { getActivity, updateActivity, logEvent } = useStore()
+  const { getActivity, updateActivity, logEvent, submissions } = useStore()
   const record = getActivity(id)
+  const pendingSubmission = submissions.find(
+    (s) =>
+      s.recordId === id &&
+      (s.status === 'pending_review' || s.status === 'changes_requested'),
+  )
   const [editing, setEditing] = useState<FieldKey | null>(null)
   const [draft, setDraft] = useState('')
 
@@ -107,9 +113,26 @@ export function RecordDetail({ id }: { id: string }) {
         title={record.name}
         description={record.purpose}
         actions={
-          <Button variant="outline" onClick={() => router.push('/records')} className="gap-2">
-            <ArrowLeft className="size-4" /> All records
-          </Button>
+          <div className="flex items-center gap-2">
+            {pendingSubmission ? (
+              <Link
+                href={`/review/${pendingSubmission.id}`}
+                className={cn(buttonVariants({ size: 'sm' }), 'gap-1.5')}
+              >
+                <ClipboardCheck className="size-4" /> In review
+              </Link>
+            ) : (
+              <Link
+                href={`/recertify/${record.id}`}
+                className={cn(buttonVariants({ size: 'sm' }), 'gap-1.5')}
+              >
+                <ClipboardCheck className="size-4" /> Recertify
+              </Link>
+            )}
+            <Button variant="outline" onClick={() => router.push('/records')} className="gap-2">
+              <ArrowLeft className="size-4" /> All records
+            </Button>
+          </div>
         }
       />
       <div className="grid grid-cols-1 gap-5 p-6 lg:grid-cols-3">
