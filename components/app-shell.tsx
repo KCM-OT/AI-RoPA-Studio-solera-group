@@ -97,7 +97,6 @@ interface NavItemDef {
 }
 
 const NAV: NavItemDef[] = [
-  { href: '/demo', label: 'Scripted Demo', icon: 'sparkle' },
   { href: '/author', label: 'Author with AI', icon: 'sparkle' },
   { href: '/', label: 'Dashboard', icon: { src: '/nav/icon-dashboard.svg', w: 16, h: 14 } },
   { href: '/records', label: 'RoPA Records', icon: { src: '/nav/icon-database.svg', w: 15, h: 18 } },
