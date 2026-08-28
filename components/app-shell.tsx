@@ -194,7 +194,7 @@ function NavRow({
 
 function EdisonToggle() {
   return (
-    <section className="bg-black px-4 pb-10 pt-3 text-white" aria-labelledby="edison-toggle-title">
+    <section className="bg-black px-4 pb-10 pt-3 text-white" aria-label="Edison mode toggle">
       <div className="flex flex-col gap-4">
         <div className="flex h-[42px] w-full items-center gap-1 rounded-[4px] border border-[#333333] p-1">
           <button
@@ -211,14 +211,6 @@ function EdisonToggle() {
           >
             Classic
           </button>
-        </div>
-        <div className="flex flex-col gap-1">
-          <h2 id="edison-toggle-title" className="text-base font-bold leading-6">
-            Check out Edison
-          </h2>
-          <p className="text-xs font-normal leading-4 text-white">
-            Approve agentic actions to auto-complete assessments in bulk
-          </p>
         </div>
       </div>
     </section>
