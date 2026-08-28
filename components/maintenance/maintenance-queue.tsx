@@ -2,9 +2,16 @@
 
 import { useMemo } from 'react'
 import Link from 'next/link'
-import { CalendarClock, CircleCheck, Clock, AlertTriangle, Sparkles } from 'lucide-react'
+import {
+  CalendarClock,
+  CircleCheck,
+  Clock,
+  AlertTriangle,
+  Sparkles,
+  ClipboardCheck,
+} from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { PageHeader } from '@/components/app-shell'
 import { CompletenessMeter } from '@/components/badges'
 import { useStore } from '@/lib/store'
@@ -178,14 +185,25 @@ function QueueSection({
                       <CompletenessMeter value={completeness(a)} />
                     </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onMarkReviewed(a)}
-                    className="w-fit gap-1.5"
-                  >
-                    <CircleCheck className="size-4 text-success" /> Mark reviewed
-                  </Button>
+                  <div className="flex w-fit items-center gap-2">
+                    <Link
+                      href={`/recertify/${a.id}`}
+                      className={cn(
+                        buttonVariants({ variant: 'default', size: 'sm' }),
+                        'gap-1.5',
+                      )}
+                    >
+                      <ClipboardCheck className="size-4" /> Recertify
+                    </Link>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onMarkReviewed(a)}
+                      className="w-fit gap-1.5"
+                    >
+                      <CircleCheck className="size-4 text-success" /> Mark reviewed
+                    </Button>
+                  </div>
                 </li>
               )
             })}
