@@ -1,6 +1,7 @@
 import type {
   ActivityLogEntry,
   Asset,
+  ChangeSubmission,
   PersonalDataCategory,
   PostureConfig,
   ProcessingActivity,
@@ -531,3 +532,92 @@ export const DEFAULT_POSTURE: PostureConfig = {
     },
   ],
 }
+
+// Seeded recertification submissions awaiting Privacy Ops Analyst review.
+// These populate the review queue so the human-in-the-loop step is demonstrable.
+export const SEED_SUBMISSIONS: ChangeSubmission[] = [
+  {
+    id: 'sub-recruit-2024',
+    recordId: 'pa-recruitment',
+    recordName: 'AI-Assisted Candidate Screening & Recruitment',
+    submittedBy: 'Elena Marín',
+    submittedRole: 'Global Talent Acquisition',
+    submittedAt: iso(-1),
+    status: 'pending_review',
+    decision: 'modified',
+    ownerNote:
+      'We retired Zoom for interviews and moved to HireVue for recorded video interviews. We also stopped collecting government ID at the application stage — that now only happens post-offer in HRIS. We are starting to capture candidate work authorization status.',
+    fieldChanges: [
+      {
+        key: 'retentionPeriod',
+        label: 'Retention period',
+        before: '12 months after requisition closure; retain hired-candidate records in HRIS',
+        after: '9 months after requisition closure; retain hired-candidate records in HRIS',
+      },
+    ],
+    relationshipChanges: [
+      { action: 'added', type: 'vendor', name: 'HireVue', inventoryId: null },
+      { action: 'removed', type: 'vendor', name: 'Zoom', inventoryId: 'ven-zoom' },
+      {
+        action: 'added',
+        type: 'personalData',
+        name: 'Work authorization status',
+        inventoryId: null,
+      },
+      {
+        action: 'removed',
+        type: 'personalData',
+        name: 'Government ID number',
+        inventoryId: 'pdc-govid',
+      },
+    ],
+    followUps: [
+      {
+        id: 'fu-recruit-1',
+        question:
+          'Does HireVue have a signed DPA in place, and where is recorded-interview data hosted?',
+        channel: 'teams',
+        audience: 'vendor_owner',
+        recipient: 'Procurement — Vendor Risk',
+        status: 'answered',
+        aiGenerated: true,
+        createdAt: iso(-1),
+        sentAt: iso(-1),
+        answeredAt: iso(0),
+        response:
+          'DPA was signed on the 3rd. HireVue hosts EU candidate data in Frankfurt; US processing is covered by SCCs. AI risk review is scheduled.',
+      },
+      {
+        id: 'fu-recruit-2',
+        question:
+          'You added "work authorization status" — is this collected for all candidates or only for specific roles/regions?',
+        channel: 'slack',
+        audience: 'business_process_owner',
+        recipient: 'Elena Marín',
+        status: 'sent',
+        aiGenerated: true,
+        createdAt: iso(0),
+        sentAt: iso(0),
+        answeredAt: null,
+        response: null,
+      },
+    ],
+    aiSummary: null,
+  },
+  {
+    id: 'sub-marketing-2024',
+    recordId: 'pa-marketing',
+    recordName: 'Marketing Email Campaigns',
+    submittedBy: 'Priya Nair',
+    submittedRole: 'Growth Marketing',
+    submittedAt: iso(-3),
+    status: 'pending_review',
+    decision: 'approved_as_is',
+    ownerNote:
+      'Reviewed the record — everything still reflects how we run email campaigns. No changes needed.',
+    fieldChanges: [],
+    relationshipChanges: [],
+    followUps: [],
+    aiSummary: null,
+  },
+]

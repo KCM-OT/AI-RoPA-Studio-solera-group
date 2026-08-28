@@ -217,3 +217,79 @@ export interface PostureConfig {
   // Assessment triggers
   assessmentRules: AssessmentRule[]
 }
+
+// ---- Recertification workflow ----
+
+// Where a submission sits in the human-in-the-loop lifecycle:
+// a Business Process Owner submits -> a Privacy Ops Analyst reviews ->
+// changes are committed to the permanent inventory (or sent back).
+export type SubmissionStatus =
+  | 'pending_review'
+  | 'changes_requested'
+  | 'approved'
+  | 'committed'
+
+// A Business Process Owner either confirms the record is accurate as-is,
+// or flags modifications for review.
+export type SubmissionDecision = 'approved_as_is' | 'modified'
+
+// A single attribute-level change captured during recertification.
+export interface FieldChange {
+  key: FieldKey
+  label: string
+  before: string
+  after: string
+}
+
+// An added or removed vendor / asset / personal-data relationship.
+export interface RelationshipChange {
+  action: 'added' | 'removed'
+  type: RelationshipType
+  name: string
+  inventoryId: string | null
+}
+
+// Channels an analyst can use to reach an owner in the tools they already use.
+export type FollowUpChannel = 'teams' | 'slack'
+
+// Who a clarifying question is directed to.
+export type FollowUpAudience =
+  | 'business_process_owner'
+  | 'application_owner'
+  | 'vendor_owner'
+
+export type FollowUpStatus = 'draft' | 'sent' | 'answered'
+
+export interface FollowUpQuestion {
+  id: string
+  question: string
+  channel: FollowUpChannel
+  audience: FollowUpAudience
+  recipient: string
+  status: FollowUpStatus
+  aiGenerated: boolean
+  createdAt: string
+  sentAt: string | null
+  answeredAt: string | null
+  response: string | null
+}
+
+// A change set submitted by a Business Process Owner during recertification,
+// awaiting analyst review before it is committed to the register.
+export interface ChangeSubmission {
+  id: string
+  recordId: string
+  recordName: string
+  submittedBy: string
+  submittedRole: string
+  submittedAt: string
+  status: SubmissionStatus
+  decision: SubmissionDecision
+  // Owner's own note / summary of what they changed and why.
+  ownerNote: string
+  fieldChanges: FieldChange[]
+  relationshipChanges: RelationshipChange[]
+  followUps: FollowUpQuestion[]
+  // AI-generated summary of the activity and what changed since last review.
+  aiSummary: string | null
+}
