@@ -196,7 +196,7 @@ function EdisonToggle() {
   return (
     <section className="bg-black px-4 pb-10 pt-3 text-white" aria-labelledby="edison-toggle-title">
       <div className="flex flex-col gap-4">
-        <div className="flex h-[42px] w-full items-center gap-1 rounded-[4px] border border-[#cccccc] p-1">
+        <div className="flex h-[42px] w-full items-center gap-1 rounded-[4px] border border-[#333333] p-1">
           <button
             type="button"
             className="flex h-8 flex-1 items-center justify-center rounded-[4px] px-4 text-sm font-semibold leading-5 text-white"
