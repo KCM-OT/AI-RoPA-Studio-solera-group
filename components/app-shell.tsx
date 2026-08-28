@@ -275,11 +275,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {!collapsed && (
           <>
+            <EdisonToggle />
             <div className="px-4 pb-4 pt-3">
               <div className="text-base leading-tight">Cartographer</div>
               <div className="text-xs leading-tight text-sidebar-foreground/60">AI RoPA Studio</div>
             </div>
-            <EdisonToggle />
           </>
         )}
 
