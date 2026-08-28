@@ -1,5 +1,5 @@
 import { AppShell } from '@/components/app-shell'
-import { RecertifyWizard } from '@/components/recertify/recertify-wizard'
+import { RecertifyLoader } from '@/components/agent/recertify-loader'
 
 export default async function RecertifyPage({
   params,
@@ -9,7 +9,7 @@ export default async function RecertifyPage({
   const { id } = await params
   return (
     <AppShell>
-      <RecertifyWizard id={id} />
+      <RecertifyLoader id={id} />
     </AppShell>
   )
 }

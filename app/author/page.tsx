@@ -1,10 +1,10 @@
 import { AppShell } from '@/components/app-shell'
-import { AuthorWizard } from '@/components/authoring/author-wizard'
+import { AuthorChat } from '@/components/agent/author-chat'
 
 export default function AuthorPage() {
   return (
     <AppShell>
-      <AuthorWizard />
+      <AuthorChat />
     </AppShell>
   )
 }
