@@ -97,7 +97,6 @@ interface NavItemDef {
 }
 
 const NAV: NavItemDef[] = [
-  { href: '/demo', label: 'Scripted Demo', icon: 'sparkle' },
   { href: '/author', label: 'Author with AI', icon: 'sparkle' },
   { href: '/', label: 'Dashboard', icon: { src: '/nav/icon-dashboard.svg', w: 16, h: 14 } },
   { href: '/records', label: 'RoPA Records', icon: { src: '/nav/icon-database.svg', w: 15, h: 18 } },
@@ -193,6 +192,39 @@ function NavRow({
   )
 }
 
+function EdisonToggle() {
+  return (
+    <section className="bg-black px-4 pb-10 pt-3 text-white" aria-labelledby="edison-toggle-title">
+      <div className="flex flex-col gap-4">
+        <div className="flex h-[42px] w-full items-center gap-1 rounded-[4px] border border-[#cccccc] p-1">
+          <button
+            type="button"
+            className="flex h-8 flex-1 items-center justify-center rounded-[4px] px-4 text-sm font-semibold leading-5 text-white"
+            aria-label="Edison mode"
+          >
+            Edison
+          </button>
+          <button
+            type="button"
+            className="flex h-8 flex-1 items-center justify-center rounded-[4px] bg-[#468254] px-4 text-sm font-semibold leading-5 text-white"
+            aria-label="Classic mode"
+          >
+            Classic
+          </button>
+        </div>
+        <div className="flex flex-col gap-1">
+          <h2 id="edison-toggle-title" className="text-base font-bold leading-6">
+            Check out Edison
+          </h2>
+          <p className="text-xs font-normal leading-4 text-white">
+            Approve agentic actions to auto-complete assessments in bulk
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function InertRow({
   label,
   icon,
@@ -250,10 +282,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         {!collapsed && (
-          <div className="px-4 pb-4 pt-3">
-            <div className="text-base leading-tight">Cartographer</div>
-            <div className="text-xs leading-tight text-sidebar-foreground/60">AI RoPA Studio</div>
-          </div>
+          <>
+            <div className="px-4 pb-4 pt-3">
+              <div className="text-base leading-tight">Cartographer</div>
+              <div className="text-xs leading-tight text-sidebar-foreground/60">AI RoPA Studio</div>
+            </div>
+            <EdisonToggle />
+          </>
         )}
 
         <nav className="flex flex-col">
