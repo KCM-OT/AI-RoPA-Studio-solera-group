@@ -11,7 +11,6 @@ import {
   GitBranch,
   Pencil,
   Check,
-  X,
   Building2,
   MessageSquare,
 } from 'lucide-react'
@@ -355,6 +354,7 @@ function DraftCard({
   }, [scan, store])
 
   const [draft, setDraft] = useState<Draft>(initial)
+  const [approvedItems, setApprovedItems] = useState<Set<string>>(new Set())
   const [editing, setEditing] = useState<FieldKey | null>(null)
   const [saved, setSaved] = useState<string | null>(null)
 
@@ -487,6 +487,9 @@ function DraftCard({
 
   return (
     <ActionCard>
+      <div className="flex items-center justify-between border-b border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground">
+        <span>{approvedItems.size}/{orderedFields.length + draft.relationships.length} Approved</span>
+      </div>
       <div className="flex items-center justify-between gap-2 border-b border-border bg-ai/5 px-4 py-2.5">
         <div className="flex items-center gap-2 text-sm font-medium text-foreground">
           <FileText className="size-4 text-ai" />
@@ -513,13 +516,19 @@ function DraftCard({
                 >
                   <Pencil className="size-3.5" />
                 </button>
-                <button
-                  aria-label={`Remove ${FIELD_LABELS[f.key]}`}
-                  onClick={() => removeField(f.key)}
-                  className="rounded p-1 text-muted-foreground hover:bg-danger-muted hover:text-danger"
-                >
-                  <X className="size-3.5" />
-                </button>
+                <label className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    aria-label={`Approve ${FIELD_LABELS[f.key]}`}
+                    checked={approvedItems.has(f.key)}
+                    onChange={(event) => setApprovedItems((current) => {
+                      const next = new Set(current)
+                      event.target.checked ? next.add(f.key) : next.delete(f.key)
+                      return next
+                    })}
+                    className="size-4 accent-primary"
+                  />
+                </label>
               </div>
             </div>
             {editing === f.key ? (
@@ -562,13 +571,17 @@ function DraftCard({
                 </span>
                 {r.name}
                 {!r.inventoryId && <span className="text-warning">• new</span>}
-                <button
-                  aria-label={`Remove ${r.name}`}
-                  onClick={() => removeRel(idx)}
-                  className="text-muted-foreground hover:text-danger"
-                >
-                  <X className="size-3" />
-                </button>
+                <input
+                  type="checkbox"
+                  aria-label={`Approve ${r.name}`}
+                  checked={approvedItems.has(`relationship-${idx}`)}
+                  onChange={(event) => setApprovedItems((current) => {
+                    const next = new Set(current)
+                    event.target.checked ? next.add(`relationship-${idx}`) : next.delete(`relationship-${idx}`)
+                    return next
+                  })}
+                  className="size-3.5 accent-primary"
+                />
               </span>
             ))}
           </div>
