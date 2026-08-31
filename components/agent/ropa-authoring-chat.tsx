@@ -167,7 +167,7 @@ export function RopaAuthoringChat() {
         <div className="mx-auto max-w-4xl">
           <h2 className="mb-3 text-sm font-semibold text-foreground">Draft record artifact</h2>
           {messages.map((m) => <MessageRenderer key={`artifact-${m.id}`} message={m} store={store} router={router} artifactOnly />)}
-          {busy && <ActionCard><div className="flex items-center gap-2 px-4 py-6 text-sm text-muted-foreground"><Sparkles className="size-4 animate-pulse text-ai" /> Drafting your Article 30 record…</div></ActionCard>}
+          {busy && messages.every((message) => message.role === 'user') && <div className="flex min-h-32 items-center justify-center"><Sparkles className="size-8 animate-pulse text-ai" aria-label="Building draft artifact" /></div>}
         </div>
       </section>
     </div>
@@ -277,14 +277,18 @@ function MessageRenderer({
         // Server tool: extraction result -> draft card
         if (part.type === 'tool-extractRecord') {
           if (part.state === 'input-streaming' || part.state === 'input-available') {
-            return (
-              <ActionCard key={i}>
-                <div className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground">
-                  <Sparkles className="size-4 animate-pulse text-ai" />
-                  Reading your description and drafting the record…
-                </div>
-              </ActionCard>
-            )
+        return artifactOnly ? (
+          <div key={i} className="flex min-h-32 items-center justify-center">
+            <Sparkles className="size-8 animate-pulse text-ai" aria-label="Building draft artifact" />
+          </div>
+        ) : (
+          <ActionCard key={i}>
+            <div className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground">
+              <Sparkles className="size-4 animate-pulse text-ai" />
+              Reading your description and drafting the record…
+            </div>
+          </ActionCard>
+        )
           }
           if (part.state === 'output-available') {
             const scan = part.output as ScanResult
