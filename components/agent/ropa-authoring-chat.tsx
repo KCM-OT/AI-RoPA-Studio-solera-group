@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
@@ -71,6 +71,12 @@ interface Draft {
   relationships: DraftRel[]
 }
 
+const ANIMATED_PROMPTS = [
+  'Create a new RoPA document from scratch for our customer onboarding process.',
+  'Update an existing RoPA document with our new CRM vendor and retention period.',
+  'Upload the attached file and use it to start a new RoPA document.',
+]
+
 const SUGGESTIONS = [
   {
     label: 'Describe a recruitment process',
@@ -93,7 +99,37 @@ export function RopaAuthoringChat() {
   })
 
   const [input, setInput] = useState('')
+  const [promptAnimationActive, setPromptAnimationActive] = useState(true)
+  const isEmpty = messages.length === 0
   const busy = status === 'submitted' || status === 'streaming'
+
+  useEffect(() => {
+    if (!promptAnimationActive || !isEmpty) return
+
+    let promptIndex = 0
+    let characterIndex = 0
+    let timer: ReturnType<typeof setTimeout>
+
+    const typeNextCharacter = () => {
+      const prompt = ANIMATED_PROMPTS[promptIndex]
+      characterIndex += 1
+      setInput(prompt.slice(0, characterIndex))
+
+      if (characterIndex < prompt.length) {
+        timer = setTimeout(typeNextCharacter, 3000 / prompt.length)
+      } else {
+        timer = setTimeout(() => {
+          setInput('')
+          characterIndex = 0
+          promptIndex = (promptIndex + 1) % ANIMATED_PROMPTS.length
+          timer = setTimeout(typeNextCharacter, 300)
+        }, 3000)
+      }
+    }
+
+    timer = setTimeout(typeNextCharacter, 3000 / ANIMATED_PROMPTS[0].length)
+    return () => clearTimeout(timer)
+  }, [isEmpty, promptAnimationActive])
 
   function submit(textOverride?: string) {
     const text = (textOverride ?? input).trim()
@@ -101,8 +137,6 @@ export function RopaAuthoringChat() {
     sendMessage({ text })
     setInput('')
   }
-
-  const isEmpty = messages.length === 0
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -114,6 +148,12 @@ export function RopaAuthoringChat() {
               onChange={setInput}
               onSubmit={submit}
               disabled={busy}
+              onFocus={() => {
+                if (promptAnimationActive) {
+                  setPromptAnimationActive(false)
+                  setInput('')
+                }
+              }}
             />
           )}
           {messages.map((m) => (
