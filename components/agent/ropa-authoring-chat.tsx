@@ -152,7 +152,7 @@ export function RopaAuthoringChat() {
         {status === 'submitted' && <AgentMessage><TypingDots /></AgentMessage>}
       </ChatScroll>
       {hasSubmitted && (
-        <div className="border-t border-border bg-background px-3 py-3">
+        <div className="sticky bottom-0 z-10 border-t border-border bg-background px-3 py-3 shadow-[0_-8px_20px_rgba(0,0,0,0.06)]">
           <textarea value={input} disabled={busy} rows={2} placeholder="Ask a follow-up…" onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) { e.preventDefault(); submit() } }} className="block w-full resize-none rounded-lg border border-border bg-card px-3 py-2 text-sm outline-none focus:border-ai/50" />
         </div>
       )}
@@ -161,7 +161,7 @@ export function RopaAuthoringChat() {
   )
 
   return hasSubmitted ? (
-    <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+    <div className="flex min-h-0 flex-1 flex-col lg:h-[calc(100vh-174px)] lg:flex-row">
       <div className="flex h-full min-h-0 w-full flex-col overflow-hidden border-r border-border lg:w-1/4">{chat}</div>
       <section aria-label="Draft record artifact" className="min-h-0 w-full overflow-y-auto bg-muted/20 p-4 lg:w-3/4">
         <div className="mx-auto max-w-4xl">
