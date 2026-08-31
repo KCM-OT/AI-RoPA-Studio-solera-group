@@ -237,7 +237,7 @@ function Welcome({
         </p>
       </div>
       <div className="flex w-full flex-col gap-3 text-left">
-        <p className="text-xs text-[#4d4d4d]">DEMO: Try a sample document</p>
+        <p className="text-xs text-[#4d4d4d]">Try a sample prompt</p>
         <div className="grid gap-3 sm:grid-cols-3">
           {samples.map((sample, index) => (
             <button key={sample.title} type="button" disabled={disabled} onClick={() => onChange(sample.body)} className="flex min-h-28 flex-col gap-3 rounded-md border border-[#d9d9d9] bg-white p-3 text-left shadow-sm transition hover:border-[#167cbb] disabled:opacity-50">
