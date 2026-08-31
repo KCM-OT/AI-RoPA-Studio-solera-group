@@ -13,6 +13,7 @@ import {
   Check,
   X,
   Building2,
+  MessageSquare,
 } from 'lucide-react'
 import {
   ChatShell,
@@ -193,9 +194,9 @@ function Welcome({
   onFocus?: () => void
 }) {
   const samples = [
-    { title: 'Recruitment process', body: SUGGESTIONS[0].value },
-    { title: 'Marketing process', body: SUGGESTIONS[1].value },
-    { title: 'Customer support', body: 'Our support team uses Zendesk to manage customer questions and stores contact details, conversation history, and account information to resolve issues.' },
+    { title: 'Recruitment process', description: 'Create a record for hiring and onboarding employees.', body: SUGGESTIONS[0].value },
+    { title: 'Marketing process', description: 'Document how marketing campaigns use personal data.', body: SUGGESTIONS[1].value },
+    { title: 'Customer support', description: 'Capture the data used to resolve customer questions.', body: 'Our support team uses Zendesk to manage customer questions and stores contact details, conversation history, and account information to resolve issues.' },
   ]
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -241,8 +242,9 @@ function Welcome({
         <div className="grid gap-3 sm:grid-cols-3">
           {samples.map((sample, index) => (
             <button key={sample.title} type="button" disabled={disabled} onClick={() => onChange(sample.body)} className="flex min-h-28 flex-col gap-3 rounded-md border border-[#d9d9d9] bg-white p-3 text-left shadow-sm transition hover:border-[#167cbb] disabled:opacity-50">
-              <img src={`/figma/file-lines${index ? `-${index}` : ''}.svg`} alt="" className="size-5" />
-              <span className="text-sm text-[#1a1a1a]">{sample.title}</span>
+              <MessageSquare className="size-5 text-[#4d4d4d]" aria-hidden="true" />
+              <span className="text-sm font-medium text-[#1a1a1a]">{sample.title}</span>
+              <span className="text-xs leading-4 text-[#4d4d4d]">{sample.description}</span>
             </button>
           ))}
         </div>
