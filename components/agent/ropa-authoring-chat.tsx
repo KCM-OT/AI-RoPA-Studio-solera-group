@@ -157,6 +157,7 @@ export function RopaAuthoringChat() {
           <div className="flex items-center gap-2 pt-2">
             <button type="button" aria-label="Add source" className="flex size-8 items-center justify-center rounded-md border border-[#d9d9d9] bg-white shadow-sm hover:bg-[#f7f7f7]"><img src="/figma/plus.svg" alt="" className="size-4" /></button>
             <button type="button" aria-label="Attach document" className="flex size-8 items-center justify-center rounded-md border border-[#d9d9d9] bg-white shadow-sm hover:bg-[#f7f7f7]"><img src="/figma/attachment-button.svg" alt="" className="size-4" /></button>
+            <button type="button" aria-label="Send message" disabled={busy || !input.trim()} onClick={() => submit()} className="ml-auto flex size-8 items-center justify-center rounded-md bg-[#167cbb] transition-opacity hover:bg-[#126a9f] disabled:cursor-not-allowed disabled:opacity-40"><img src="/figma/arrow-up.svg" alt="" className="size-4" /></button>
           </div>
         </div>
       )}
