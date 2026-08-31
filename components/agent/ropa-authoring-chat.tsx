@@ -196,7 +196,12 @@ function Welcome({
           <button type="button" aria-label="Send message" disabled={disabled || !value.trim()} onClick={() => onSubmit()} className="flex size-8 items-center justify-center rounded-md bg-[#167cbb] disabled:cursor-not-allowed disabled:opacity-40"><img src="/figma/arrow-up.svg" alt="" className="size-4" /></button>
         </div>
       </div>
-      <p className="text-xs leading-4 text-[#4d4d4d]">You can also upload a document to get started.</p>
+      <div className="w-full max-w-[575px] self-start text-left font-sans text-xs leading-4 text-black">
+        <p className="font-semibold">Turn source documents into Article 30 records</p>
+        <p>
+          Upload a brief, contract, or DPIA, import an existing repository, or describe your use case. The agent drafts a processing activity with field-level confidence, flags duplicates, and suggests vendor, asset, and personal data relationships — all subject to your approval.
+        </p>
+      </div>
       <div className="flex w-full flex-col gap-3 text-left">
         <p className="text-xs text-[#4d4d4d]">DEMO: Try a sample document</p>
         <div className="grid gap-3 sm:grid-cols-3">
