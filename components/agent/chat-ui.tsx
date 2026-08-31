@@ -42,7 +42,7 @@ export function AgentMessage({ children }: { children: ReactNode }) {
 export function UserMessage({ children }: { children: ReactNode }) {
   return (
     <div className="flex items-start justify-end gap-3">
-      <div className="max-w-[80%] rounded-2xl rounded-tr-sm bg-primary px-4 py-2.5 text-sm leading-relaxed text-primary-foreground">
+      <div className="max-w-[80%] rounded-2xl rounded-tr-sm border border-border bg-background px-4 py-2.5 text-sm leading-relaxed text-foreground shadow-[0_0_18px_rgba(167,190,205,0.32)]">
         {children}
       </div>
       <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
