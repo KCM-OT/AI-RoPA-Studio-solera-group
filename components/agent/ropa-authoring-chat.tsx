@@ -100,6 +100,7 @@ export function RopaAuthoringChat() {
 
   const [input, setInput] = useState('')
   const [promptAnimationActive, setPromptAnimationActive] = useState(true)
+  const [hasSubmitted, setHasSubmitted] = useState(false)
   const isEmpty = messages.length === 0
   const busy = status === 'submitted' || status === 'streaming'
 
@@ -134,58 +135,41 @@ export function RopaAuthoringChat() {
   function submit(textOverride?: string) {
     const text = (textOverride ?? input).trim()
     if (!text || busy) return
+    setHasSubmitted(true)
+    setPromptAnimationActive(false)
     sendMessage({ text })
     setInput('')
   }
 
-  return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <ChatShell>
-        <ChatScroll>
-          {isEmpty && (
-            <Welcome
-              value={input}
-              onChange={setInput}
-              onSubmit={submit}
-              disabled={busy}
-              onFocus={() => {
-                if (promptAnimationActive) {
-                  setPromptAnimationActive(false)
-                  setInput('')
-                }
-              }}
-            />
-          )}
-          {messages.map((m) => (
-            <MessageRenderer key={m.id} message={m} store={store} router={router} />
-          ))}
-          {status === 'submitted' && (
-            <AgentMessage>
-              <TypingDots />
-            </AgentMessage>
-          )}
-        </ChatScroll>
-        {!isEmpty && (
-          <div className="border-t border-border bg-background px-4 py-3">
-            <textarea
-              value={input}
-              disabled={busy}
-              rows={1}
-              placeholder="Describe what your team does with personal data…"
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) {
-                  e.preventDefault()
-                  submit()
-                }
-              }}
-              className="mx-auto block min-h-10 w-full max-w-3xl resize-none rounded-lg border border-border bg-card px-4 py-3 text-sm outline-none focus:border-ai/50"
-            />
-          </div>
+  const chat = (
+    <ChatShell>
+      <ChatScroll>
+        {isEmpty && !hasSubmitted && (
+          <Welcome value={input} onChange={setInput} onSubmit={submit} disabled={busy} onFocus={() => { setPromptAnimationActive(false); setInput('') }} />
         )}
-      </ChatShell>
-    </div>
+        {messages.map((m) => <MessageRenderer key={m.id} message={m} store={store} router={router} hideDraft />)}
+        {status === 'submitted' && <AgentMessage><TypingDots /></AgentMessage>}
+      </ChatScroll>
+      {hasSubmitted && (
+        <div className="border-t border-border bg-background px-3 py-3">
+          <textarea value={input} disabled={busy} rows={2} placeholder="Ask a follow-up…" onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) { e.preventDefault(); submit() } }} className="block w-full resize-none rounded-lg border border-border bg-card px-3 py-2 text-sm outline-none focus:border-ai/50" />
+        </div>
+      )}
+    </ChatShell>
   )
+
+  return hasSubmitted ? (
+    <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+      <div className="flex min-h-0 w-full flex-col border-r border-border lg:w-1/4">{chat}</div>
+      <section aria-label="Draft record artifact" className="min-h-0 w-full overflow-y-auto bg-muted/20 p-4 lg:w-3/4">
+        <div className="mx-auto max-w-4xl">
+          <h2 className="mb-3 text-sm font-semibold text-foreground">Draft record artifact</h2>
+          {messages.map((m) => <MessageRenderer key={`artifact-${m.id}`} message={m} store={store} router={router} artifactOnly />)}
+          {busy && <ActionCard><div className="flex items-center gap-2 px-4 py-6 text-sm text-muted-foreground"><Sparkles className="size-4 animate-pulse text-ai" /> Drafting your Article 30 record…</div></ActionCard>}
+        </div>
+      </section>
+    </div>
+  ) : <div className="flex min-h-0 flex-1 flex-col">{chat}</div>
 }
 
 function Welcome({
@@ -193,11 +177,13 @@ function Welcome({
   onChange,
   onSubmit,
   disabled,
+  onFocus,
 }: {
   value: string
   onChange: (value: string) => void
   onSubmit: (value?: string) => void
   disabled: boolean
+  onFocus?: () => void
 }) {
   const samples = [
     { title: 'Recruitment process', body: SUGGESTIONS[0].value },
@@ -225,6 +211,7 @@ function Welcome({
           rows={4}
           placeholder="Describe what your team does with personal data…"
           onChange={(e) => onChange(e.target.value)}
+          onFocus={onFocus}
           onKeyDown={handleKeyDown}
           className="min-h-[108px] w-full resize-none bg-transparent px-2 py-1 text-sm text-[#1a1a1a] outline-none placeholder:text-[#a9a9a9]"
         />
@@ -246,7 +233,7 @@ function Welcome({
         <p className="text-xs text-[#4d4d4d]">DEMO: Try a sample document</p>
         <div className="grid gap-3 sm:grid-cols-3">
           {samples.map((sample, index) => (
-            <button key={sample.title} type="button" disabled={disabled} onClick={() => onSubmit(sample.body)} className="flex min-h-28 flex-col gap-3 rounded-md border border-[#d9d9d9] bg-white p-3 text-left shadow-sm transition hover:border-[#167cbb] disabled:opacity-50">
+            <button key={sample.title} type="button" disabled={disabled} onClick={() => onChange(sample.body)} className="flex min-h-28 flex-col gap-3 rounded-md border border-[#d9d9d9] bg-white p-3 text-left shadow-sm transition hover:border-[#167cbb] disabled:opacity-50">
               <img src={`/figma/file-lines${index ? `-${index}` : ''}.svg`} alt="" className="size-5" />
               <span className="text-sm text-[#1a1a1a]">{sample.title}</span>
             </button>
@@ -261,11 +248,16 @@ function MessageRenderer({
   message,
   store,
   router,
+  hideDraft = false,
+  artifactOnly = false,
 }: {
   message: ReturnType<typeof useChat>['messages'][number]
   store: ReturnType<typeof useStore>
   router: ReturnType<typeof useRouter>
+  hideDraft?: boolean
+  artifactOnly?: boolean
 }) {
+  if (artifactOnly && message.role !== 'assistant') return null
   if (message.role === 'user') {
     const text = message.parts
       .filter((p) => p.type === 'text')
@@ -294,7 +286,7 @@ function MessageRenderer({
           }
           if (part.state === 'output-available') {
             const scan = part.output as ScanResult
-            return <DraftCard key={i} scan={scan} store={store} router={router} />
+            return hideDraft && !artifactOnly ? null : <DraftCard key={i} scan={scan} store={store} router={router} />
           }
           if (part.state === 'output-error') {
             return (
