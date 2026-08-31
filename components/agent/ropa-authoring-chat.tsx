@@ -142,7 +142,8 @@ export function RopaAuthoringChat() {
   }
 
   const chat = (
-    <ChatShell>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <ChatShell>
       <ChatScroll>
         {isEmpty && !hasSubmitted && (
           <Welcome value={input} onChange={setInput} onSubmit={submit} disabled={busy} onFocus={() => { setPromptAnimationActive(false); setInput('') }} />
@@ -155,12 +156,13 @@ export function RopaAuthoringChat() {
           <textarea value={input} disabled={busy} rows={2} placeholder="Ask a follow-up…" onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) { e.preventDefault(); submit() } }} className="block w-full resize-none rounded-lg border border-border bg-card px-3 py-2 text-sm outline-none focus:border-ai/50" />
         </div>
       )}
-    </ChatShell>
+      </ChatShell>
+    </div>
   )
 
   return hasSubmitted ? (
     <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-      <div className="flex min-h-0 w-full flex-col border-r border-border lg:w-1/4">{chat}</div>
+      <div className="flex h-full min-h-0 w-full flex-col overflow-hidden border-r border-border lg:w-1/4">{chat}</div>
       <section aria-label="Draft record artifact" className="min-h-0 w-full overflow-y-auto bg-muted/20 p-4 lg:w-3/4">
         <div className="mx-auto max-w-4xl">
           <h2 className="mb-3 text-sm font-semibold text-foreground">Draft record artifact</h2>
@@ -270,7 +272,7 @@ function MessageRenderer({
     <AgentMessage>
       {message.parts.map((part, i) => {
         if (part.type === 'text') {
-          return part.text ? <AgentText key={i}>{part.text}</AgentText> : null
+          return artifactOnly ? null : part.text ? <AgentText key={i}>{part.text}</AgentText> : null
         }
         // Server tool: extraction result -> draft card
         if (part.type === 'tool-extractRecord') {
