@@ -154,6 +154,10 @@ export function RopaAuthoringChat() {
       {hasSubmitted && (
         <div className="sticky bottom-0 z-10 border-t border-border bg-background px-3 py-3 shadow-[0_-8px_20px_rgba(0,0,0,0.06)]">
           <textarea value={input} disabled={busy} rows={2} placeholder="Ask a follow-up…" onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) { e.preventDefault(); submit() } }} className="block w-full resize-none rounded-lg border border-border bg-card px-3 py-2 text-sm outline-none focus:border-ai/50" />
+          <div className="flex items-center gap-2 pt-2">
+            <button type="button" aria-label="Add source" className="flex size-8 items-center justify-center rounded-md border border-[#d9d9d9] bg-white shadow-sm hover:bg-[#f7f7f7]"><img src="/figma/plus.svg" alt="" className="size-4" /></button>
+            <button type="button" aria-label="Attach document" className="flex size-8 items-center justify-center rounded-md border border-[#d9d9d9] bg-white shadow-sm hover:bg-[#f7f7f7]"><img src="/figma/attachment-button.svg" alt="" className="size-4" /></button>
+          </div>
         </div>
       )}
       </ChatShell>
