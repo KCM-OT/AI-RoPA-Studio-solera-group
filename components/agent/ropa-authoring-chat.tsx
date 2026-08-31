@@ -13,6 +13,7 @@ import {
   Check,
   X,
   Building2,
+  MessageSquare,
 } from 'lucide-react'
 import {
   ChatShell,
@@ -241,7 +242,7 @@ function Welcome({
         <div className="grid gap-3 sm:grid-cols-3">
           {samples.map((sample, index) => (
             <button key={sample.title} type="button" disabled={disabled} onClick={() => onChange(sample.body)} className="flex min-h-28 flex-col gap-3 rounded-md border border-[#d9d9d9] bg-white p-3 text-left shadow-sm transition hover:border-[#167cbb] disabled:opacity-50">
-              <img src={`/figma/file-lines${index ? `-${index}` : ''}.svg`} alt="" className="size-5" />
+              <MessageSquare className="size-5 text-[#4d4d4d]" aria-hidden="true" />
               <span className="text-sm text-[#1a1a1a]">{sample.title}</span>
             </button>
           ))}
