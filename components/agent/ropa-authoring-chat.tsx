@@ -106,7 +106,7 @@ export function RopaAuthoringChat() {
   const isEmpty = messages.length === 0
 
   return (
-    <div className="flex h-[calc(100svh-66px)] flex-col">
+    <div className="flex min-h-0 flex-1 flex-col">
       <ChatShell>
         <ChatScroll>
           {isEmpty && <Welcome />}
