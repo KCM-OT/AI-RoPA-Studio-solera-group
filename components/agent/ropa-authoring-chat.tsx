@@ -21,7 +21,6 @@ import {
   UserMessage,
   AgentText,
   TypingDots,
-  Composer,
   ActionCard,
 } from './chat-ui'
 import { ConfidenceBadge } from '@/components/badges'
@@ -96,8 +95,8 @@ export function RopaAuthoringChat() {
   const [input, setInput] = useState('')
   const busy = status === 'submitted' || status === 'streaming'
 
-  function submit() {
-    const text = input.trim()
+  function submit(textOverride?: string) {
+    const text = (textOverride ?? input).trim()
     if (!text || busy) return
     sendMessage({ text })
     setInput('')
@@ -109,7 +108,14 @@ export function RopaAuthoringChat() {
     <div className="flex min-h-0 flex-1 flex-col">
       <ChatShell>
         <ChatScroll>
-          {isEmpty && <Welcome />}
+          {isEmpty && (
+            <Welcome
+              value={input}
+              onChange={setInput}
+              onSubmit={submit}
+              disabled={busy}
+            />
+          )}
           {messages.map((m) => (
             <MessageRenderer key={m.id} message={m} store={store} router={router} />
           ))}
@@ -119,28 +125,90 @@ export function RopaAuthoringChat() {
             </AgentMessage>
           )}
         </ChatScroll>
-        <Composer
-          value={input}
-          onChange={setInput}
-          onSubmit={submit}
-          disabled={busy}
-          placeholder="Describe what your team does with personal data…"
-          suggestions={isEmpty ? SUGGESTIONS : undefined}
-        />
+        {!isEmpty && (
+          <div className="border-t border-border bg-background px-4 py-3">
+            <textarea
+              value={input}
+              disabled={busy}
+              rows={1}
+              placeholder="Describe what your team does with personal data…"
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) {
+                  e.preventDefault()
+                  submit()
+                }
+              }}
+              className="mx-auto block min-h-10 w-full max-w-3xl resize-none rounded-lg border border-border bg-card px-4 py-3 text-sm outline-none focus:border-ai/50"
+            />
+          </div>
+        )}
       </ChatShell>
     </div>
   )
 }
 
-function Welcome() {
+function Welcome({
+  value,
+  onChange,
+  onSubmit,
+  disabled,
+}: {
+  value: string
+  onChange: (value: string) => void
+  onSubmit: (value?: string) => void
+  disabled: boolean
+}) {
+  const samples = [
+    { title: 'Recruitment process', body: SUGGESTIONS[0].value },
+    { title: 'Marketing process', body: SUGGESTIONS[1].value },
+    { title: 'Customer support', body: 'Our support team uses Zendesk to manage customer questions and stores contact details, conversation history, and account information to resolve issues.' },
+  ]
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) {
+      e.preventDefault()
+      onSubmit()
+    }
+  }
+
   return (
-    <AgentMessage>
-      <AgentText>
-        {
-          "Hi — I'm your RoPA authoring assistant. Tell me in plain English what your team does with people's personal data and I'll turn it into a structured Article 30 record for you to review and save. What's the activity?"
-        }
-      </AgentText>
-    </AgentMessage>
+    <div className="mx-auto flex w-full max-w-[690px] flex-col items-center gap-6 px-2 py-10 text-center">
+      <div className="flex items-center gap-2 text-xl leading-7 text-foreground">
+        <img src="/figma/ai-sparkle.svg" alt="" className="size-4" />
+        <span>What are you working on?</span>
+      </div>
+      <div className="w-full rounded-md border border-[#d9d9d9] bg-white p-3 text-left shadow-sm">
+        <textarea
+          value={value}
+          disabled={disabled}
+          rows={4}
+          placeholder="Describe what your team does with personal data…"
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="min-h-[108px] w-full resize-none bg-transparent px-2 py-1 text-sm text-[#1a1a1a] outline-none placeholder:text-[#a9a9a9]"
+        />
+        <div className="flex items-center justify-between px-1 pt-2">
+          <div className="flex items-center gap-2">
+            <button type="button" aria-label="Add source" className="flex size-8 items-center justify-center rounded-md border border-[#d9d9d9] bg-white shadow-sm hover:bg-[#f7f7f7]"><img src="/figma/plus.svg" alt="" className="size-4" /></button>
+            <button type="button" aria-label="Attach document" className="flex size-8 items-center justify-center rounded-md border border-[#d9d9d9] bg-white shadow-sm hover:bg-[#f7f7f7]"><img src="/figma/attachment-button.svg" alt="" className="size-4" /></button>
+          </div>
+          <button type="button" aria-label="Send message" disabled={disabled || !value.trim()} onClick={() => onSubmit()} className="flex size-8 items-center justify-center rounded-md bg-[#167cbb] disabled:cursor-not-allowed disabled:opacity-40"><img src="/figma/arrow-up.svg" alt="" className="size-4" /></button>
+        </div>
+      </div>
+      <p className="text-xs leading-4 text-[#4d4d4d]">You can also upload a document to get started.</p>
+      <div className="flex w-full flex-col gap-3 text-left">
+        <p className="text-xs text-[#4d4d4d]">DEMO: Try a sample document</p>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {samples.map((sample, index) => (
+            <button key={sample.title} type="button" disabled={disabled} onClick={() => onSubmit(sample.body)} className="flex min-h-28 flex-col gap-3 rounded-md border border-[#d9d9d9] bg-white p-3 text-left shadow-sm transition hover:border-[#167cbb] disabled:opacity-50">
+              <img src={`/figma/file-lines${index ? `-${index}` : ''}.svg`} alt="" className="size-5" />
+              <span className="text-sm text-[#1a1a1a]">{sample.title}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }
 
