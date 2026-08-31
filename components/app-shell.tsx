@@ -97,9 +97,9 @@ interface NavItemDef {
 }
 
 const NAV: NavItemDef[] = [
+  { href: '/', label: 'Dashboard', icon: { src: '/nav/icon-dashboard.svg', w: 16, h: 14 } },
   { href: '/author', label: 'Author with AI', icon: 'sparkle' },
   { href: '/ropa-authoring', label: 'RoPA Authoring', icon: 'sparkle' },
-  { href: '/', label: 'Dashboard', icon: { src: '/nav/icon-dashboard.svg', w: 16, h: 14 } },
   { href: '/records', label: 'RoPA Records', icon: { src: '/nav/icon-database.svg', w: 15, h: 18 } },
   { href: '/maintenance', label: 'Maintenance', icon: { src: '/nav/icon-calendar-clock.svg', w: 15, h: 15 } },
   { href: '/review', label: 'Review Queue', icon: { src: '/nav/icon-calendar-clock.svg', w: 15, h: 15 } },
