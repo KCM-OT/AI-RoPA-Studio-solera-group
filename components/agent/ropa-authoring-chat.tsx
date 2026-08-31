@@ -162,8 +162,8 @@ export function RopaAuthoringChat() {
 
   return hasSubmitted ? (
     <div className="flex min-h-0 flex-1 flex-col lg:h-[calc(100vh-174px)] lg:flex-row">
-      <div className="flex h-full min-h-0 w-full flex-col overflow-hidden border-r border-border lg:w-1/4">{chat}</div>
-      <section aria-label="Draft record artifact" className="min-h-0 w-full overflow-y-auto bg-muted/20 p-4 lg:w-3/4">
+      <div className="flex h-full min-h-0 w-full flex-col overflow-hidden border-r border-border lg:w-[30%]">{chat}</div>
+      <section aria-label="Draft record artifact" className="min-h-0 w-full overflow-y-auto bg-muted/20 p-4 lg:w-[70%]">
         <div className="mx-auto max-w-4xl">
           <h2 className="mb-3 text-sm font-semibold text-foreground">Draft record artifact</h2>
           {messages.map((m) => <MessageRenderer key={`artifact-${m.id}`} message={m} store={store} router={router} artifactOnly />)}
