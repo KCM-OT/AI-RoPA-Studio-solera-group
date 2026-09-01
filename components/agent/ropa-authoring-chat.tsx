@@ -7,7 +7,6 @@ import { DefaultChatTransport } from 'ai'
 import {
   Sparkles,
   CircleCheck,
-  FileText,
   GitBranch,
   Pencil,
   Check,
@@ -501,7 +500,6 @@ function DraftCard({
       </div>
       <div className="flex items-center justify-between gap-2 border-b border-border bg-ai/5 px-4 py-2.5">
         <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-          <FileText className="size-4 text-ai" />
           Draft record
         </div>
         <Badge variant="ai">
