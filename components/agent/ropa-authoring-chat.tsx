@@ -89,6 +89,8 @@ const ANIMATED_PROMPTS = [
   'Upload the attached file and use it to start a new RoPA document.',
 ]
 
+const PASTE_TEXT = "We're rolling out a new customer loyalty program next quarter. Marketing will collect customer names, email addresses, purchase history, and birthdates through the checkout flow on our e-commerce site, so we can send personalized discount offers and birthday rewards. The data will be stored in our Salesforce Marketing Cloud instance and shared with our email vendor, Braze, to actually send the campaigns. We're also planning to use purchase history to build lookalike audiences for Meta and Google ads. Customers can opt out at signup, and we'll keep the data for as long as their account is active plus two years after. This will primarily affect our EU and US customers, so I think we need GDPR and CCPA sign-off before launch."
+
 const SUGGESTIONS = [
   {
     label: 'Describe a recruitment process',
@@ -115,6 +117,10 @@ export function RopaAuthoringChat() {
   const [hasSubmitted, setHasSubmitted] = useState(false)
   const isEmpty = messages.length === 0
   const busy = status === 'submitted' || status === 'streaming'
+  const fillPasteText = () => {
+    setPromptAnimationActive(false)
+    setInput(PASTE_TEXT)
+  }
 
   useEffect(() => {
     if (!promptAnimationActive || !isEmpty) return
@@ -158,7 +164,7 @@ export function RopaAuthoringChat() {
       <ChatShell>
       <ChatScroll>
         {isEmpty && !hasSubmitted && (
-          <Welcome value={input} onChange={setInput} onSubmit={submit} disabled={busy} onFocus={() => { setPromptAnimationActive(false); setInput('') }} onPromptSelect={() => setPromptAnimationActive(false)} />
+          <Welcome value={input} onChange={setInput} onSubmit={submit} disabled={busy} onFocus={() => { setPromptAnimationActive(false); setInput('') }} onPromptSelect={() => setPromptAnimationActive(false)} fillPasteText={fillPasteText} />
         )}
         {messages.map((m) => <MessageRenderer key={m.id} message={m} store={store} router={router} hideDraft />)}
         {status === 'submitted' && <AgentMessage><TypingDots /></AgentMessage>}
@@ -183,7 +189,7 @@ export function RopaAuthoringChat() {
                 <DropdownMenuItem><FileText />Upload document</DropdownMenuItem>
                 <DropdownMenuItem><Database />Connect data source</DropdownMenuItem>
                 <DropdownMenuItem><FileInput />Import existing RoPA</DropdownMenuItem>
-                <DropdownMenuItem><ClipboardPaste />Paste text</DropdownMenuItem>
+                <DropdownMenuItem onClick={fillPasteText}><ClipboardPaste />Paste text</DropdownMenuItem>
                 <DropdownMenuItem><LayoutTemplate />Start from template</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -237,6 +243,7 @@ function Welcome({
   disabled,
   onFocus,
   onPromptSelect,
+  fillPasteText,
 }: {
   value: string
   onChange: (value: string) => void
@@ -244,6 +251,7 @@ function Welcome({
   disabled: boolean
   onFocus?: () => void
   onPromptSelect?: () => void
+  fillPasteText?: () => void
 }) {
   const samples = [
     { title: 'Recruitment process', description: 'Create a record for hiring and onboarding employees.', body: SUGGESTIONS[0].value },
@@ -293,7 +301,7 @@ function Welcome({
                 <DropdownMenuItem><FileText />Upload document</DropdownMenuItem>
                 <DropdownMenuItem><Database />Connect data source</DropdownMenuItem>
                 <DropdownMenuItem><FileInput />Import existing RoPA</DropdownMenuItem>
-                <DropdownMenuItem><ClipboardPaste />Paste text</DropdownMenuItem>
+                <DropdownMenuItem onClick={fillPasteText}><ClipboardPaste />Paste text</DropdownMenuItem>
                 <DropdownMenuItem><LayoutTemplate />Start from template</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
