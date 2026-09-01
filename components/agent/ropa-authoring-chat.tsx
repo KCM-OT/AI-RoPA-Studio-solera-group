@@ -41,6 +41,7 @@ import type {
   ScanResult,
   RelationshipType,
 } from '@/lib/types'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 function iso(offsetDays = 0) {
@@ -156,7 +157,20 @@ export function RopaAuthoringChat() {
           <textarea value={input} disabled={busy} rows={2} placeholder="Ask a follow-up…" onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) { e.preventDefault(); submit() } }} className="block w-full resize-none rounded-lg border border-border bg-card px-3 py-2 text-sm outline-none focus:border-ai/50" />
           <div className="flex items-center gap-2 pt-2">
             <button type="button" aria-label="Add source" className="flex size-8 items-center justify-center rounded-md border border-[#d9d9d9] bg-white shadow-sm hover:bg-[#f7f7f7]"><img src="/figma/plus.svg" alt="" className="size-4" /></button>
-            <button type="button" aria-label="Attach document" className="flex size-8 items-center justify-center rounded-md border border-[#d9d9d9] bg-white shadow-sm hover:bg-[#f7f7f7]"><img src="/figma/attachment-button.svg" alt="" className="size-4" /></button>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <button
+                    type="button"
+                    aria-label="Attach document"
+                    className="flex size-8 items-center justify-center rounded-md border border-[#d9d9d9] bg-white shadow-sm hover:bg-[#f7f7f7]"
+                  >
+                    <img src="/figma/attachment-button.svg" alt="" className="size-4" />
+                  </button>
+                }
+              />
+              <TooltipContent>Quick Attach</TooltipContent>
+            </Tooltip>
             <button type="button" aria-label="Send message" disabled={busy || !input.trim()} onClick={() => submit()} className="ml-auto flex size-8 items-center justify-center rounded-md bg-[#167cbb] transition-opacity hover:bg-[#126a9f] disabled:cursor-not-allowed disabled:opacity-40"><img src="/figma/arrow-up.svg" alt="" className="size-4" /></button>
           </div>
         </div>
@@ -234,7 +248,20 @@ function Welcome({
         <div className="flex items-center justify-between px-1 pt-2">
           <div className="flex items-center gap-2">
             <button type="button" aria-label="Add source" className="flex size-8 items-center justify-center rounded-md border border-[#d9d9d9] bg-white shadow-sm hover:bg-[#f7f7f7]"><img src="/figma/plus.svg" alt="" className="size-4" /></button>
-            <button type="button" aria-label="Attach document" className="flex size-8 items-center justify-center rounded-md border border-[#d9d9d9] bg-white shadow-sm hover:bg-[#f7f7f7]"><img src="/figma/attachment-button.svg" alt="" className="size-4" /></button>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <button
+                    type="button"
+                    aria-label="Attach document"
+                    className="flex size-8 items-center justify-center rounded-md border border-[#d9d9d9] bg-white shadow-sm hover:bg-[#f7f7f7]"
+                  >
+                    <img src="/figma/attachment-button.svg" alt="" className="size-4" />
+                  </button>
+                }
+              />
+              <TooltipContent>Quick Attach</TooltipContent>
+            </Tooltip>
           </div>
           <button type="button" aria-label="Send message" disabled={disabled || !value.trim()} onClick={() => onSubmit()} className="flex size-8 items-center justify-center rounded-md bg-[#167cbb] disabled:cursor-not-allowed disabled:opacity-40"><img src="/figma/arrow-up.svg" alt="" className="size-4" /></button>
         </div>
