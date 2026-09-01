@@ -111,7 +111,7 @@ export function Dashboard() {
               data relationships — all subject to your approval.
             </p>
           </div>
-          <Button size="lg" className="gap-2 self-start" onClick={() => router.push('/author')}>
+          <Button size="lg" className="gap-2 self-start" onClick={() => router.push('/ropa-authoring')}>
             <Sparkles className="size-4" />
             Start authoring
           </Button>
