@@ -509,7 +509,7 @@ function DraftCard({
 
       <div className="divide-y divide-border">
         {orderedFields.map((f) => (
-          <div key={f.key} className="px-4 py-2.5">
+          <div key={f.key} className={cn('px-4 py-2.5 transition-colors', !approvedItems.has(f.key) && 'bg-muted/35 text-muted-foreground')}>
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {FIELD_LABELS[f.key]}
@@ -566,9 +566,11 @@ function DraftCard({
                 key={`${r.type}-${r.name}-${idx}`}
                 className={cn(
                   'group inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs',
-                  r.inventoryId
-                    ? 'border-border bg-muted text-foreground'
-                    : 'border-warning/40 bg-warning-muted text-foreground',
+                  approvedItems.has(`relationship-${idx}`)
+                    ? r.inventoryId
+                      ? 'border-border bg-muted text-foreground'
+                      : 'border-warning/40 bg-warning-muted text-foreground'
+                    : 'border-border bg-muted/35 text-muted-foreground',
                 )}
               >
                 <span className="text-[10px] uppercase text-muted-foreground">
@@ -601,7 +603,7 @@ function DraftCard({
           onClick={save}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
         >
-          <Check className="size-3.5" /> Save to register
+          <Check className="size-3.5" /> Save to inventory
         </button>
       </div>
     </ActionCard>
