@@ -172,7 +172,14 @@ export function RopaAuthoringChat() {
         <div className="mx-auto max-w-4xl">
           <h2 className="mb-3 text-sm font-semibold text-foreground">Draft record artifact</h2>
           {messages.map((m) => <MessageRenderer key={`artifact-${m.id}`} message={m} store={store} router={router} artifactOnly />)}
-          {busy && messages.every((message) => message.role === 'user') && <div className="flex min-h-32 items-center justify-center"><Sparkles className="size-8 animate-pulse text-ai" aria-label="Building draft artifact" /></div>}
+          {busy && messages.every((message) => message.role === 'user') && (
+            <div className="flex min-h-32 items-center justify-center" aria-label="Building draft artifact">
+              <div className="relative flex size-16 items-center justify-center">
+                <div className="absolute inset-0 rounded-full border-2 border-purple-400/20 border-t-purple-400/80 animate-spin" aria-hidden="true" />
+                <Sparkles className="relative size-8 animate-pulse text-ai" aria-hidden="true" />
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </div>
