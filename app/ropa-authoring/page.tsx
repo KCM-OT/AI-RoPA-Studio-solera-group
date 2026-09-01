@@ -13,7 +13,7 @@ function RopaAuthoringHeader() {
         </p>
       </div>
       <Link
-        href="/author"
+        href="/"
         className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-[#d9d9d9] px-3 py-1.5 text-sm font-medium text-[#4d4d4d] transition-colors hover:bg-[#f7f7f7]"
       >
         <ArrowLeft className="size-4" aria-hidden="true" />

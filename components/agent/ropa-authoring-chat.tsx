@@ -7,11 +7,9 @@ import { DefaultChatTransport } from 'ai'
 import {
   Sparkles,
   CircleCheck,
-  FileText,
   GitBranch,
   Pencil,
   Check,
-  X,
   Building2,
   MessageSquare,
 } from 'lucide-react'
@@ -147,7 +145,7 @@ export function RopaAuthoringChat() {
       <ChatShell>
       <ChatScroll>
         {isEmpty && !hasSubmitted && (
-          <Welcome value={input} onChange={setInput} onSubmit={submit} disabled={busy} onFocus={() => { setPromptAnimationActive(false); setInput('') }} />
+          <Welcome value={input} onChange={setInput} onSubmit={submit} disabled={busy} onFocus={() => { setPromptAnimationActive(false); setInput('') }} onPromptSelect={() => setPromptAnimationActive(false)} />
         )}
         {messages.map((m) => <MessageRenderer key={m.id} message={m} store={store} router={router} hideDraft />)}
         {status === 'submitted' && <AgentMessage><TypingDots /></AgentMessage>}
@@ -173,7 +171,14 @@ export function RopaAuthoringChat() {
         <div className="mx-auto max-w-4xl">
           <h2 className="mb-3 text-sm font-semibold text-foreground">Draft record artifact</h2>
           {messages.map((m) => <MessageRenderer key={`artifact-${m.id}`} message={m} store={store} router={router} artifactOnly />)}
-          {busy && messages.every((message) => message.role === 'user') && <div className="flex min-h-32 items-center justify-center"><Sparkles className="size-8 animate-pulse text-ai" aria-label="Building draft artifact" /></div>}
+          {busy && messages.every((message) => message.role === 'user') && (
+            <div className="flex min-h-32 items-center justify-center" aria-label="Building draft artifact">
+              <div className="relative flex size-16 items-center justify-center">
+                <div className="absolute inset-0 rounded-full border-2 border-purple-400/20 border-t-purple-400/80 animate-spin" aria-hidden="true" />
+                <Sparkles className="relative size-8 animate-pulse text-ai" aria-hidden="true" />
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </div>
@@ -186,12 +191,14 @@ function Welcome({
   onSubmit,
   disabled,
   onFocus,
+  onPromptSelect,
 }: {
   value: string
   onChange: (value: string) => void
   onSubmit: (value?: string) => void
   disabled: boolean
   onFocus?: () => void
+  onPromptSelect?: () => void
 }) {
   const samples = [
     { title: 'Recruitment process', description: 'Create a record for hiring and onboarding employees.', body: SUGGESTIONS[0].value },
@@ -241,7 +248,7 @@ function Welcome({
         <p className="text-xs text-[#4d4d4d]">Try a sample prompt</p>
         <div className="grid gap-3 sm:grid-cols-3">
           {samples.map((sample, index) => (
-            <button key={sample.title} type="button" disabled={disabled} onClick={() => onChange(sample.body)} className="flex min-h-28 flex-col gap-3 rounded-md border border-[#d9d9d9] bg-white p-3 text-left shadow-sm transition hover:border-[#167cbb] disabled:opacity-50">
+            <button key={sample.title} type="button" disabled={disabled} onClick={() => { onPromptSelect?.(); onChange(sample.body) }} className="flex min-h-28 flex-col gap-3 rounded-md border border-[#d9d9d9] bg-white p-3 text-left shadow-sm transition hover:border-[#167cbb] disabled:opacity-50">
               <MessageSquare className="size-5 text-[#4d4d4d]" aria-hidden="true" />
               <span className="text-sm font-medium text-[#1a1a1a]">{sample.title}</span>
               <span className="text-xs leading-4 text-[#4d4d4d]">{sample.description}</span>
@@ -355,6 +362,7 @@ function DraftCard({
   }, [scan, store])
 
   const [draft, setDraft] = useState<Draft>(initial)
+  const [approvedItems, setApprovedItems] = useState<Set<string>>(new Set())
   const [editing, setEditing] = useState<FieldKey | null>(null)
   const [saved, setSaved] = useState<string | null>(null)
 
@@ -487,9 +495,11 @@ function DraftCard({
 
   return (
     <ActionCard>
+      <div className="flex items-center justify-between border-b border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground">
+        <span>{approvedItems.size}/{orderedFields.length + draft.relationships.length} Approved</span>
+      </div>
       <div className="flex items-center justify-between gap-2 border-b border-border bg-ai/5 px-4 py-2.5">
         <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-          <FileText className="size-4 text-ai" />
           Draft record
         </div>
         <Badge variant="ai">
@@ -513,16 +523,22 @@ function DraftCard({
                 >
                   <Pencil className="size-3.5" />
                 </button>
-                <button
-                  aria-label={`Remove ${FIELD_LABELS[f.key]}`}
-                  onClick={() => removeField(f.key)}
-                  className="rounded p-1 text-muted-foreground hover:bg-danger-muted hover:text-danger"
-                >
-                  <X className="size-3.5" />
-                </button>
+                <label className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    aria-label={`Approve ${FIELD_LABELS[f.key]}`}
+                    checked={approvedItems.has(f.key)}
+                    onChange={(event) => setApprovedItems((current) => {
+                      const next = new Set(current)
+                      event.target.checked ? next.add(f.key) : next.delete(f.key)
+                      return next
+                    })}
+                    className="size-4 accent-primary"
+                  />
+                </label>
               </div>
             </div>
-            {editing === f.key ? (
+            {editing === f.key && (
               <textarea
                 autoFocus
                 rows={2}
@@ -531,8 +547,6 @@ function DraftCard({
                 onBlur={() => setEditing(null)}
                 className="mt-1.5 w-full resize-none rounded-lg border border-ai/40 bg-background px-2.5 py-1.5 text-sm outline-none"
               />
-            ) : (
-              <p className="mt-0.5 text-sm text-pretty text-foreground">{f.value}</p>
             )}
             {f.evidence && (
               <p className="mt-1 text-xs italic text-muted-foreground">“{f.evidence}”</p>
@@ -562,13 +576,17 @@ function DraftCard({
                 </span>
                 {r.name}
                 {!r.inventoryId && <span className="text-warning">• new</span>}
-                <button
-                  aria-label={`Remove ${r.name}`}
-                  onClick={() => removeRel(idx)}
-                  className="text-muted-foreground hover:text-danger"
-                >
-                  <X className="size-3" />
-                </button>
+                <input
+                  type="checkbox"
+                  aria-label={`Approve ${r.name}`}
+                  checked={approvedItems.has(`relationship-${idx}`)}
+                  onChange={(event) => setApprovedItems((current) => {
+                    const next = new Set(current)
+                    event.target.checked ? next.add(`relationship-${idx}`) : next.delete(`relationship-${idx}`)
+                    return next
+                  })}
+                  className="size-3.5 accent-primary"
+                />
               </span>
             ))}
           </div>

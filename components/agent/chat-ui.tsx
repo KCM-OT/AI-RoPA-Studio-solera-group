@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, type ReactNode } from 'react'
-import { Sparkles, User, ArrowUp } from 'lucide-react'
+import { User, ArrowUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 // Shared visual primitives for the agentic chat flows (Author + Recertify).
@@ -31,9 +31,6 @@ export function ChatScroll({ children }: { children: ReactNode }) {
 export function AgentMessage({ children }: { children: ReactNode }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-ai/12 text-ai">
-        <Sparkles className="size-4" />
-      </div>
       <div className="flex min-w-0 flex-1 flex-col gap-3 pt-1">{children}</div>
     </div>
   )
