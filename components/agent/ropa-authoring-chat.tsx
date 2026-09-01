@@ -540,7 +540,7 @@ function DraftCard({
                 </label>
               </div>
             </div>
-            {editing === f.key ? (
+            {editing === f.key && (
               <textarea
                 autoFocus
                 rows={2}
