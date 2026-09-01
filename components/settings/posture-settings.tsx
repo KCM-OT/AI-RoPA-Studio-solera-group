@@ -137,11 +137,15 @@ function ConditionSelector({
 
 // ---- Cadence section ----
 
-function CadenceEditor() {
+function CadenceEditor({ onChange }: { onChange: () => void }) {
   const { posture, updatePosture } = useStore()
+  const applyChange = (patch: Parameters<typeof updatePosture>[0]) => {
+    onChange()
+    updatePosture(patch)
+  }
 
   function patchRule(id: string, patch: Partial<CadenceRule>) {
-    updatePosture({
+    applyChange({
       cadenceRules: posture.cadenceRules.map((r) =>
         r.id === id ? { ...r, ...patch } : r,
       ),
@@ -156,10 +160,10 @@ function CadenceEditor() {
     patchRule(id, { conditions })
   }
   function removeRule(id: string) {
-    updatePosture({ cadenceRules: posture.cadenceRules.filter((r) => r.id !== id) })
+    applyChange({ cadenceRules: posture.cadenceRules.filter((r) => r.id !== id) })
   }
   function addRule() {
-    updatePosture({ cadenceRules: [...posture.cadenceRules, newCadenceRule()] })
+    applyChange({ cadenceRules: [...posture.cadenceRules, newCadenceRule()] })
   }
 
   return (
@@ -188,7 +192,7 @@ function CadenceEditor() {
               <button
                 key={opt.days}
                 type="button"
-                onClick={() => updatePosture({ defaultCadenceDays: opt.days })}
+                onClick={() => applyChange({ defaultCadenceDays: opt.days })}
                 className={cn(
                   'rounded-md border px-2.5 py-1 text-xs font-medium transition-colors',
                   posture.defaultCadenceDays === opt.days
@@ -212,7 +216,7 @@ function CadenceEditor() {
           </div>
           <Toggle
             checked={posture.requireCertification}
-            onChange={(v) => updatePosture({ requireCertification: v })}
+            onChange={(v) => applyChange({ requireCertification: v })}
             label="Require business certification"
           />
         </div>
@@ -310,11 +314,15 @@ function CadenceEditor() {
 
 // ---- Assessment triggers section ----
 
-function AssessmentEditor() {
+function AssessmentEditor({ onChange }: { onChange: () => void }) {
   const { posture, updatePosture } = useStore()
+  const applyChange = (patch: Parameters<typeof updatePosture>[0]) => {
+    onChange()
+    updatePosture(patch)
+  }
 
   function patchRule(type: AssessmentType, patch: Partial<AssessmentRule>) {
-    updatePosture({
+    applyChange({
       assessmentRules: posture.assessmentRules.map((r) =>
         r.type === type ? { ...r, ...patch } : r,
       ),
@@ -467,8 +475,11 @@ function ImpactPreview() {
 // ---- Page composition ----
 
 export function PostureSettings() {
-  const { resetPosture } = useStore()
+  const { posture, resetPosture, updatePosture } = useStore()
   const [confirmReset, setConfirmReset] = useState(false)
+  const [hasChanges, setHasChanges] = useState(false)
+  const [confirmSave, setConfirmSave] = useState(false)
+  const [savedPosture, setSavedPosture] = useState(posture)
 
   return (
     <>
@@ -476,7 +487,12 @@ export function PostureSettings() {
         title="Posture Rules"
         description="Configure maintenance cadence and assessment triggers for the privacy program."
         actions={
-          confirmReset ? (
+          hasChanges ? (
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => { updatePosture(savedPosture); setHasChanges(false) }}>Cancel</Button>
+              <Button size="sm" onClick={() => setConfirmSave(true)}>Save changes</Button>
+            </div>
+          ) : confirmReset ? (
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">Reset to defaults?</span>
               <Button
@@ -511,10 +527,22 @@ export function PostureSettings() {
         }
       />
       <main className="flex flex-col gap-6 p-6">
-        <CadenceEditor />
-        <AssessmentEditor />
+        <CadenceEditor onChange={() => setHasChanges(true)} />
+        <AssessmentEditor onChange={() => setHasChanges(true)} />
         <ImpactPreview />
       </main>
+      {confirmSave && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4" role="presentation">
+          <div role="dialog" aria-modal="true" aria-labelledby="save-posture-title" className="w-full max-w-md rounded-lg border border-border bg-background p-6 shadow-xl">
+            <h2 id="save-posture-title" className="text-lg font-semibold">Save posture rule changes?</h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">Changing the Posture rules will affect the current, unreviewed records. Do you want to save these changes?</p>
+            <div className="mt-6 flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setConfirmSave(false)}>Cancel</Button>
+              <Button onClick={() => { setSavedPosture(posture); setHasChanges(false); setConfirmSave(false) }}>Save changes</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
