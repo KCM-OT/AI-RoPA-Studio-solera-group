@@ -8,9 +8,13 @@ import type {
   Vendor,
 } from './types'
 
+// Keep demo data deterministic across server and client renders. Using the
+// current clock here can cross a calendar-day boundary during hydration.
+const SEED_ANCHOR = new Date('2026-09-01T12:00:00.000Z')
+
 function iso(daysFromNow: number): string {
-  const d = new Date()
-  d.setDate(d.getDate() + daysFromNow)
+  const d = new Date(SEED_ANCHOR)
+  d.setUTCDate(d.getUTCDate() + daysFromNow)
   return d.toISOString()
 }
 
