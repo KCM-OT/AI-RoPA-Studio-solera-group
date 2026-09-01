@@ -18,6 +18,7 @@ import {
   FileInput,
   ClipboardPaste,
   LayoutTemplate,
+  LoaderCircle,
 } from 'lucide-react'
 import {
   ChatShell,
@@ -451,6 +452,7 @@ function DraftCard({
   const [editing, setEditing] = useState<FieldKey | null>(null)
   const [editValue, setEditValue] = useState('')
   const [saved, setSaved] = useState<string | null>(null)
+  const [viewingRecord, setViewingRecord] = useState(false)
 
   const orderedFields = useMemo(() => {
     return [...draft.fields].sort(
@@ -564,6 +566,11 @@ function DraftCard({
   }
 
   if (saved) {
+    function viewSavedRecord() {
+      setViewingRecord(true)
+      window.setTimeout(() => router.push(`/records/${saved}`), 3000)
+    }
+
     return (
       <ActionCard tone="success">
         <div className="flex flex-col gap-3 p-4">
@@ -575,10 +582,12 @@ function DraftCard({
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => router.push(`/records/${saved}`)}
-              className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
+              onClick={viewSavedRecord}
+              disabled={viewingRecord}
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:cursor-wait disabled:opacity-80"
             >
-              View record
+              {viewingRecord && <LoaderCircle className="size-3.5 animate-spin" aria-hidden="true" />}
+              {viewingRecord ? 'Loading record…' : 'View record'}
             </button>
             <button
               onClick={() => router.push('/records')}
