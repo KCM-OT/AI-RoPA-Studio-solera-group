@@ -487,7 +487,7 @@ function DraftCard({
             <span className="flex size-6 items-center justify-center rounded-full bg-success-muted text-success">
               <CircleCheck className="size-4" />
             </span>
-            Saved “{recordName}” to the register.
+            Saved “{recordName}” to the inventory.
           </div>
           <div className="flex gap-2">
             <button
