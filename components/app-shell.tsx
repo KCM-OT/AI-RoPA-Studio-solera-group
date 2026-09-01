@@ -101,7 +101,6 @@ const NAV: NavItemDef[] = [
   { href: '/ropa-authoring', label: 'RoPA Authoring', icon: 'sparkle' },
   { href: '/records', label: 'RoPA Records', icon: { src: '/nav/icon-database.svg', w: 15, h: 18 } },
   { href: '/maintenance', label: 'Maintenance', icon: { src: '/nav/icon-calendar-clock.svg', w: 15, h: 15 } },
-  { href: '/review', label: 'Review Queue', icon: { src: '/nav/icon-calendar-clock.svg', w: 15, h: 15 } },
   { href: '/activity', label: 'Activity Log', icon: { src: '/nav/icon-scroll.svg', w: 15, h: 13 } },
   { href: '/settings', label: 'Posture Rules', icon: { src: '/nav/icon-square-sliders.svg', w: 15, h: 15 } },
 ]
@@ -268,11 +267,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 collapsed={collapsed}
                 divider={i === 0}
                 badge={
-                  item.href === '/maintenance'
-                    ? attention
-                    : item.href === '/review'
-                      ? pendingReviews
-                      : undefined
+                  item.href === '/maintenance' ? attention + pendingReviews : undefined
                 }
               />
             )

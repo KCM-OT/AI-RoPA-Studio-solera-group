@@ -18,6 +18,7 @@ import { useStore } from '@/lib/store'
 import { reviewState, formatDate, relativeDays, completeness } from '@/lib/ropa'
 import type { ProcessingActivity } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { ReviewQueueContent } from '@/components/review/review-queue'
 
 export function MaintenanceQueue() {
   const { activities, updateActivity, logEvent } = useStore()
@@ -89,6 +90,11 @@ export function MaintenanceQueue() {
           emptyText="No scheduled records yet."
           collapsedByDefault
         />
+
+        <section className="flex flex-col gap-3">
+          <h2 className="text-base font-semibold text-foreground">Recertification review</h2>
+          <ReviewQueueContent />
+        </section>
       </div>
     </>
   )
