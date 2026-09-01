@@ -615,7 +615,7 @@ function DraftCard({
 
       <div className="flex items-center justify-between gap-2 border-t border-border bg-muted/30 px-4 py-2.5">
         <span className="text-xs text-muted-foreground">
-          You can edit any field, then save it to the register.
+          You can edit any field, then save it to the inventory.
         </span>
         <button
           onClick={save}
