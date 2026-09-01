@@ -10,6 +10,7 @@ import {
   GitBranch,
   Pencil,
   Check,
+  X,
   Building2,
   MessageSquare,
 } from 'lucide-react'
@@ -364,6 +365,7 @@ function DraftCard({
   const [draft, setDraft] = useState<Draft>(initial)
   const [approvedItems, setApprovedItems] = useState<Set<string>>(new Set())
   const [editing, setEditing] = useState<FieldKey | null>(null)
+  const [editValue, setEditValue] = useState('')
   const [saved, setSaved] = useState<string | null>(null)
 
   const orderedFields = useMemo(() => {
@@ -377,6 +379,19 @@ function DraftCard({
       ...d,
       fields: d.fields.map((f) => (f.key === key ? { ...f, value } : f)),
     }))
+  }
+  function startFieldEdit(field: DraftField) {
+    setEditing(field.key)
+    setEditValue(field.value)
+  }
+  function saveFieldEdit() {
+    if (!editing) return
+    updateField(editing, editValue)
+    setEditing(null)
+  }
+  function cancelFieldEdit() {
+    setEditing(null)
+    setEditValue('')
   }
   function removeField(key: FieldKey) {
     setDraft((d) => ({ ...d, fields: d.fields.filter((f) => f.key !== key) }))
@@ -516,13 +531,15 @@ function DraftCard({
               </span>
               <div className="flex items-center gap-1.5">
                 <ConfidenceBadge value={f.confidence} />
-                <button
-                  aria-label={`Edit ${FIELD_LABELS[f.key]}`}
-                  onClick={() => setEditing(editing === f.key ? null : f.key)}
-                  className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-                >
-                  <Pencil className="size-3.5" />
-                </button>
+                {editing !== f.key && (
+                  <button
+                    aria-label={`Edit ${FIELD_LABELS[f.key]}`}
+                    onClick={() => startFieldEdit(f)}
+                    className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <Pencil className="size-3.5" />
+                  </button>
+                )}
                 <label className="flex items-center gap-1 text-xs text-muted-foreground">
                   <input
                     type="checkbox"
@@ -538,18 +555,19 @@ function DraftCard({
                 </label>
               </div>
             </div>
-            {editing === f.key && (
-              <textarea
-                autoFocus
-                rows={2}
-                value={f.value}
-                onChange={(e) => updateField(f.key, e.target.value)}
-                onBlur={() => setEditing(null)}
-                className="mt-1.5 w-full resize-none rounded-lg border border-ai/40 bg-background px-2.5 py-1.5 text-sm outline-none"
-              />
-            )}
-            {f.evidence && (
-              <p className="mt-1 text-xs italic text-muted-foreground">“{f.evidence}”</p>
+            {editing === f.key ? (
+              <div className="flex flex-col gap-2">
+                <textarea autoFocus rows={2} value={editValue} onChange={(e) => setEditValue(e.target.value)} className="w-full resize-none rounded-lg border border-input bg-background p-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+                <div className="flex items-center gap-2">
+                  <button type="button" onClick={saveFieldEdit} className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"><Check className="size-3.5" /> Save</button>
+                  <button type="button" onClick={cancelFieldEdit} className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"><X className="size-3.5" /> Cancel</button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <p className={cn('text-sm text-pretty', f.value ? 'text-foreground' : 'italic text-muted-foreground/60')}>{f.value || 'Not documented'}</p>
+                {f.evidence && <p className="mt-1 border-l-2 border-ai/30 pl-2 text-xs italic text-muted-foreground">“{f.evidence}”</p>}
+              </>
             )}
           </div>
         ))}
