@@ -19,6 +19,18 @@ const STATUS_STYLE: Record<SubmissionStatus, string> = {
 }
 
 export function ReviewQueue() {
+  return (
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title="Recertification review"
+        description="Change submissions from business process owners waiting for privacy operations sign-off before they hit the register."
+      />
+      <ReviewQueueContent />
+    </div>
+  )
+}
+
+export function ReviewQueueContent() {
   const { submissions } = useStore()
 
   const open = submissions.filter(
@@ -35,11 +47,6 @@ export function ReviewQueue() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Recertification review"
-        description="Change submissions from business process owners waiting for privacy operations sign-off before they hit the register."
-      />
-
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Awaiting your review" value={open.length} tone="warning" />
         <StatCard label="Follow-ups out" value={pendingFollowUps} tone="ai" />
