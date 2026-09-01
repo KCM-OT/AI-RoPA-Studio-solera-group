@@ -505,7 +505,7 @@ function DraftCard({
           Draft record
         </div>
         <Badge variant="ai">
-          Needs your review
+          <Sparkles /> Needs your review
         </Badge>
       </div>
 
