@@ -601,7 +601,7 @@ function DraftCard({
           onClick={save}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
         >
-          <Check className="size-3.5" /> Save to register
+          <Check className="size-3.5" /> Save to inventory
         </button>
       </div>
     </ActionCard>
