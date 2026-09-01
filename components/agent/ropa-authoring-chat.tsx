@@ -549,8 +549,6 @@ function DraftCard({
                 onBlur={() => setEditing(null)}
                 className="mt-1.5 w-full resize-none rounded-lg border border-ai/40 bg-background px-2.5 py-1.5 text-sm outline-none"
               />
-            ) : (
-              <p className="mt-0.5 text-sm text-pretty text-foreground">{f.value}</p>
             )}
             {f.evidence && (
               <p className="mt-1 text-xs italic text-muted-foreground">“{f.evidence}”</p>
