@@ -146,7 +146,7 @@ export function RopaAuthoringChat() {
       <ChatShell>
       <ChatScroll>
         {isEmpty && !hasSubmitted && (
-          <Welcome value={input} onChange={setInput} onSubmit={submit} disabled={busy} onFocus={() => { setPromptAnimationActive(false); setInput('') }} />
+          <Welcome value={input} onChange={setInput} onSubmit={submit} disabled={busy} onFocus={() => { setPromptAnimationActive(false); setInput('') }} onPromptSelect={() => setPromptAnimationActive(false)} />
         )}
         {messages.map((m) => <MessageRenderer key={m.id} message={m} store={store} router={router} hideDraft />)}
         {status === 'submitted' && <AgentMessage><TypingDots /></AgentMessage>}
@@ -185,12 +185,14 @@ function Welcome({
   onSubmit,
   disabled,
   onFocus,
+  onPromptSelect,
 }: {
   value: string
   onChange: (value: string) => void
   onSubmit: (value?: string) => void
   disabled: boolean
   onFocus?: () => void
+  onPromptSelect?: () => void
 }) {
   const samples = [
     { title: 'Recruitment process', description: 'Create a record for hiring and onboarding employees.', body: SUGGESTIONS[0].value },
@@ -240,7 +242,7 @@ function Welcome({
         <p className="text-xs text-[#4d4d4d]">Try a sample prompt</p>
         <div className="grid gap-3 sm:grid-cols-3">
           {samples.map((sample, index) => (
-            <button key={sample.title} type="button" disabled={disabled} onClick={() => onChange(sample.body)} className="flex min-h-28 flex-col gap-3 rounded-md border border-[#d9d9d9] bg-white p-3 text-left shadow-sm transition hover:border-[#167cbb] disabled:opacity-50">
+            <button key={sample.title} type="button" disabled={disabled} onClick={() => { onPromptSelect?.(); onChange(sample.body) }} className="flex min-h-28 flex-col gap-3 rounded-md border border-[#d9d9d9] bg-white p-3 text-left shadow-sm transition hover:border-[#167cbb] disabled:opacity-50">
               <MessageSquare className="size-5 text-[#4d4d4d]" aria-hidden="true" />
               <span className="text-sm font-medium text-[#1a1a1a]">{sample.title}</span>
               <span className="text-xs leading-4 text-[#4d4d4d]">{sample.description}</span>
