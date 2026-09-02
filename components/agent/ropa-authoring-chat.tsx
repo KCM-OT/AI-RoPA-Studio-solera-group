@@ -223,9 +223,9 @@ export function RopaAuthoringChat() {
         <div className="mx-auto max-w-4xl">
           <h2 className="mb-3 text-sm font-semibold text-foreground">Draft record artifact</h2>
           {messages.map((m) => <MessageRenderer key={`artifact-${m.id}`} message={m} store={store} router={router} artifactOnly />)}
-          {busy && messages.every((message) => message.role === 'user') && (
-            <div className="flex min-h-32 items-center justify-center" aria-label="Building draft artifact">
-              <div className="relative flex size-16 items-center justify-center">
+  {busy && !messages.some((message) => message.parts.some((part) => part.type === 'tool-extractRecord' && part.state === 'output-available')) && (
+  <div className="flex min-h-32 translate-y-50 items-center justify-center" aria-label="Building draft artifact">
+  <div className="relative flex size-16 items-center justify-center">
                 <div className="absolute inset-0 rounded-full border-2 border-purple-400/20 border-t-purple-400/80 animate-spin" aria-hidden="true" />
                 <Sparkles className="relative size-8 animate-pulse text-ai" aria-hidden="true" />
               </div>
@@ -377,11 +377,14 @@ function MessageRenderer({
         // Server tool: extraction result -> draft card
         if (part.type === 'tool-extractRecord') {
           if (part.state === 'input-streaming' || part.state === 'input-available') {
-        return artifactOnly ? (
-          <div key={i} className="flex min-h-32 items-center justify-center">
-            <Sparkles className="size-8 animate-pulse text-ai" aria-label="Building draft artifact" />
-          </div>
-        ) : (
+  return artifactOnly ? (
+  <div key={i} className="flex min-h-32 translate-y-50 items-center justify-center">
+  <div className="relative flex size-16 items-center justify-center" aria-label="Building draft artifact">
+  <div className="absolute inset-0 animate-spin rounded-full border-2 border-ai/20 border-t-ai/80" aria-hidden="true" />
+  <Sparkles className="relative size-8 animate-pulse text-ai" aria-hidden="true" />
+  </div>
+  </div>
+  ) : (
           <ActionCard key={i}>
             <div className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground">
               <Sparkles className="size-4 animate-pulse text-ai" />
