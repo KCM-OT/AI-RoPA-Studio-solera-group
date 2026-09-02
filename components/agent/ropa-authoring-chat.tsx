@@ -377,14 +377,7 @@ function MessageRenderer({
         // Server tool: extraction result -> draft card
         if (part.type === 'tool-extractRecord') {
           if (part.state === 'input-streaming' || part.state === 'input-available') {
-  return artifactOnly ? (
-  <div key={i} className="flex min-h-32 translate-y-50 items-center justify-center">
-  <div className="relative flex size-16 items-center justify-center" aria-label="Building draft artifact">
-  <div className="absolute inset-0 animate-spin rounded-full border-2 border-ai/20 border-t-ai/80" aria-hidden="true" />
-  <Sparkles className="relative size-8 animate-pulse text-ai" aria-hidden="true" />
-  </div>
-  </div>
-          ) : null
+            return null
           }
           if (part.state === 'output-available') {
             const scan = part.output as ScanResult
