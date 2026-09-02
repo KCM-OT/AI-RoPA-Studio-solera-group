@@ -1,5 +1,3 @@
-'use client'
-
 import { AppShell, PageHeader } from '@/components/app-shell'
 import { Dashboard } from '@/components/dashboard'
 
