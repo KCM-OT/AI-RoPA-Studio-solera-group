@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import {
   CalendarClock,
@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   Sparkles,
   ClipboardCheck,
+  LoaderCircle,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button, buttonVariants } from '@/components/ui/button'
@@ -22,6 +23,7 @@ import { ReviewQueueContent } from '@/components/review/review-queue'
 
 export function MaintenanceQueue() {
   const { activities, updateActivity, logEvent } = useStore()
+  const [reviewingIds, setReviewingIds] = useState<Set<string>>(new Set())
 
   const { overdue, dueSoon, incomplete, onTrack } = useMemo(() => {
     const overdue: ProcessingActivity[] = []
@@ -38,7 +40,11 @@ export function MaintenanceQueue() {
   }, [activities])
 
   function markReviewed(pa: ProcessingActivity) {
-    const now = new Date()
+    if (reviewingIds.has(pa.id)) return
+    setReviewingIds((current) => new Set(current).add(pa.id))
+
+    window.setTimeout(() => {
+      const now = new Date()
     const cadence = pa.reviewCadenceDays ?? 180
     const next = new Date(now.getTime() + cadence * 24 * 60 * 60 * 1000)
     updateActivity(pa.id, {
@@ -46,13 +52,19 @@ export function MaintenanceQueue() {
       nextReviewAt: next.toISOString(),
       status: pa.status === 'under_review' ? 'active' : pa.status,
     })
-    logEvent({
-      actor: 'You',
-      action: 'review_completed',
-      recordId: pa.id,
-      recordName: pa.name,
-      detail: `Marked reviewed; next review ${next.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
-    })
+      logEvent({
+        actor: 'You',
+        action: 'review_completed',
+        recordId: pa.id,
+        recordName: pa.name,
+        detail: `Marked reviewed; next review ${next.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
+      })
+      setReviewingIds((current) => {
+        const nextIds = new Set(current)
+        nextIds.delete(pa.id)
+        return nextIds
+      })
+    }, 1000)
   }
 
   return (
@@ -73,6 +85,7 @@ export function MaintenanceQueue() {
           tone="danger"
           items={overdue}
           onMarkReviewed={markReviewed}
+          reviewingIds={reviewingIds}
           emptyText="Nothing overdue. Nice."
         />
         <QueueSection
@@ -80,6 +93,7 @@ export function MaintenanceQueue() {
           tone="warning"
           items={dueSoon}
           onMarkReviewed={markReviewed}
+          reviewingIds={reviewingIds}
           emptyText="No records due in the next 30 days."
         />
         <QueueSection
@@ -87,6 +101,7 @@ export function MaintenanceQueue() {
           tone="ok"
           items={onTrack}
           onMarkReviewed={markReviewed}
+          reviewingIds={reviewingIds}
           emptyText="No scheduled records yet."
           collapsedByDefault
         />
@@ -136,12 +151,14 @@ function QueueSection({
   tone,
   items,
   onMarkReviewed,
+  reviewingIds,
   emptyText,
 }: {
   title: string
   tone: 'danger' | 'warning' | 'ok'
   items: ProcessingActivity[]
   onMarkReviewed: (pa: ProcessingActivity) => void
+  reviewingIds: Set<string>
   emptyText: string
   collapsedByDefault?: boolean
 }) {
@@ -170,8 +187,16 @@ function QueueSection({
               return (
                 <li
                   key={a.id}
-                  className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
+                  className={cn(
+                    'relative flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between',
+                    reviewingIds.has(a.id) && 'isolate',
+                  )}
                 >
+                  {reviewingIds.has(a.id) && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/95" role="status" aria-label="Saving review">
+                      <LoaderCircle className="size-5 animate-spin text-primary" aria-hidden="true" />
+                    </div>
+                  )}
                   <div className="min-w-0">
                     <Link
                       href={`/records/${a.id}`}
@@ -207,7 +232,7 @@ function QueueSection({
                       onClick={() => onMarkReviewed(a)}
                       className="w-fit gap-1.5"
                     >
-                      <CircleCheck className="size-4 text-success" /> Mark reviewed
+                      <CircleCheck className={cn('size-4', reviewingIds.has(a.id) ? 'text-success' : 'text-muted-foreground/30')} /> Mark reviewed
                     </Button>
                   </div>
                 </li>
