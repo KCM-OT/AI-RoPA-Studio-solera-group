@@ -232,7 +232,7 @@ function QueueSection({
                       onClick={() => onMarkReviewed(a)}
                       className="w-fit gap-1.5"
                     >
-                      <CircleCheck className={cn('size-4', reviewingIds.has(a.id) ? 'text-success' : 'text-muted-foreground')} /> Mark reviewed
+                      <CircleCheck className={cn('size-4', reviewingIds.has(a.id) ? 'text-success' : 'text-muted-foreground/30')} /> Mark reviewed
                     </Button>
                   </div>
                 </li>
