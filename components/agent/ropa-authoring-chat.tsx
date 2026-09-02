@@ -384,14 +384,7 @@ function MessageRenderer({
   <Sparkles className="relative size-8 animate-pulse text-ai" aria-hidden="true" />
   </div>
   </div>
-  ) : (
-          <ActionCard key={i}>
-            <div className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground">
-              <Sparkles className="size-4 animate-pulse text-ai" />
-              Reading your description and drafting the record…
-            </div>
-          </ActionCard>
-        )
+          ) : null
           }
           if (part.state === 'output-available') {
             const scan = part.output as ScanResult
