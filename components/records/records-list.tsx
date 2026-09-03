@@ -1,10 +1,11 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Search, Sparkles, Plus, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { PageHeader } from '@/components/app-shell'
 import { StatusBadge, ProvenanceTag, CompletenessMeter } from '@/components/badges'
 import { useStore } from '@/lib/store'
@@ -25,6 +26,12 @@ export function RecordsList() {
   const { activities } = useStore()
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<RecordStatus | 'all'>('all')
+  const [recruitmentNeedsCertification, setRecruitmentNeedsCertification] = useState(false)
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setRecruitmentNeedsCertification(true), 1000)
+    return () => window.clearTimeout(timer)
+  }, [])
 
   const filtered = useMemo(() => {
     return activities.filter((a) => {
@@ -117,7 +124,13 @@ export function RecordsList() {
                   <p className="truncate text-xs text-muted-foreground">{a.purpose}</p>
                 </div>
                 <div>
-                  <StatusBadge status={a.status} />
+                  {a.name === 'AI-Assisted Candidate Screening & Recruitment' && recruitmentNeedsCertification ? (
+                    <span className="inline-flex animate-[badge-pop_360ms_ease-out]">
+                      <Badge variant="warning">Certification needed</Badge>
+                    </span>
+                  ) : (
+                    <StatusBadge status={a.status} />
+                  )}
                 </div>
                 <div>
                   <ProvenanceTag createdWithAI={a.createdWithAI} updatedWithAI={a.updatedWithAI} />
