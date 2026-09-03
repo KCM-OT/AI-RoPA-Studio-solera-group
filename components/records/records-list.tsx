@@ -58,7 +58,7 @@ export function RecordsList() {
           </Button>
         }
       />
-      <div className="flex flex-col gap-4 py-6 pl-11 pr-11">
+      <div className="flex flex-col gap-4 py-6 pl-5 pr-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative w-full sm:max-w-xs">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
