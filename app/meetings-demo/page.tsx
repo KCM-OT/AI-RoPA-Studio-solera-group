@@ -46,9 +46,12 @@ const REBECCA_PHOTO =
 
 const SOLERA_MESSAGE =
   'Rebecca, the RoPA record titled \u201cAI-Assisted Candidate Screening & Recruitment\u201d is in need of recertification as of 09:34 AM 9/05/2026.'
+const REBECCA_MESSAGE = 'Thank you. Can you please provide a link to this record?'
 
 function TeamsWindow() {
   const [displayedMessage, setDisplayedMessage] = useState('')
+  const [rebeccaVisible, setRebeccaVisible] = useState(false)
+  const [rebeccaMessage, setRebeccaMessage] = useState('')
 
   useEffect(() => {
     const startTimer = window.setTimeout(() => {
@@ -58,11 +61,27 @@ function TeamsWindow() {
         setDisplayedMessage(SOLERA_MESSAGE.slice(0, index))
         if (index >= SOLERA_MESSAGE.length) {
           window.clearInterval(typingTimer)
+          setRebeccaVisible(true)
         }
       }, 20)
     }, 2000)
     return () => window.clearTimeout(startTimer)
   }, [])
+
+  useEffect(() => {
+    if (!rebeccaVisible) return
+    const startTimer = window.setTimeout(() => {
+      let index = 0
+      const typingTimer = window.setInterval(() => {
+        index += 1
+        setRebeccaMessage(REBECCA_MESSAGE.slice(0, index))
+        if (index >= REBECCA_MESSAGE.length) {
+          window.clearInterval(typingTimer)
+        }
+      }, 20)
+    }, 400)
+    return () => window.clearTimeout(startTimer)
+  }, [rebeccaVisible])
 
   return (
     <section
@@ -126,13 +145,20 @@ function TeamsWindow() {
               </div>
             </div>
             {/* Rebecca Chat */}
-            <div data-chat-name="Rebecca Chat" className="ml-auto flex items-start gap-3">
+            <div
+              data-chat-name="Rebecca Chat"
+              className={`ml-auto flex items-start gap-3 transition-opacity duration-500 ${
+                rebeccaVisible ? 'opacity-100' : 'pointer-events-none opacity-0'
+              }`}
+            >
               <div>
                 <div className="mb-1.5 flex justify-end gap-2 text-[13px] text-[#727272]">
                   <span className="text-[#1a1a1a]">Rebecca Nordstrum</span>
                   <span>10:09 AM</span>
                 </div>
-                <div className="w-[380px] rounded-lg bg-[#f6f6f6] px-5 py-4 text-[#727272]">reply message...</div>
+                <div className="min-h-[1.5em] w-[380px] rounded-lg bg-[#f6f6f6] px-5 py-4 text-[#1a1a1a]">
+                  {rebeccaMessage}
+                </div>
               </div>
               <img src={REBECCA_PHOTO} alt="Rebecca Nordstrum" className="size-9 rounded-full object-cover" />
             </div>
