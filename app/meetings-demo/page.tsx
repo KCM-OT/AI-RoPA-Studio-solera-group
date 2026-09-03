@@ -44,7 +44,26 @@ const TEAM_ICONS = {
 const REBECCA_PHOTO =
   'https://s3-alpha-sig.figma.com/img/20ed/b29f/549745f583646ef1d45b255c319fe3f9?Expires=1789344000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=QXZUWHke0aXi-I3NZ3JLM9ASLeAtQ4pID~f7~2he-opEc6cTB79LcM0ttpOIszotCFAzZA3MNPixlFGmAR3ZWKKB~Ie7V8m8Sp6ah3TMwcVfWl9RsuX3noXMylx-6~0PexYVzgbcAzGnnX9M57CI43M8LKRuTVo5tbXIwJCmsp8oVxT1QkCXojdQkZNPULgo8r9in~KD1gdDF7qR7LvluABV4HYEbzlZOJ-LZ7TdRvoivXXSICrKQa0-6mR9pBkadsmT6T0zJ5juEaX~k2YTVj9Tx3XiEHtEgMt4SxREEiBnO6DbpZvY4P9-oOv6PeV7~m2DV~4GBegiKfl-MH4dtg__'
 
+const SOLERA_MESSAGE =
+  'Rebecca, the RoPA record titled \u201cAI-Assisted Candidate Screening & Recruitment\u201d is in need of recertification as of 09:34 AM 9/05/2026.'
+
 function TeamsWindow() {
+  const [displayedMessage, setDisplayedMessage] = useState('')
+
+  useEffect(() => {
+    const startTimer = window.setTimeout(() => {
+      let index = 0
+      const typingTimer = window.setInterval(() => {
+        index += 1
+        setDisplayedMessage(SOLERA_MESSAGE.slice(0, index))
+        if (index >= SOLERA_MESSAGE.length) {
+          window.clearInterval(typingTimer)
+        }
+      }, 20)
+    }, 2000)
+    return () => window.clearTimeout(startTimer)
+  }, [])
+
   return (
     <section
       className="absolute right-12 top-1/2 h-[795px] w-[754px] -translate-y-1/2 overflow-hidden rounded-[10px] bg-white text-[#1a1a1a] shadow-2xl"
@@ -98,12 +117,12 @@ function TeamsWindow() {
           <div className="flex flex-1 flex-col gap-9 px-8 py-8 text-[15px]">
             <div>
               <div className="mb-1.5 flex items-center gap-2 text-[13px] text-[#727272]">
+                <img src={TEAM_ICONS.aiSparkleSmall} alt="" className="h-4 w-4" />
                 <span className="text-[#1a1a1a]">Solera group AI Agent</span>
                 <span>10:05 AM</span>
               </div>
-              <div className="max-w-[420px] rounded-lg bg-[#f6f6f6] px-5 py-4 leading-[1.5]">
-                Rebecca, the RoPA record titled &ldquo;AI-Assisted Candidate Screening &amp; Recruitment&rdquo; is in
-                need of recertification as of 09:34 AM 9/05/2026.
+              <div className="min-h-[1.5em] max-w-[420px] rounded-lg bg-[#f6f6f6] px-5 py-4 leading-[1.5]">
+                {displayedMessage}
               </div>
             </div>
             <div className="ml-auto flex items-start gap-3">
