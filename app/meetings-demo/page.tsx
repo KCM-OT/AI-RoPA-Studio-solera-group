@@ -102,8 +102,8 @@ function TeamsWindow({ open }: { open: boolean }) {
 
   return (
     <section
-      className={`absolute right-12 top-1/2 h-[795px] w-[754px] -translate-y-1/2 overflow-hidden rounded-[10px] bg-white text-[#1a1a1a] shadow-2xl transition-[transform,opacity] duration-1000 ease-out ${
-        open ? 'scale-100 opacity-100' : 'pointer-events-none scale-0 opacity-0'
+      className={`absolute right-12 top-1/2 h-[795px] w-[754px] -translate-y-1/2 overflow-hidden rounded-[10px] bg-white text-[#1a1a1a] shadow-2xl ${
+        open ? 'animate-[teams-window-slide-in_1s_ease-out_forwards]' : 'pointer-events-none translate-x-full opacity-0'
       }`}
       style={{ transformOrigin: 'bottom right' }}
       aria-label="Teams conversation"
