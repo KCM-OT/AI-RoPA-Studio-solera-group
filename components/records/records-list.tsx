@@ -127,7 +127,7 @@ export function RecordsList() {
                   {a.name === 'AI-Assisted Candidate Screening & Recruitment' ? (
                     recruitmentNeedsCertification ? (
                       <span className="inline-flex animate-[badge-pop_360ms_ease-out]">
-                        <Badge variant="warning">Certification needed</Badge>
+                        <Badge variant="warning">Recertification needed</Badge>
                       </span>
                     ) : (
                       <StatusBadge status="active" />
