@@ -274,7 +274,7 @@ export function RecordDetail({ id }: { id: string }) {
             </CardContent>
           </Card>
 
-          <PostureRequirements record={record} />
+          {record.id !== 'recertification-example' && <PostureRequirements record={record} />}
 
           <AiReview record={record} />
 
