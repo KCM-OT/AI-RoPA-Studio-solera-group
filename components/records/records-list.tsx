@@ -52,7 +52,7 @@ export function RecordsList() {
         title="RoPA Records"
         description={`${activities.length} processing activities in the register`}
         actions={
-          <Button onClick={() => router.push('/author')} className="gap-2">
+          <Button onClick={() => router.push('/ropa-authoring')} className="gap-2">
             <Sparkles className="size-4" />
             Author with AI
           </Button>
