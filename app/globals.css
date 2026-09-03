@@ -163,19 +163,16 @@
 
 @keyframes teams-window-slide-in {
   0% {
-    opacity: 0;
-    transform: translate3d(110%, -50%, 0);
+    transform: translate3d(110%, 0, 0);
   }
   82% {
-    opacity: 1;
-    transform: translate3d(-2%, -50%, 0);
+    transform: translate3d(-2%, 0, 0);
   }
   94% {
-    transform: translate3d(0.75%, -50%, 0);
+    transform: translate3d(0.75%, 0, 0);
   }
   100% {
-    opacity: 1;
-    transform: translate3d(0, -50%, 0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
