@@ -45,17 +45,17 @@ const TEAM_ICONS = {
 const REBECCA_PHOTO =
   'https://s3-alpha-sig.figma.com/img/20ed/b29f/549745f583646ef1d45b255c319fe3f9?Expires=1789344000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=QXZUWHke0aXi-I3NZ3JLM9ASLeAtQ4pID~f7~2he-opEc6cTB79LcM0ttpOIszotCFAzZA3MNPixlFGmAR3ZWKKB~Ie7V8m8Sp6ah3TMwcVfWl9RsuX3noXMylx-6~0PexYVzgbcAzGnnX9M57CI43M8LKRuTVo5tbXIwJCmsp8oVxT1QkCXojdQkZNPULgo8r9in~KD1gdDF7qR7LvluABV4HYEbzlZOJ-LZ7TdRvoivXXSICrKQa0-6mR9pBkadsmT6T0zJ5juEaX~k2YTVj9Tx3XiEHtEgMt4SxREEiBnO6DbpZvY4P9-oOv6PeV7~m2DV~4GBegiKfl-MH4dtg__'
 
-const SOLERA_MESSAGE =
-  'Rebecca, the RoPA record titled \u201cAI-Assisted Candidate Screening & Recruitment\u201d is in need of recertification as of 09:34 AM 9/05/2026.'
-const REBECCA_MESSAGE = 'Thank you. Can you please provide a link to this record?'
 const RECORD_LINK_LABEL = 'AI-Assisted Candidate Screening & Recruitment'
 const RECORD_LINK_HREF = '/review/sub-recruit-2024'
+const SOLERA_PREFIX = 'Rebecca, the RoPA record titled \u201c'
+const SOLERA_SUFFIX = '\u201d is in need of recertification as of 09:34 AM 9/05/2026.'
+const SOLERA_MESSAGE_LENGTH = SOLERA_PREFIX.length + RECORD_LINK_LABEL.length + SOLERA_SUFFIX.length
+const REBECCA_MESSAGE = 'Thank you'
 
 function TeamsWindow({ open }: { open: boolean }) {
-  const [displayedMessage, setDisplayedMessage] = useState('')
+  const [typedCount, setTypedCount] = useState(0)
   const [rebeccaVisible, setRebeccaVisible] = useState(false)
   const [rebeccaMessage, setRebeccaMessage] = useState('')
-  const [recordLinkVisible, setRecordLinkVisible] = useState(false)
   const [chatStarted, setChatStarted] = useState(false)
 
   useEffect(() => {
@@ -70,8 +70,8 @@ function TeamsWindow({ open }: { open: boolean }) {
       let index = 0
       const typingTimer = window.setInterval(() => {
         index += 1
-        setDisplayedMessage(SOLERA_MESSAGE.slice(0, index))
-        if (index >= SOLERA_MESSAGE.length) {
+        setTypedCount(index)
+        if (index >= SOLERA_MESSAGE_LENGTH) {
           window.clearInterval(typingTimer)
           setRebeccaVisible(true)
         }
@@ -89,12 +89,16 @@ function TeamsWindow({ open }: { open: boolean }) {
         setRebeccaMessage(REBECCA_MESSAGE.slice(0, index))
         if (index >= REBECCA_MESSAGE.length) {
           window.clearInterval(typingTimer)
-          window.setTimeout(() => setRecordLinkVisible(true), 400)
         }
       }, 20)
     }, 400)
     return () => window.clearTimeout(startTimer)
   }, [rebeccaVisible])
+
+  const prefixShown = SOLERA_PREFIX.slice(0, Math.min(typedCount, SOLERA_PREFIX.length))
+  const linkShown = typedCount > SOLERA_PREFIX.length
+  const suffixCount = Math.max(0, typedCount - SOLERA_PREFIX.length - RECORD_LINK_LABEL.length)
+  const suffixShown = SOLERA_SUFFIX.slice(0, suffixCount)
 
   return (
     <section
@@ -158,7 +162,13 @@ function TeamsWindow({ open }: { open: boolean }) {
                 <span>10:05 AM</span>
               </div>
               <div className="min-h-[1.5em] max-w-[420px] rounded-lg bg-[#f6f6f6] px-5 py-4 leading-[1.5]">
-                {displayedMessage}
+                {prefixShown}
+                {linkShown && (
+                  <Link href={RECORD_LINK_HREF} className="text-[#167cbb] underline hover:text-[#0f5580]">
+                    {RECORD_LINK_LABEL}
+                  </Link>
+                )}
+                {suffixShown}
               </div>
             </div>
             {/* Rebecca Chat */}
@@ -178,25 +188,6 @@ function TeamsWindow({ open }: { open: boolean }) {
                 </div>
               </div>
               <img src={REBECCA_PHOTO} alt="Rebecca Nordstrum" className="size-9 rounded-full object-cover" />
-            </div>
-            {/* Solera AI record link chat */}
-            <div
-              data-chat-name="Solera AI Record Link Chat"
-              className={`transition-opacity duration-500 ${
-                recordLinkVisible ? 'opacity-100' : 'pointer-events-none opacity-0'
-              }`}
-            >
-              <div className="mb-1.5 flex items-center gap-2 text-[13px] text-[#727272]">
-                <img src={TEAM_ICONS.aiSparkleSmall} alt="" className="h-4 w-4" />
-                <span className="text-[#1a1a1a]">Solera group AI Agent</span>
-                <span>10:09 AM</span>
-              </div>
-              <div className="max-w-[420px] rounded-lg bg-[#f6f6f6] px-5 py-4 leading-[1.5]">
-                Of course. Here is the record:{' '}
-                <Link href={RECORD_LINK_HREF} className="text-[#167cbb] underline hover:text-[#0f5580]">
-                  {RECORD_LINK_LABEL}
-                </Link>
-              </div>
             </div>
           </div>
           <div className="mx-6 mb-6 flex h-[62px] items-center gap-4 rounded-lg border border-[#c8c8c8] px-5 text-[15px] text-[#727272]">
