@@ -88,7 +88,7 @@ export function RecordsList() {
         </div>
 
         <div className="overflow-hidden rounded-xl border border-border bg-card">
-          <div className="hidden grid-cols-[1fr_110px_120px_130px_130px_20px] gap-4 border-b border-border bg-muted/40 px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-muted-foreground md:grid">
+          <div className="hidden grid-cols-[1fr_130px_120px_130px_130px_20px] gap-4 border-b border-border bg-muted/40 px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-muted-foreground md:grid">
             <span>Activity</span>
             <span>Status</span>
             <span>Origin</span>
@@ -110,7 +110,7 @@ export function RecordsList() {
               <Link
                 key={a.id}
                 href={`/records/${a.id}`}
-                className="grid grid-cols-1 gap-2 border-b border-border px-4 py-3.5 transition-colors last:border-0 hover:bg-muted/40 md:grid-cols-[1fr_110px_120px_130px_130px_20px] md:items-center md:gap-4"
+                className="grid grid-cols-1 gap-2 border-b border-border px-4 py-3.5 transition-colors last:border-0 hover:bg-muted/40 md:grid-cols-[1fr_130px_120px_130px_130px_20px] md:items-center md:gap-4"
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
@@ -124,10 +124,14 @@ export function RecordsList() {
                   <p className="truncate text-xs text-muted-foreground">{a.purpose}</p>
                 </div>
                 <div>
-                  {a.name === 'AI-Assisted Candidate Screening & Recruitment' && recruitmentNeedsCertification ? (
-                    <span className="inline-flex animate-[badge-pop_360ms_ease-out]">
-                      <Badge variant="warning">Certification needed</Badge>
-                    </span>
+                  {a.name === 'AI-Assisted Candidate Screening & Recruitment' ? (
+                    recruitmentNeedsCertification ? (
+                      <span className="inline-flex animate-[badge-pop_360ms_ease-out]">
+                        <Badge variant="warning">Certification needed</Badge>
+                      </span>
+                    ) : (
+                      <StatusBadge status="active" />
+                    )
                   ) : (
                     <StatusBadge status={a.status} />
                   )}
