@@ -160,6 +160,14 @@ export function RecordsList() {
             )
           })}
         </div>
+        <div className="flex justify-end pt-3">
+          <Link
+            href="/meetings-demo"
+            className="text-xs text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+          >
+            Meetings demo
+          </Link>
+        </div>
       </div>
     </>
   )
