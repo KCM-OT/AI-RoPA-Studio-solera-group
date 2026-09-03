@@ -50,7 +50,7 @@ const RECORD_LINK_HREF = '/records/recertification-example'
 const SOLERA_PREFIX = 'Rebecca, the RoPA record titled \u201c'
 const SOLERA_SUFFIX = '\u201d is in need of recertification as of 09:34 AM 9/05/2026.'
 const SOLERA_MESSAGE_LENGTH = SOLERA_PREFIX.length + RECORD_LINK_LABEL.length + SOLERA_SUFFIX.length
-const REBECCA_MESSAGE = 'Thank you'
+const REBECCA_MESSAGE = 'Thank you, I will look at it immediately'
 
 function TeamsWindow({ open }: { open: boolean }) {
   const [typedCount, setTypedCount] = useState(0)
@@ -60,24 +60,22 @@ function TeamsWindow({ open }: { open: boolean }) {
 
   useEffect(() => {
     if (!open) return
-    const openTimer = window.setTimeout(() => setChatStarted(true), 1000)
+    const openTimer = window.setTimeout(() => setChatStarted(true), 500)
     return () => window.clearTimeout(openTimer)
   }, [open])
 
   useEffect(() => {
     if (!chatStarted) return
-    const startTimer = window.setTimeout(() => {
-      let index = 0
-      const typingTimer = window.setInterval(() => {
-        index += 1
-        setTypedCount(index)
-        if (index >= SOLERA_MESSAGE_LENGTH) {
-          window.clearInterval(typingTimer)
-          setRebeccaVisible(true)
-        }
-      }, 20)
-    }, 2000)
-    return () => window.clearTimeout(startTimer)
+    let index = 0
+    const typingTimer = window.setInterval(() => {
+      index += 1
+      setTypedCount(index)
+      if (index >= SOLERA_MESSAGE_LENGTH) {
+        window.clearInterval(typingTimer)
+        setRebeccaVisible(true)
+      }
+    }, 20)
+    return () => window.clearInterval(typingTimer)
   }, [chatStarted])
 
   useEffect(() => {
