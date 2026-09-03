@@ -125,7 +125,8 @@ function TeamsWindow() {
                 {displayedMessage}
               </div>
             </div>
-            <div className="ml-auto flex items-start gap-3">
+            {/* Rebecca Chat */}
+            <div data-chat-name="Rebecca Chat" className="ml-auto flex items-start gap-3">
               <div>
                 <div className="mb-1.5 flex justify-end gap-2 text-[13px] text-[#727272]">
                   <span className="text-[#1a1a1a]">Rebecca Nordstrum</span>
