@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 
 const WALLPAPER =
   'https://s3-alpha-sig.figma.com/img/0b46/3309/588cf1a48db6d1310cf6781dbec6138e?Expires=1789344000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=YwPBbKB7v3~fhroVNXJNHtqovfvJOTfG1A4e0IwS1H3NIg~rfsJjjNKOdDv5ZhCSb~ZucgBNnoSP-T3nUV4TNdTbGLT46aYoDAk~4gO6BlanBHF85FxyHQBndfOMlMYL053r8SPyx4O~afGJUCQNC~DkMlGuRq46G8sQO5Nl25Br2LCy6oE4FQjORQSehRnDUJ01dlZf2XrAQV2iywjtcSqf4TT0HDlLQ886FERXQ-H2BIQjF8O05qVOV5C-lPLkXOnPhtoXgRBT73dPbvl28MhnTamEi1EF1L1STXmfDYA72zpyarMPUusZFQDu49IyRO0OLyhwAtJxiSdGTNvZYQ__'
@@ -47,11 +48,14 @@ const REBECCA_PHOTO =
 const SOLERA_MESSAGE =
   'Rebecca, the RoPA record titled \u201cAI-Assisted Candidate Screening & Recruitment\u201d is in need of recertification as of 09:34 AM 9/05/2026.'
 const REBECCA_MESSAGE = 'Thank you. Can you please provide a link to this record?'
+const RECORD_LINK_LABEL = 'AI-Assisted Candidate Screening & Recruitment'
+const RECORD_LINK_HREF = '/review/sub-recruit-2024'
 
 function TeamsWindow() {
   const [displayedMessage, setDisplayedMessage] = useState('')
   const [rebeccaVisible, setRebeccaVisible] = useState(false)
   const [rebeccaMessage, setRebeccaMessage] = useState('')
+  const [recordLinkVisible, setRecordLinkVisible] = useState(false)
 
   useEffect(() => {
     const startTimer = window.setTimeout(() => {
@@ -77,6 +81,7 @@ function TeamsWindow() {
         setRebeccaMessage(REBECCA_MESSAGE.slice(0, index))
         if (index >= REBECCA_MESSAGE.length) {
           window.clearInterval(typingTimer)
+          window.setTimeout(() => setRecordLinkVisible(true), 400)
         }
       }, 20)
     }, 400)
@@ -161,6 +166,25 @@ function TeamsWindow() {
                 </div>
               </div>
               <img src={REBECCA_PHOTO} alt="Rebecca Nordstrum" className="size-9 rounded-full object-cover" />
+            </div>
+            {/* Solera AI record link chat */}
+            <div
+              data-chat-name="Solera AI Record Link Chat"
+              className={`transition-opacity duration-500 ${
+                recordLinkVisible ? 'opacity-100' : 'pointer-events-none opacity-0'
+              }`}
+            >
+              <div className="mb-1.5 flex items-center gap-2 text-[13px] text-[#727272]">
+                <img src={TEAM_ICONS.aiSparkleSmall} alt="" className="h-4 w-4" />
+                <span className="text-[#1a1a1a]">Solera group AI Agent</span>
+                <span>10:09 AM</span>
+              </div>
+              <div className="max-w-[420px] rounded-lg bg-[#f6f6f6] px-5 py-4 leading-[1.5]">
+                Of course. Here is the record:{' '}
+                <Link href={RECORD_LINK_HREF} className="text-[#167cbb] underline hover:text-[#0f5580]">
+                  {RECORD_LINK_LABEL}
+                </Link>
+              </div>
             </div>
           </div>
           <div className="mx-6 mb-6 flex h-[62px] items-center gap-4 rounded-lg border border-[#c8c8c8] px-5 text-[15px] text-[#727272]">
