@@ -45,32 +45,38 @@ const TEAM_ICONS = {
 const REBECCA_PHOTO =
   'https://s3-alpha-sig.figma.com/img/20ed/b29f/549745f583646ef1d45b255c319fe3f9?Expires=1789344000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=QXZUWHke0aXi-I3NZ3JLM9ASLeAtQ4pID~f7~2he-opEc6cTB79LcM0ttpOIszotCFAzZA3MNPixlFGmAR3ZWKKB~Ie7V8m8Sp6ah3TMwcVfWl9RsuX3noXMylx-6~0PexYVzgbcAzGnnX9M57CI43M8LKRuTVo5tbXIwJCmsp8oVxT1QkCXojdQkZNPULgo8r9in~KD1gdDF7qR7LvluABV4HYEbzlZOJ-LZ7TdRvoivXXSICrKQa0-6mR9pBkadsmT6T0zJ5juEaX~k2YTVj9Tx3XiEHtEgMt4SxREEiBnO6DbpZvY4P9-oOv6PeV7~m2DV~4GBegiKfl-MH4dtg__'
 
-const SOLERA_MESSAGE =
-  'Rebecca, the RoPA record titled \u201cAI-Assisted Candidate Screening & Recruitment\u201d is in need of recertification as of 09:34 AM 9/05/2026.'
-const REBECCA_MESSAGE = 'Thank you. Can you please provide a link to this record?'
 const RECORD_LINK_LABEL = 'AI-Assisted Candidate Screening & Recruitment'
-const RECORD_LINK_HREF = '/review/sub-recruit-2024'
+const RECORD_LINK_HREF = '/records/recertification-example'
+const SOLERA_PREFIX = 'Rebecca, the RoPA record titled \u201c'
+const SOLERA_SUFFIX = '\u201d is in need of recertification as of 09:34 AM 9/05/2026.'
+const SOLERA_MESSAGE_LENGTH = SOLERA_PREFIX.length + RECORD_LINK_LABEL.length + SOLERA_SUFFIX.length
+const REBECCA_MESSAGE = 'Thank you, I will look at it immediately'
 
-function TeamsWindow() {
-  const [displayedMessage, setDisplayedMessage] = useState('')
+function TeamsWindow({ open }: { open: boolean }) {
+  const [typedCount, setTypedCount] = useState(0)
   const [rebeccaVisible, setRebeccaVisible] = useState(false)
   const [rebeccaMessage, setRebeccaMessage] = useState('')
-  const [recordLinkVisible, setRecordLinkVisible] = useState(false)
+  const [chatStarted, setChatStarted] = useState(false)
 
   useEffect(() => {
-    const startTimer = window.setTimeout(() => {
-      let index = 0
-      const typingTimer = window.setInterval(() => {
-        index += 1
-        setDisplayedMessage(SOLERA_MESSAGE.slice(0, index))
-        if (index >= SOLERA_MESSAGE.length) {
-          window.clearInterval(typingTimer)
-          setRebeccaVisible(true)
-        }
-      }, 20)
-    }, 2000)
-    return () => window.clearTimeout(startTimer)
-  }, [])
+    if (!open) return
+    const openTimer = window.setTimeout(() => setChatStarted(true), 500)
+    return () => window.clearTimeout(openTimer)
+  }, [open])
+
+  useEffect(() => {
+    if (!chatStarted) return
+    let index = 0
+    const typingTimer = window.setInterval(() => {
+      index += 1
+      setTypedCount(index)
+      if (index >= SOLERA_MESSAGE_LENGTH) {
+        window.clearInterval(typingTimer)
+        setRebeccaVisible(true)
+      }
+    }, 20)
+    return () => window.clearInterval(typingTimer)
+  }, [chatStarted])
 
   useEffect(() => {
     if (!rebeccaVisible) return
@@ -81,17 +87,25 @@ function TeamsWindow() {
         setRebeccaMessage(REBECCA_MESSAGE.slice(0, index))
         if (index >= REBECCA_MESSAGE.length) {
           window.clearInterval(typingTimer)
-          window.setTimeout(() => setRecordLinkVisible(true), 400)
         }
       }, 20)
     }, 400)
     return () => window.clearTimeout(startTimer)
   }, [rebeccaVisible])
 
+  const prefixShown = SOLERA_PREFIX.slice(0, Math.min(typedCount, SOLERA_PREFIX.length))
+  const linkShown = typedCount > SOLERA_PREFIX.length
+  const suffixCount = Math.max(0, typedCount - SOLERA_PREFIX.length - RECORD_LINK_LABEL.length)
+  const suffixShown = SOLERA_SUFFIX.slice(0, suffixCount)
+
   return (
     <section
-      className="absolute right-12 top-1/2 h-[795px] w-[754px] -translate-y-1/2 overflow-hidden rounded-[10px] bg-white text-[#1a1a1a] shadow-2xl"
+      className={`absolute right-12 top-1/2 -mt-[397.5px] h-[795px] w-[754px] overflow-hidden rounded-[10px] bg-white text-[#1a1a1a] shadow-2xl ${
+        open ? 'animate-[teams-window-slide-in_500ms_ease-out_forwards] opacity-100' : 'pointer-events-none translate-x-full opacity-0'
+      }`}
+      style={{ transformOrigin: 'bottom right' }}
       aria-label="Teams conversation"
+      aria-hidden={!open}
     >
       <header className="flex h-[75px] items-center gap-6 bg-[#167cbb] px-6 text-white">
         <div className="flex items-center gap-3">
@@ -146,7 +160,13 @@ function TeamsWindow() {
                 <span>10:05 AM</span>
               </div>
               <div className="min-h-[1.5em] max-w-[420px] rounded-lg bg-[#f6f6f6] px-5 py-4 leading-[1.5]">
-                {displayedMessage}
+                {prefixShown}
+                {linkShown && (
+                  <Link href={RECORD_LINK_HREF} className="text-[#167cbb] underline hover:text-[#0f5580]">
+                    {RECORD_LINK_LABEL}
+                  </Link>
+                )}
+                {suffixShown}
               </div>
             </div>
             {/* Rebecca Chat */}
@@ -166,25 +186,6 @@ function TeamsWindow() {
                 </div>
               </div>
               <img src={REBECCA_PHOTO} alt="Rebecca Nordstrum" className="size-9 rounded-full object-cover" />
-            </div>
-            {/* Solera AI record link chat */}
-            <div
-              data-chat-name="Solera AI Record Link Chat"
-              className={`transition-opacity duration-500 ${
-                recordLinkVisible ? 'opacity-100' : 'pointer-events-none opacity-0'
-              }`}
-            >
-              <div className="mb-1.5 flex items-center gap-2 text-[13px] text-[#727272]">
-                <img src={TEAM_ICONS.aiSparkleSmall} alt="" className="h-4 w-4" />
-                <span className="text-[#1a1a1a]">Solera group AI Agent</span>
-                <span>10:09 AM</span>
-              </div>
-              <div className="max-w-[420px] rounded-lg bg-[#f6f6f6] px-5 py-4 leading-[1.5]">
-                Of course. Here is the record:{' '}
-                <Link href={RECORD_LINK_HREF} className="text-[#167cbb] underline hover:text-[#0f5580]">
-                  {RECORD_LINK_LABEL}
-                </Link>
-              </div>
             </div>
           </div>
           <div className="mx-6 mb-6 flex h-[62px] items-center gap-4 rounded-lg border border-[#c8c8c8] px-5 text-[15px] text-[#727272]">
@@ -228,19 +229,29 @@ function Clock() {
 }
 
 export default function MeetingsDemoPage() {
+  const [teamsOpen, setTeamsOpen] = useState(false)
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#9bbbd4]" aria-label="Meetings demo">
       <img src={WALLPAPER} alt="Windows blue abstract wallpaper" className="absolute inset-0 size-full object-cover" />
-      <TeamsWindow />
+      <TeamsWindow open={teamsOpen} />
       <div className="absolute inset-x-0 bottom-0 flex h-[53px] items-center justify-center bg-[#deebf5] px-6">
         <div className="flex items-center gap-[13px]">
           <img src={START} alt="Start" className="h-[22px] w-[22px]" />
           {icons.map(([file, label]) => (
             <img key={file} src={file} alt={label} className="h-7 w-7 object-contain" />
           ))}
-          <div className="flex h-[41px] items-center bg-white px-3">
-            <span className="flex size-7 items-center justify-center rounded bg-[#426ec2] text-lg font-semibold text-white">T</span>
-          </div>
+          <button
+            type="button"
+            onClick={() => setTeamsOpen(true)}
+            aria-label="Teams"
+            className="relative flex h-[41px] items-center bg-white px-3"
+          >
+            <span className="flex size-7 items-center justify-center rounded bg-[#426ec2] text-lg font-semibold text-white">
+              T
+            </span>
+            <span className="absolute right-1.5 top-1.5 size-2.5 rounded-full bg-[#e81123] ring-2 ring-[#deebf5]" />
+          </button>
         </div>
         <div className="absolute right-5">
           <Clock />

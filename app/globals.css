@@ -161,6 +161,21 @@
   --sidebar-ring: #99e5a7;
 }
 
+@keyframes teams-window-slide-in {
+  0% {
+    transform: translate3d(110%, 0, 0);
+  }
+  82% {
+    transform: translate3d(-2%, 0, 0);
+  }
+  94% {
+    transform: translate3d(0.75%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 @keyframes badge-pop {
   0% {
     transform: scale(1);
