@@ -51,13 +51,21 @@ const REBECCA_MESSAGE = 'Thank you. Can you please provide a link to this record
 const RECORD_LINK_LABEL = 'AI-Assisted Candidate Screening & Recruitment'
 const RECORD_LINK_HREF = '/review/sub-recruit-2024'
 
-function TeamsWindow() {
+function TeamsWindow({ open }: { open: boolean }) {
   const [displayedMessage, setDisplayedMessage] = useState('')
   const [rebeccaVisible, setRebeccaVisible] = useState(false)
   const [rebeccaMessage, setRebeccaMessage] = useState('')
   const [recordLinkVisible, setRecordLinkVisible] = useState(false)
+  const [chatStarted, setChatStarted] = useState(false)
 
   useEffect(() => {
+    if (!open) return
+    const openTimer = window.setTimeout(() => setChatStarted(true), 1000)
+    return () => window.clearTimeout(openTimer)
+  }, [open])
+
+  useEffect(() => {
+    if (!chatStarted) return
     const startTimer = window.setTimeout(() => {
       let index = 0
       const typingTimer = window.setInterval(() => {
@@ -70,7 +78,7 @@ function TeamsWindow() {
       }, 20)
     }, 2000)
     return () => window.clearTimeout(startTimer)
-  }, [])
+  }, [chatStarted])
 
   useEffect(() => {
     if (!rebeccaVisible) return
@@ -90,8 +98,12 @@ function TeamsWindow() {
 
   return (
     <section
-      className="absolute right-12 top-1/2 h-[795px] w-[754px] -translate-y-1/2 overflow-hidden rounded-[10px] bg-white text-[#1a1a1a] shadow-2xl"
+      className={`absolute right-12 top-1/2 h-[795px] w-[754px] -translate-y-1/2 overflow-hidden rounded-[10px] bg-white text-[#1a1a1a] shadow-2xl transition-[transform,opacity] duration-1000 ease-out ${
+        open ? 'scale-100 opacity-100' : 'pointer-events-none scale-0 opacity-0'
+      }`}
+      style={{ transformOrigin: 'bottom right' }}
       aria-label="Teams conversation"
+      aria-hidden={!open}
     >
       <header className="flex h-[75px] items-center gap-6 bg-[#167cbb] px-6 text-white">
         <div className="flex items-center gap-3">
@@ -228,19 +240,29 @@ function Clock() {
 }
 
 export default function MeetingsDemoPage() {
+  const [teamsOpen, setTeamsOpen] = useState(false)
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#9bbbd4]" aria-label="Meetings demo">
       <img src={WALLPAPER} alt="Windows blue abstract wallpaper" className="absolute inset-0 size-full object-cover" />
-      <TeamsWindow />
+      <TeamsWindow open={teamsOpen} />
       <div className="absolute inset-x-0 bottom-0 flex h-[53px] items-center justify-center bg-[#deebf5] px-6">
         <div className="flex items-center gap-[13px]">
           <img src={START} alt="Start" className="h-[22px] w-[22px]" />
           {icons.map(([file, label]) => (
             <img key={file} src={file} alt={label} className="h-7 w-7 object-contain" />
           ))}
-          <div className="flex h-[41px] items-center bg-white px-3">
-            <span className="flex size-7 items-center justify-center rounded bg-[#426ec2] text-lg font-semibold text-white">T</span>
-          </div>
+          <button
+            type="button"
+            onClick={() => setTeamsOpen(true)}
+            aria-label="Teams"
+            className="relative flex h-[41px] items-center bg-white px-3"
+          >
+            <span className="flex size-7 items-center justify-center rounded bg-[#426ec2] text-lg font-semibold text-white">
+              T
+            </span>
+            <span className="absolute right-1.5 top-1.5 size-2.5 rounded-full bg-[#e81123] ring-2 ring-[#deebf5]" />
+          </button>
         </div>
         <div className="absolute right-5">
           <Clock />
