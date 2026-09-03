@@ -433,7 +433,7 @@ function DraftCard({
               <span
                 key={`${r.type}-${r.name}-${idx}`}
                 className={cn(
-                  'group inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs',
+                  'group inline-flex items-center gap-1.5 rounded-[2px] border px-2.5 py-1 text-xs',
                   r.inventoryId
                     ? 'border-border bg-muted text-foreground'
                     : 'border-warning/40 bg-warning-muted text-foreground',
