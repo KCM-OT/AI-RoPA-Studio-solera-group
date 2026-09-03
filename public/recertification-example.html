@@ -142,17 +142,19 @@
 
   .chip-list{ display:flex; flex-wrap:wrap; gap:8px; padding-left:8px; }
   .chip{
-    display:flex; align-items:center; gap:6px;
-    background: var(--forest-soft); color: var(--forest-deep);
-    font-size:12.5px; padding: 5px 10px; border-radius: 14px;
-    border:1px solid transparent;
+    display:inline-flex; align-items:center; gap:4px;
+    height:24px; background:#e8f1f6; color:#1a1a1a;
+    font-family:'Open Sans','IBM Plex Sans',sans-serif; font-size:14px; line-height:20px;
+    padding:2px 0 2px 8px; border-radius:2px; border:none;
   }
   .chip.chip-flag{ background: var(--amber-soft); color:#7a5a19; border-color:var(--amber-line); }
   .chip-remove{
-    border:none; background:none; cursor:pointer; color:inherit; opacity:.55;
-    font-size:13px; line-height:1; padding:0 0 0 2px;
+    display:inline-flex; align-items:center; justify-content:center;
+    width:24px; height:24px; border:none; background:transparent; cursor:pointer;
+    padding:0; opacity:1;
   }
-  .chip-remove:hover{ opacity:1; }
+  .chip-remove img{ width:16px; height:16px; display:block; }
+  .chip-remove:hover{ background:rgba(26,26,26,.06); }
   .chip-add{
     display:flex; align-items:center; gap:6px; padding-left:8px; margin-top:8px;
   }
@@ -559,7 +561,7 @@
       chip.innerHTML = (flaggable && item.flagged ? "\u26a0 " : "") + escapeHtml(item.name);
       const rm = document.createElement("button");
       rm.className = "chip-remove";
-      rm.textContent = "\u00d7";
+      rm.innerHTML = '<img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/figma-assets/2be151645c2d91ad08c15200ac4a760b2263d83c76da832ca7d89f7af4a7e345.svg" alt="" />';
       rm.title = "Remove";
       rm.addEventListener("click", ()=>{
         state.lists[listKey].splice(idx,1);
