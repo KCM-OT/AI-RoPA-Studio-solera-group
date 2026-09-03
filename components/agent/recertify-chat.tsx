@@ -393,7 +393,14 @@ function ChangeCard({
     isField && input.fieldKey ? FIELD_VALUE_GETTERS[input.fieldKey](record) : ''
   const [editing, setEditing] = useState(false)
   const [value, setValue] = useState(input.after ?? '')
+  const [chipValues, setChipValues] = useState(() =>
+    (input.after ?? '')
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean),
+  )
   const [done, setDone] = useState<null | 'accepted' | 'rejected'>(null)
+  const isChipField = isField && ['dataSubjectCategories', 'jurisdiction', 'recipients'].includes(input.fieldKey ?? '')
 
   if (done) {
     return <ResolvedChip accepted={done === 'accepted'} input={input} />
@@ -428,7 +435,16 @@ function ChangeCard({
                 {before || 'not set'}
               </div>
               <ArrowRight className="hidden size-4 shrink-0 text-muted-foreground sm:block" />
-              {editing ? (
+              {isChipField ? (
+                <EditableValueChips
+                  values={chipValues}
+                  editing={editing}
+                  onChange={(next) => {
+                    setChipValues(next)
+                    setValue(next.join(', '))
+                  }}
+                />
+              ) : editing ? (
                 <textarea
                   autoFocus
                   rows={2}
@@ -487,7 +503,7 @@ function ChangeCard({
         <button
           onClick={() => {
             setDone('accepted')
-            onAccept(isField ? value : undefined)
+            onAccept(isChipField ? chipValues.join(', ') : isField ? value : undefined)
           }}
           className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
         >
@@ -495,6 +511,73 @@ function ChangeCard({
         </button>
       </div>
     </ActionCard>
+  )
+}
+
+function EditableValueChips({
+  values,
+  editing,
+  onChange,
+}: {
+  values: string[]
+  editing: boolean
+  onChange: (values: string[]) => void
+}) {
+  const [draft, setDraft] = useState('')
+
+  function addValue() {
+    const next = draft.trim()
+    if (!next || values.some((value) => value.toLowerCase() === next.toLowerCase())) return
+    onChange([...values, next])
+    setDraft('')
+  }
+
+  return (
+    <div className="flex-1 rounded-lg border border-success/30 bg-success-muted p-2">
+      <div className="flex flex-wrap gap-2">
+        {values.map((value) => (
+          <span
+            key={value}
+            className="inline-flex h-6 items-center gap-1 rounded-[2px] bg-[#e8f1f6] pl-2 text-sm leading-5 text-foreground"
+          >
+            {value}
+            {editing && (
+              <button
+                type="button"
+                aria-label={`Remove ${value}`}
+                onClick={() => onChange(values.filter((item) => item !== value))}
+                className="inline-flex size-6 items-center justify-center text-muted-foreground hover:bg-foreground/10"
+              >
+                <X className="size-4" />
+              </button>
+            )}
+          </span>
+        ))}
+      </div>
+      {editing && (
+        <div className="mt-2 flex gap-2">
+          <input
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' && !event.nativeEvent.isComposing && event.keyCode !== 229) {
+                event.preventDefault()
+                addValue()
+              }
+            }}
+            placeholder="Add a value"
+            className="min-w-0 flex-1 rounded-md border border-ai/40 bg-background px-2 py-1 text-sm outline-none"
+          />
+          <button
+            type="button"
+            onClick={addValue}
+            className="rounded-md border border-border px-2 py-1 text-xs font-medium hover:bg-muted"
+          >
+            Add
+          </button>
+        </div>
+      )}
+    </div>
   )
 }
 
