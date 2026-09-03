@@ -1,0 +1,744 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#F4F6F1;
+    --paper-raised:#FFFFFE;
+    --ink:#1B2620;
+    --muted:#5B6459;
+    --forest:#355943;
+    --forest-deep:#233D2E;
+    --forest-soft:#E4ECE3;
+    --amber:#B8842B;
+    --amber-soft:#FBF0DC;
+    --amber-line:#E3C888;
+    --brick:#9C3B32;
+    --brick-soft:#F6E4DF;
+    --line:#D8DCD2;
+    --line-strong:#B9C0B3;
+  }
+
+  * { box-sizing: border-box; }
+
+  .ropa-root{
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14.5px;
+    line-height: 1.5;
+    padding: 0;
+    min-height: 100%;
+  }
+
+  .ropa-root h1, .ropa-root h2, .ropa-root h3{
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    margin: 0;
+    color: var(--forest-deep);
+  }
+
+  /* ---------- Top identity strip ---------- */
+  .topstrip{
+    display:flex; flex-direction:column; justify-content:center; gap:8px;
+    min-height:136px; padding:24px;
+    border-bottom:1px solid #a9a9a9;
+    background:#fff;
+  }
+  .page-breadcrumbs{ display:flex; align-items:center; gap:4px; height:20px; font-family:'IBM Plex Sans', sans-serif; font-size:14px; line-height:20px; }
+  .page-breadcrumbs a{ color:#1470a9; font-weight:600; text-decoration:none; }
+  .page-breadcrumbs img{ width:8px; height:8px; }
+  .page-breadcrumbs span{ color:#1a1a1a; }
+  .page-title-row{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+  .ropa-root .page-title{ color:#1a1a1a; font-family:'IBM Plex Sans', sans-serif; font-size:24px; font-weight:600; line-height:32px; }
+  .page-status{ display:flex; align-items:center; justify-content:center; height:24px; padding:4px 8px; border:1px solid #da7c01; border-radius:12px; background:#fbf2e6; color:#1a1a1a; font-family:'IBM Plex Sans', sans-serif; font-size:12px; line-height:16px; }
+  .page-description{ color:#1a1a1a; font-family:'IBM Plex Sans', sans-serif; font-size:14px; line-height:20px; }
+
+  /* ---------- Recertification banner ---------- */
+  .banner{
+    margin: 22px 28px 0 28px;
+    border: 1px solid var(--brick);
+    background: var(--brick-soft);
+    border-radius: 3px;
+    padding: 18px 22px;
+    display:flex; align-items:center; justify-content:space-between; gap:24px;
+    flex-wrap: wrap;
+  }
+  .banner-left{ display:flex; gap:16px; align-items:flex-start; }
+  .banner-mark{
+    width:40px; height:40px; flex:none; border-radius:50%;
+    border: 2px solid var(--brick);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Source Serif 4', serif; font-weight:700; font-size:17px;
+    color:var(--brick);
+  }
+  .banner-title{ font-family:'Source Serif 4', serif; font-weight:600; font-size:16px; color:var(--brick); margin-bottom:3px; }
+  .banner-copy{ color:#5b332e; font-size:13px; max-width:56ch; }
+  .banner-copy b{ color:var(--brick); font-weight:600; }
+  .btn{
+    font-family:'IBM Plex Sans', sans-serif; font-size:13px; font-weight:600;
+    padding:10px 18px; border-radius:3px; border:1px solid transparent;
+    cursor:pointer; white-space:nowrap;
+  }
+  .btn-primary{ background:var(--forest); color:#fff; }
+  .btn-primary:hover{ background:var(--forest-deep); }
+  .btn-primary:disabled{ background:#8fa398; cursor:default; }
+  .btn-ghost{ background:transparent; border-color: var(--line-strong); color:var(--ink); }
+  .btn-ghost:hover{ border-color:var(--forest); color:var(--forest-deep); }
+  .banner.is-certified{ border-color: var(--forest); background: var(--forest-soft); }
+  .banner.is-certified .banner-mark{ border-color:var(--forest); color:var(--forest); }
+  .banner.is-certified .banner-title{ color: var(--forest-deep); }
+  .banner.is-certified .banner-copy{ color:#2c3f34; }
+  .banner.is-certified .banner-copy b{ color: var(--forest-deep); }
+
+  /* ---------- Main layout ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns: minmax(0,1fr) 320px;
+    gap: 28px;
+    padding: 24px 28px 40px 28px;
+    align-items:start;
+  }
+  @media (max-width: 880px){
+    .layout{ grid-template-columns: 1fr; }
+  }
+
+  /* ---------- Document body ---------- */
+  .doc{ background: var(--paper-raised); border:1px solid var(--line); border-radius:4px; padding: 28px 30px; }
+  .doc-eyebrow{ color:var(--muted); font-size:12px; margin-bottom:6px; }
+  .record-title{
+    font-size: 24px; line-height:1.25; border:none; width:100%;
+    background:transparent; padding:2px 0; margin-bottom: 4px;
+    font-family:'Source Serif 4', serif; font-weight:600; color:var(--forest-deep);
+  }
+  .record-title:focus{ outline:none; border-bottom:1px solid var(--forest); }
+  .record-sub{
+    width:100%; border:none; background:transparent; resize:none;
+    font-family:'IBM Plex Sans', sans-serif; font-size:14px; color:var(--muted);
+    padding:0; margin-bottom: 18px;
+  }
+  .record-sub:focus{ outline:none; }
+
+  .field{ padding: 16px 0; border-top:1px solid var(--line); }
+  .field:first-of-type{ border-top:none; }
+  .field-head{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .field-label{ font-size:12px; font-weight:600; color: var(--muted); }
+  .flag{
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:11px; font-weight:600; color: var(--amber);
+    background: var(--amber-soft); border:1px solid var(--amber-line);
+    padding: 2px 8px; border-radius: 10px;
+  }
+  .field-value{
+    width:100%; border:none; background:transparent; resize:vertical;
+    font-family:'IBM Plex Sans', sans-serif; font-size:14px; color:var(--ink);
+    padding:6px 8px; border-radius:2px; min-height:22px;
+    border-bottom: 1px dashed transparent;
+  }
+  .field-value:hover{ background: #FAFBF8; }
+  .field-value:focus{ outline:none; border-bottom:1px dashed var(--forest); background:#FAFBF8; }
+  .field-value.needs-approval{ background: var(--amber-soft); }
+  .field-note{ font-size:11.5px; color: var(--muted); margin-top:4px; padding-left:8px; }
+
+  .chip-list{ display:flex; flex-wrap:wrap; gap:8px; padding-left:8px; }
+  .chip{
+    display:flex; align-items:center; gap:6px;
+    background: var(--forest-soft); color: var(--forest-deep);
+    font-size:12.5px; padding: 5px 10px; border-radius: 14px;
+    border:1px solid transparent;
+  }
+  .chip.chip-flag{ background: var(--amber-soft); color:#7a5a19; border-color:var(--amber-line); }
+  .chip-remove{
+    border:none; background:none; cursor:pointer; color:inherit; opacity:.55;
+    font-size:13px; line-height:1; padding:0 0 0 2px;
+  }
+  .chip-remove:hover{ opacity:1; }
+  .chip-add{
+    display:flex; align-items:center; gap:6px; padding-left:8px; margin-top:8px;
+  }
+  .chip-add input{
+    font-family:'IBM Plex Sans', sans-serif; font-size:12.5px;
+    border:1px solid var(--line-strong); border-radius:14px;
+    padding:5px 12px; background:var(--paper-raised); width: 200px;
+  }
+  .chip-add input:focus{ outline:none; border-color:var(--forest); }
+  .add-link{
+    border:none; background:none; cursor:pointer; color:var(--forest-deep);
+    font-size:12.5px; font-weight:600; padding:5px 4px;
+  }
+  .add-link:hover{ text-decoration:underline; }
+
+  .doclist{ padding-left:8px; }
+  .docrow{ display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px; }
+  .docrow:last-child{ border-bottom:none; }
+  .docrow-name{ font-weight:500; }
+  .docrow-meta{ color:var(--muted); font-size:12px; }
+  .docrow-remove{ border:none; background:none; color:var(--muted); cursor:pointer; font-size:12px; }
+  .docrow-remove:hover{ color:var(--brick); }
+
+  /* ---------- Sidebar ---------- */
+  .side-card{ background: var(--paper-raised); border:1px solid var(--line); border-radius:4px; padding:20px; margin-bottom:20px; }
+  .side-title{ font-size:13px; font-weight:600; color:var(--forest-deep); margin-bottom: 2px; }
+  .side-sub{ font-size:12px; color:var(--muted); margin-bottom:14px; }
+
+  .progress-row{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+  .progress-ring{ position:relative; width:52px; height:52px; flex:none; }
+  .progress-ring svg{ transform: rotate(-90deg); }
+  .progress-ring-track{ fill:none; stroke:var(--line); stroke-width:5; }
+  .progress-ring-fill{ fill:none; stroke:var(--forest); stroke-width:5; stroke-linecap:round; transition: stroke-dashoffset .4s ease; }
+  .progress-num{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; }
+  .progress-text{ font-size:12.5px; color:var(--muted); }
+
+  .approval-item{ border-top:1px solid var(--line); padding: 12px 0; }
+  .approval-item:first-of-type{ border-top:none; padding-top:0; }
+  .approval-title{ font-size:13px; font-weight:600; margin-bottom:3px; }
+  .approval-detail{ font-size:12px; color:var(--muted); margin-bottom:10px; line-height:1.45; }
+  .approval-actions{ display:flex; gap:8px; }
+  .pill-btn{
+    flex:1; font-size:12px; font-weight:600; padding:7px 0; border-radius:3px;
+    border:1px solid var(--line-strong); background:transparent; cursor:pointer; color:var(--muted);
+  }
+  .pill-btn.approve.is-active{ background: var(--forest-soft); border-color:var(--forest); color:var(--forest-deep); }
+  .pill-btn.followup.is-active{ background: var(--amber-soft); border-color:var(--amber-line); color:#7a5a19; }
+  .pill-btn:hover{ border-color: var(--ink); }
+
+  .history-item{ display:flex; gap:10px; padding:9px 0; border-top:1px solid var(--line); font-size:12px; }
+  .history-item:first-of-type{ border-top:none; }
+  .history-dot{ width:6px; height:6px; border-radius:50%; background:var(--forest); margin-top:5px; flex:none; }
+  .history-copy b{ font-weight:600; }
+  .history-time{ color:var(--muted); font-size:11px; }
+  .history-empty{ font-size:12px; color:var(--muted); font-style:italic; }
+
+  /* ---------- Footer / governance strip ---------- */
+  .gov-strip{
+    margin: 0 28px 32px 28px;
+    border:1px solid var(--line); border-radius:4px; background: var(--paper-raised);
+    padding: 18px 24px;
+    display:grid; grid-template-columns: repeat(5, 1fr); gap: 18px;
+  }
+  @media (max-width: 880px){ .gov-strip{ grid-template-columns: repeat(2,1fr); } }
+  .gov-cell{ }
+  .gov-label{ font-size:11px; color:var(--muted); margin-bottom:4px; }
+  .gov-value{ font-size:13.5px; font-weight:500; }
+  .gov-value.status-overdue{ color: var(--brick); }
+  .gov-value.status-certified{ color: var(--forest-deep); }
+
+  .stamp-block{
+    margin: 0 28px 40px 28px; padding: 18px 24px;
+    border: 1px dashed var(--line-strong); border-radius:4px;
+    display:none; align-items:center; gap:14px; background: var(--forest-soft);
+  }
+  .stamp-block.is-visible{ display:flex; }
+  .stamp-seal{
+    width:44px; height:44px; border-radius:50%; border:2px solid var(--forest);
+    display:flex; align-items:center; justify-content:center; flex:none;
+    font-family:'Source Serif 4', serif; font-weight:700; color:var(--forest); font-size:11px;
+  }
+  .stamp-copy{ font-size:13px; color:var(--forest-deep); }
+  .stamp-copy b{ font-weight:600; }
+
+  .save-note{ text-align:center; font-size:11.5px; color:var(--muted); padding-bottom: 24px; }
+</style>
+
+<div class="ropa-root" id="ropaRoot">
+
+  <header class="topstrip">
+    <nav class="page-breadcrumbs" aria-label="Breadcrumb">
+      <a href="/records">Records</a>
+      <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/figma-assets/012d8524447696b7bc64204626341ce818fe28fb51d038a5574b10c70128c78b.svg" alt="" />
+      <span>Recertification Example</span>
+    </nav>
+    <div class="page-title-row">
+      <h1 class="page-title">AI-Assisted Candidate Screening &amp; Recruitment</h1>
+      <span class="page-status">Recertification needed</span>
+    </div>
+    <div class="page-description">Submitted by Elena Martin (Global talent acquisition)  on Aug 31, 2025</div>
+  </header>
+
+  <div class="banner" id="banner">
+    <div class="banner-left">
+      <div class="banner-mark" id="bannerMark">!</div>
+      <div>
+        <div class="banner-title" id="bannerTitle">Recertification overdue</div>
+        <div class="banner-copy" id="bannerCopy">
+          This record has been active for <b>12 months</b>. Article 30 requires you, as business process owner,
+          to review it for accuracy and re-approve it before it can stay active. <b>5 items below need your decision.</b>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="recertifyBtn">Approve &amp; recertify</button>
+  </div>
+
+  <div class="layout">
+
+    <!-- DOCUMENT BODY -->
+    <div class="doc">
+      <div class="doc-eyebrow">Record of processing activity · Article 30(1)</div>
+      <div class="record-title" contenteditable="true" id="f_title">AI-Assisted Candidate Screening &amp; Recruitment</div>
+      <textarea class="record-sub" id="f_purpose_short" rows="2">Support fair, consistent recruitment and make significant employment decisions with human oversight.</textarea>
+
+      <div class="field">
+        <div class="field-head"><span class="field-label">Description</span></div>
+        <textarea class="field-value" id="f_description" rows="3">Sourcing, screening, interviewing, and hiring candidates for open roles across Solera Group. TalentSprint AI ranks resumes and scores recorded interviews, with every recommendation reviewed by Talent Acquisition before a decision.</textarea>
+      </div>
+
+      <div class="field">
+        <div class="field-head"><span class="field-label">Purpose of processing</span></div>
+        <textarea class="field-value" id="f_purpose" rows="2">Sourcing, screening, and hiring candidates for open roles, using an AI vendor to rank resumes and score interviews.</textarea>
+      </div>
+
+      <div class="field">
+        <div class="field-head"><span class="field-label">Legal basis (Art. 6)</span></div>
+        <input class="field-value" id="f_legal" value="Legitimate interests" />
+      </div>
+
+      <div class="field">
+        <div class="field-head"><span class="field-label">Data subject categories</span></div>
+        <div class="chip-list" id="chips_subjects"></div>
+        <div class="chip-add">
+          <input type="text" placeholder="Add category…" id="input_subjects" />
+          <button class="add-link" data-add="subjects">+ Add</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-head">
+          <span class="field-label">Retention period</span>
+          <span class="flag" id="flag_retention">Needs your approval</span>
+        </div>
+        <textarea class="field-value needs-approval" id="f_retention" rows="2">12 months after requisition closure. Hired-candidate records are retained in HRIS with no stated end date.</textarea>
+        <div class="field-note">No retention limit is documented for hired-candidate records once they move into HRIS. Add one, or confirm the open-ended retention is intentional.</div>
+      </div>
+
+      <div class="field">
+        <div class="field-head"><span class="field-label">Recipients</span></div>
+        <textarea class="field-value" id="f_recipients" rows="1">Talent Acquisition, hiring managers, HR Compliance</textarea>
+      </div>
+
+      <div class="field">
+        <div class="field-head">
+          <span class="field-label">International transfers</span>
+          <span class="flag" id="flag_transfers">Needs your approval</span>
+        </div>
+        <textarea class="field-value needs-approval" id="f_transfers" rows="2">US and Singapore processing for global candidates. Standard Contractual Clauses drafted; transfer impact assessment for the Singapore leg is not yet on file.</textarea>
+        <div class="field-note">The Singapore transfer assessment referenced here hasn't been uploaded to source documents. Confirm it's complete, or note a target date.</div>
+      </div>
+
+      <div class="field">
+        <div class="field-head"><span class="field-label">Security measures</span></div>
+        <textarea class="field-value" id="f_security" rows="2">Encryption at rest and in transit, role-based access, audit logging, reviewer approval controls.</textarea>
+      </div>
+
+      <div class="field">
+        <div class="field-head"><span class="field-label">Managing organization</span></div>
+        <input class="field-value" id="f_managing" value="Global Talent Acquisition" />
+      </div>
+
+      <div class="field">
+        <div class="field-head"><span class="field-label">Jurisdiction</span></div>
+        <div class="chip-list" id="chips_jurisdiction"></div>
+        <div class="chip-add">
+          <input type="text" placeholder="Add jurisdiction…" id="input_jurisdiction" />
+          <button class="add-link" data-add="jurisdiction">+ Add</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-head">
+          <span class="field-label">Vendors &amp; processors</span>
+          <span class="flag" id="flag_vendor">Needs your approval</span>
+        </div>
+        <div class="chip-list" id="chips_vendors"></div>
+        <div class="chip-add">
+          <input type="text" placeholder="Add vendor or processor…" id="input_vendors" />
+          <button class="add-link" data-add="vendors">+ Add</button>
+        </div>
+        <div class="field-note">Checkr was added as a processor since the last certification and hasn't been formally approved.</div>
+      </div>
+
+      <div class="field">
+        <div class="field-head"><span class="field-label">Systems &amp; assets</span></div>
+        <div class="chip-list" id="chips_systems"></div>
+        <div class="chip-add">
+          <input type="text" placeholder="Add system…" id="input_systems" />
+          <button class="add-link" data-add="systems">+ Add</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-head">
+          <span class="field-label">Personal data categories</span>
+          <span class="flag" id="flag_specialcat">Special category</span>
+        </div>
+        <div class="chip-list" id="chips_data"></div>
+        <div class="chip-add">
+          <input type="text" placeholder="Add data category…" id="input_data" />
+          <button class="add-link" data-add="data">+ Add</button>
+        </div>
+        <div class="field-note">"Racial or ethnic origin" is special category data under Art. 9. Confirm the DPIA still covers how it's inferred and safeguarded.</div>
+      </div>
+
+      <div class="field">
+        <div class="field-head"><span class="field-label">Source documents</span></div>
+        <div class="doclist" id="doclist"></div>
+        <div class="chip-add" style="margin-top:12px;">
+          <input type="text" placeholder="Document name…" id="input_doc_name" style="width:170px;" />
+          <input type="text" placeholder="Type (e.g. DPIA)" id="input_doc_type" style="width:110px;" />
+          <button class="add-link" data-add="doc">+ Add document</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="side">
+      <div class="side-card">
+        <div class="side-title">Your approval queue</div>
+        <div class="side-sub">Decisions needed before this record can be recertified.</div>
+        <div class="progress-row">
+          <div class="progress-ring">
+            <svg width="52" height="52" viewBox="0 0 52 52">
+              <circle class="progress-ring-track" cx="26" cy="26" r="21"></circle>
+              <circle class="progress-ring-fill" id="progressFill" cx="26" cy="26" r="21"
+                stroke-dasharray="131.9" stroke-dashoffset="131.9"></circle>
+            </svg>
+            <div class="progress-num" id="progressNum">0/5</div>
+          </div>
+          <div class="progress-text">Resolve every item to unlock recertification.</div>
+        </div>
+
+        <div id="approvalList"></div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">Sign-off history</div>
+        <div class="side-sub">Actions on this record, most recent first.</div>
+        <div id="historyList"><div class="history-empty">No actions recorded yet this cycle.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gov-strip">
+    <div class="gov-cell"><div class="gov-label">Review cadence</div><div class="gov-value">12 months</div></div>
+    <div class="gov-cell"><div class="gov-label">Last certified</div><div class="gov-value" id="gov_last">Sep 3, 2025</div></div>
+    <div class="gov-cell"><div class="gov-label">Recertification due</div><div class="gov-value status-overdue" id="gov_due">Aug 28, 2026</div></div>
+    <div class="gov-cell"><div class="gov-label">Created</div><div class="gov-value">Sep 3, 2025</div></div>
+    <div class="gov-cell"><div class="gov-label">Status</div><div class="gov-value status-overdue" id="gov_status">Overdue</div></div>
+  </div>
+
+  <div class="stamp-block" id="stampBlock">
+    <div class="stamp-seal">CERT<br/>IFIED</div>
+    <div class="stamp-copy" id="stampCopy"></div>
+  </div>
+
+  <div class="save-note" id="saveNote">Changes save automatically to your workspace.</div>
+
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = "ropa:candidate-screening:rebecca";
+
+  const defaultState = {
+    fields: {
+      f_title: "AI-Assisted Candidate Screening &amp; Recruitment",
+      f_purpose_short: "Support fair, consistent recruitment and make significant employment decisions with human oversight.",
+      f_description: "Sourcing, screening, interviewing, and hiring candidates for open roles across Solera Group. TalentSprint AI ranks resumes and scores recorded interviews, with every recommendation reviewed by Talent Acquisition before a decision.",
+      f_purpose: "Sourcing, screening, and hiring candidates for open roles, using an AI vendor to rank resumes and score interviews.",
+      f_legal: "Legitimate interests",
+      f_retention: "12 months after requisition closure. Hired-candidate records are retained in HRIS with no stated end date.",
+      f_recipients: "Talent Acquisition, hiring managers, HR Compliance",
+      f_transfers: "US and Singapore processing for global candidates. Standard Contractual Clauses drafted; transfer impact assessment for the Singapore leg is not yet on file.",
+      f_security: "Encryption at rest and in transit, role-based access, audit logging, reviewer approval controls.",
+      f_managing: "Global Talent Acquisition"
+    },
+    lists: {
+      subjects: ["Job applicants", "Candidates", "Employees"],
+      jurisdiction: ["United States", "Germany", "France", "Brazil", "Singapore", "United Kingdom"],
+      vendors: [
+        { name: "TalentSprint AI", flagged: false },
+        { name: "Greenhouse", flagged: false },
+        { name: "Checkr", flagged: true }
+      ],
+      systems: ["TalentSprint Screening Console", "Recorded Interview Workspace"],
+      data: [
+        { name: "Name", flagged: false },
+        { name: "Email address", flagged: false },
+        { name: "Phone number", flagged: false },
+        { name: "Government ID number", flagged: false },
+        { name: "Employment history", flagged: false },
+        { name: "Education and qualifications", flagged: false },
+        { name: "Interview recordings", flagged: false },
+        { name: "Inferred candidate scores", flagged: false },
+        { name: "Racial or ethnic origin", flagged: true }
+      ]
+    },
+    docs: [
+      { name: "TalentSprint AI rollout brief.pdf", type: "Project brief" },
+      { name: "Candidate screening DPIA.docx", type: "DPIA" },
+      { name: "TalentSprint AI DPA.pdf", type: "Vendor contract" }
+    ],
+    approvals: {
+      retention: { title: "Confirm hired-candidate retention", detail: "HRIS retention has no stated end date. Approve as-is, or edit the retention field with a limit before recertifying.", status: null },
+      transfers: { title: "Confirm Singapore transfer assessment", detail: "SCCs are drafted but the transfer impact assessment isn't on file yet. Approve to proceed, or flag for follow-up.", status: null },
+      vendor: { title: "Approve new processor: Checkr", detail: "Added since last certification for background checks. Confirm it belongs on this record.", status: null },
+      specialcat: { title: "Confirm special category safeguard", detail: "\u201cRacial or ethnic origin\u201d is inferred data under Art. 9. Confirm the DPIA still covers how it's derived and protected.", status: null },
+      modelversion: { title: "Confirm AI scoring model is current", detail: "TalentSprint AI shipped a new interview-scoring model this cycle. Confirm the DPIA reflects the current version.", status: null }
+    },
+    history: [],
+    certified: false
+  };
+
+  let state = JSON.parse(JSON.stringify(defaultState));
+
+  async function loadState(){
+    try{
+      const res = await window.storage.get(STORAGE_KEY, false);
+      if(res && res.value){
+        const parsed = JSON.parse(res.value);
+        state = Object.assign({}, defaultState, parsed);
+      }
+    }catch(e){
+      // no saved state yet — use defaults
+    }
+    render();
+  }
+
+  let saveTimer = null;
+  function persist(){
+    clearTimeout(saveTimer);
+    const note = document.getElementById("saveNote");
+    saveTimer = setTimeout(async ()=>{
+      try{
+        await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
+        note.textContent = "Saved to your workspace · " + new Date().toLocaleTimeString();
+      }catch(e){
+        note.textContent = "Couldn't save changes — they'll stay in this session only.";
+      }
+    }, 400);
+  }
+
+  function addHistory(text){
+    state.history.unshift({ text: text, time: new Date().toISOString() });
+    persist();
+    renderHistory();
+  }
+
+  function fmtTime(iso){
+    const d = new Date(iso);
+    return d.toLocaleDateString(undefined, { month:"short", day:"numeric" }) + " · " + d.toLocaleTimeString(undefined, {hour:"numeric", minute:"2-digit"});
+  }
+
+  // ---------- rendering ----------
+  function render(){
+    Object.keys(state.fields).forEach(id=>{
+      const el = document.getElementById(id);
+      if(!el) return;
+      if(el.tagName === "DIV") el.innerHTML = state.fields[id];
+      else el.value = state.fields[id];
+    });
+
+    renderChips("chips_subjects", state.lists.subjects.map(s=>({name:s})), "subjects", false);
+    renderChips("chips_jurisdiction", state.lists.jurisdiction.map(s=>({name:s})), "jurisdiction", false);
+    renderChips("chips_vendors", state.lists.vendors, "vendors", true);
+    renderChips("chips_systems", state.lists.systems.map(s=>({name:s})), "systems", false);
+    renderChips("chips_data", state.lists.data, "data", true);
+
+    renderDocs();
+    renderApprovals();
+    renderHistory();
+    renderBanner();
+  }
+
+  function renderChips(containerId, items, listKey, flaggable){
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+    items.forEach((item, idx)=>{
+      const chip = document.createElement("span");
+      chip.className = "chip" + (flaggable && item.flagged ? " chip-flag" : "");
+      chip.innerHTML = (flaggable && item.flagged ? "\u26a0 " : "") + escapeHtml(item.name);
+      const rm = document.createElement("button");
+      rm.className = "chip-remove";
+      rm.textContent = "\u00d7";
+      rm.title = "Remove";
+      rm.addEventListener("click", ()=>{
+        state.lists[listKey].splice(idx,1);
+        persist(); render();
+      });
+      chip.appendChild(rm);
+      container.appendChild(chip);
+    });
+  }
+
+  function renderDocs(){
+    const list = document.getElementById("doclist");
+    list.innerHTML = "";
+    state.docs.forEach((doc, idx)=>{
+      const row = document.createElement("div");
+      row.className = "docrow";
+      row.innerHTML = '<div><div class="docrow-name">'+escapeHtml(doc.name)+'</div><div class="docrow-meta">'+escapeHtml(doc.type)+'</div></div>';
+      const rm = document.createElement("button");
+      rm.className = "docrow-remove";
+      rm.textContent = "Remove";
+      rm.addEventListener("click", ()=>{
+        state.docs.splice(idx,1);
+        persist(); render();
+      });
+      row.appendChild(rm);
+      list.appendChild(row);
+    });
+  }
+
+  function renderApprovals(){
+    const list = document.getElementById("approvalList");
+    list.innerHTML = "";
+    Object.keys(state.approvals).forEach(key=>{
+      const item = state.approvals[key];
+      const row = document.createElement("div");
+      row.className = "approval-item";
+      row.innerHTML =
+        '<div class="approval-title">'+escapeHtml(item.title)+'</div>'+
+        '<div class="approval-detail">'+escapeHtml(item.detail)+'</div>'+
+        '<div class="approval-actions">'+
+          '<button class="pill-btn approve'+(item.status==="approved" ? " is-active" : "")+'" data-key="'+key+'" data-action="approved">Approve</button>'+
+          '<button class="pill-btn followup'+(item.status==="followup" ? " is-active" : "")+'" data-key="'+key+'" data-action="followup">Flag for follow-up</button>'+
+        '</div>';
+      list.appendChild(row);
+    });
+
+    list.querySelectorAll(".pill-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const key = btn.getAttribute("data-key");
+        const action = btn.getAttribute("data-action");
+        const item = state.approvals[key];
+        const wasStatus = item.status;
+        item.status = (wasStatus === action) ? null : action;
+        if(item.status){
+          addHistory((item.status === "approved" ? "Approved: " : "Flagged for follow-up: ") + item.title);
+        }
+        persist(); render();
+      });
+    });
+
+    const total = Object.keys(state.approvals).length;
+    const resolved = Object.values(state.approvals).filter(a=>a.status).length;
+    const approved = Object.values(state.approvals).filter(a=>a.status==="approved").length;
+    document.getElementById("progressNum").textContent = resolved + "/" + total;
+    const circumference = 131.9;
+    const offset = circumference - (resolved/total) * circumference;
+    document.getElementById("progressFill").setAttribute("stroke-dashoffset", offset);
+
+    const recertifyBtn = document.getElementById("recertifyBtn");
+    recertifyBtn.disabled = resolved < total;
+    recertifyBtn.textContent = (resolved < total) ? "Resolve " + (total-resolved) + " item"+((total-resolved)===1?"":"s")+" to recertify" : "Approve & recertify";
+  }
+
+  function renderHistory(){
+    const list = document.getElementById("historyList");
+    if(!state.history.length){
+      list.innerHTML = '<div class="history-empty">No actions recorded yet this cycle.</div>';
+      return;
+    }
+    list.innerHTML = "";
+    state.history.slice(0,12).forEach(h=>{
+      const row = document.createElement("div");
+      row.className = "history-item";
+      row.innerHTML = '<div class="history-dot"></div><div class="history-copy">'+escapeHtml(h.text)+'<div class="history-time">'+fmtTime(h.time)+'</div></div>';
+      list.appendChild(row);
+    });
+  }
+
+  function renderBanner(){
+    const banner = document.getElementById("banner");
+    const total = Object.keys(state.approvals).length;
+    const resolved = Object.values(state.approvals).filter(a=>a.status).length;
+    const remaining = total - resolved;
+
+    if(state.certified){
+      banner.classList.add("is-certified");
+      document.getElementById("bannerMark").textContent = "\u2713";
+      document.getElementById("bannerTitle").textContent = "Recertified";
+      document.getElementById("bannerCopy").innerHTML = "Rebecca Nordstrum recertified this record. <b>Next review due in 12 months.</b>";
+      document.getElementById("stampBlock").classList.add("is-visible");
+      document.getElementById("stampCopy").innerHTML = "Recertified by <b>Rebecca Nordstrum</b> on " + new Date().toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"}) + ". Next recertification due " + new Date(Date.now()+365*24*60*60*1000).toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"}) + ".";
+      document.getElementById("gov_status").textContent = "Certified";
+      document.getElementById("gov_status").className = "gov-value status-certified";
+      document.getElementById("gov_due").textContent = new Date(Date.now()+365*24*60*60*1000).toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});
+      document.getElementById("gov_due").className = "gov-value status-certified";
+      document.getElementById("gov_last").textContent = new Date().toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});
+    } else {
+      banner.classList.remove("is-certified");
+      document.getElementById("bannerMark").textContent = "!";
+      document.getElementById("bannerTitle").textContent = "Recertification overdue";
+      document.getElementById("bannerCopy").innerHTML = "This record has been active for <b>12 months</b>. Article 30 requires you, as business process owner, to review it for accuracy and re-approve it before it can stay active. " + (remaining>0 ? "<b>"+remaining+" item"+(remaining===1?"":"s")+" below need"+(remaining===1?"s":"")+" your decision.</b>" : "<b>All items are resolved — you can recertify now.</b>");
+    }
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+
+  // ---------- field editing ----------
+  Object.keys(defaultState.fields).forEach(id=>{
+    document.addEventListener("input", (e)=>{
+      if(e.target && e.target.id === id){
+        state.fields[id] = (e.target.tagName === "DIV") ? e.target.innerHTML : e.target.value;
+        persist();
+      }
+    });
+  });
+
+  // ---------- add-chip / add-doc handlers ----------
+  document.querySelectorAll(".add-link").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const kind = btn.getAttribute("data-add");
+      if(kind === "doc"){
+        const nameInput = document.getElementById("input_doc_name");
+        const typeInput = document.getElementById("input_doc_type");
+        const name = nameInput.value.trim();
+        const type = typeInput.value.trim() || "Document";
+        if(!name) return;
+        state.docs.push({ name: name, type: type });
+        addHistory("Added source document: " + name);
+        nameInput.value = ""; typeInput.value = "";
+        persist(); render();
+        return;
+      }
+      const input = document.getElementById("input_" + kind);
+      const val = input.value.trim();
+      if(!val) return;
+      if(kind === "vendors" || kind === "data"){
+        state.lists[kind].push({ name: val, flagged: false });
+      } else {
+        state.lists[kind].push(val);
+      }
+      addHistory("Added to " + kind.replace(/^\w/, c=>c.toUpperCase()) + ": " + val);
+      input.value = "";
+      persist(); render();
+    });
+  });
+
+  ["input_subjects","input_jurisdiction","input_vendors","input_systems","input_data"].forEach(id=>{
+    const el = document.getElementById(id);
+    el.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter"){
+        e.preventDefault();
+        const kind = id.replace("input_","");
+        document.querySelector('.add-link[data-add="'+kind+'"]').click();
+      }
+    });
+  });
+
+  // ---------- recertify ----------
+  document.getElementById("recertifyBtn").addEventListener("click", ()=>{
+    const total = Object.keys(state.approvals).length;
+    const resolved = Object.values(state.approvals).filter(a=>a.status).length;
+    if(resolved < total) return;
+    state.certified = true;
+    addHistory("Recertified the full record for the next 12-month cycle");
+    persist(); render();
+  });
+
+  loadState();
+})();
+</script>

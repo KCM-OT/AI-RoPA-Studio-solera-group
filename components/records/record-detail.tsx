@@ -27,6 +27,7 @@ import {
 import { RelationshipPanel } from '@/components/records/relationship-panel'
 import { AiReview } from '@/components/records/ai-review'
 import { PostureRequirements } from '@/components/records/posture-requirements'
+import { RecertificationExampleDetail } from '@/components/records/recertification-example-detail'
 import { PageHeader } from '@/components/app-shell'
 import { useStore } from '@/lib/store'
 import { FIELD_LABELS, FIELD_ORDER } from '@/lib/authoring'
@@ -51,6 +52,10 @@ export function RecordDetail({ id }: { id: string }) {
   )
   const [editing, setEditing] = useState<FieldKey | null>(null)
   const [draft, setDraft] = useState('')
+
+  if (record?.id === 'recertification-example') {
+    return <RecertificationExampleDetail record={record} />
+  }
 
   if (!record) {
     return (
