@@ -93,7 +93,7 @@ export function ReviewDetail({ id }: { id: string }) {
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="grid gap-6 px-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="flex flex-col gap-6">
           <AiSummaryCard submission={submission} record={record} onSummary={(aiSummary) =>
             updateSubmission(submission.id, { aiSummary })
