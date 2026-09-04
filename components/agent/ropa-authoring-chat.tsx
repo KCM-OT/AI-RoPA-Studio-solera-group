@@ -19,6 +19,8 @@ import {
   ClipboardPaste,
   LayoutTemplate,
   LoaderCircle,
+  AlertTriangle,
+  ArrowRight,
 } from 'lucide-react'
 import {
   ChatShell,
@@ -82,6 +84,67 @@ interface Draft {
   summary: string
   fields: DraftField[]
   relationships: DraftRel[]
+}
+
+interface DuplicateMatch {
+  key: string
+  label: string
+  value: string
+  recordName: string
+  recordId: string
+  suggestion: string
+}
+
+function normalizeForComparison(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+}
+
+function findDuplicateMatches(draft: Draft, activities: ProcessingActivity[]): DuplicateMatch[] {
+  const matches: DuplicateMatch[] = []
+  const candidateRecords = activities.slice(0, 12)
+
+  for (const field of draft.fields.filter((candidate) => ['purpose', 'recipients', 'dataSubjectCategories'].includes(candidate.key))) {
+    const normalizedValue = normalizeForComparison(field.value)
+    const valueTokens = normalizedValue.split(' ').filter((token) => token.length > 3)
+    if (valueTokens.length < 2) continue
+    const record = candidateRecords.find((activity) => {
+      const values = [activity.purpose, activity.recipients, ...activity.dataSubjectCategories].map(normalizeForComparison)
+      return values.some((value) => {
+        const overlap = valueTokens.filter((token) => value.split(' ').includes(token)).length
+        return overlap >= 2
+      })
+    })
+    if (record) {
+      matches.push({
+        key: `field-${field.key}`,
+        label: FIELD_LABELS[field.key],
+        value: field.value,
+        recordName: record.name,
+        recordId: record.id,
+        suggestion: `Confirm whether this belongs in “${record.name}” instead, or explain why it is specific to this activity.`,
+      })
+    }
+  }
+
+  for (const relationship of draft.relationships) {
+    const normalizedName = normalizeForComparison(relationship.name)
+    if (normalizedName.length < 4) continue
+    const record = candidateRecords.find((activity) =>
+      activity.relationships.some((existing) => normalizeForComparison(existing.name) === normalizedName),
+    )
+    if (record) {
+      matches.push({
+        key: `relationship-${relationship.type}-${normalizedName}`,
+        label: RELATIONSHIP_LABEL[relationship.type],
+        value: relationship.name,
+        recordName: record.name,
+        recordId: record.id,
+        suggestion: `Reuse the existing ${RELATIONSHIP_LABEL[relationship.type].toLowerCase()} link if this is the same data point; otherwise clarify the distinction.`,
+      })
+    }
+  }
+
+  return matches.slice(0, 2)
 }
 
 const ANIMATED_PROMPTS = [
@@ -449,6 +512,15 @@ function DraftCard({
     )
   }, [draft.fields])
 
+  const duplicateMatches = useMemo(
+    () => findDuplicateMatches(draft, store.activities),
+    [draft, store.activities],
+  )
+  const duplicateKeys = useMemo(
+    () => new Set(duplicateMatches.map((match) => match.key)),
+    [duplicateMatches],
+  )
+
   function updateField(key: FieldKey, value: string) {
     setDraft((d) => ({
       ...d,
@@ -551,6 +623,15 @@ function DraftCard({
       recordName: pa.name,
       detail: `Authored via chat: ${draft.fields.length} field(s) and ${relObjects.length} relationship(s), reviewed and saved by a human.`,
     })
+    if (duplicateMatches.length > 0) {
+      store.logEvent({
+        actor: 'AI Agent',
+        action: 'duplicate_flagged',
+        recordId: id,
+        recordName: pa.name,
+        detail: `Flagged ${duplicateMatches.length} potentially duplicative data point(s) for review against existing RoPA records.`,
+      })
+    }
     setSaved(id)
   }
 
@@ -604,9 +685,31 @@ function DraftCard({
         </Badge>
       </div>
 
+      {duplicateMatches.length > 0 && (
+        <div role="status" className="border-b border-warning/30 bg-warning-muted px-4 py-3">
+          <div className="flex items-start gap-2.5">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden="true" />
+            <div className="flex flex-col gap-1 text-xs text-foreground">
+              <p className="font-semibold">Potentially duplicated data points</p>
+              <p className="text-muted-foreground">We found {duplicateMatches.length === 1 ? 'one item' : 'two items'} that may already be captured in another RoPA. Check the highlighted rows before saving.</p>
+              <div className="flex flex-col gap-1.5 pt-1">
+                {duplicateMatches.map((match) => (
+                  <div key={match.key} className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-muted-foreground">
+                    <span className="font-medium text-foreground">{match.label}: {match.value}</span>
+                    <ArrowRight className="size-3" aria-hidden="true" />
+                    <button type="button" onClick={() => router.push(`/records/${match.recordId}`)} className="font-medium text-primary underline-offset-2 hover:underline">{match.recordName}</button>
+                    <span className="basis-full pl-0 text-[11px]">{match.suggestion}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="divide-y divide-border">
         {orderedFields.map((f) => (
-          <div key={f.key} className={cn('px-4 py-2.5 transition-colors', !approvedItems.has(f.key) && 'bg-muted/35 text-muted-foreground')}>
+          <div key={f.key} className={cn('px-4 py-2.5 transition-colors', !approvedItems.has(f.key) && 'bg-muted/35 text-muted-foreground', duplicateKeys.has(`field-${f.key}`) && 'bg-warning-muted/70 ring-1 ring-inset ring-warning/30')}>
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {FIELD_LABELS[f.key]}
@@ -671,6 +774,7 @@ function DraftCard({
                       ? 'border-border bg-muted text-foreground'
                       : 'border-warning/40 bg-warning-muted text-foreground'
                     : 'border-border bg-muted/35 text-muted-foreground',
+                  duplicateKeys.has(`relationship-${r.type}-${normalizeForComparison(r.name)}`) && 'border-warning/60 bg-warning-muted text-foreground ring-1 ring-warning/30',
                 )}
               >
                 <span className="text-[10px] uppercase text-muted-foreground">
