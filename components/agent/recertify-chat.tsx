@@ -131,6 +131,12 @@ export function RecertifyChat({ record }: { record: ProcessingActivity }) {
     sendMessage({ text: "Let's recertify this record." })
   }
 
+  function submitQuickAnswer(answer: 'Yes' | 'No') {
+    if (busy) return
+    sendMessage({ text: answer })
+    setAnsweredTopics((count) => Math.min(count + 1, RECERTIFY_TOPICS.length))
+  }
+
   // Turn a proposeChange tool input into a concrete field/relationship change.
   function toChange(input: ProposeChangeInput): FieldChange | RelationshipChange | null {
     if (input.changeType === 'field' && input.fieldKey && input.after !== undefined) {
@@ -298,6 +304,8 @@ export function RecertifyChat({ record }: { record: ProcessingActivity }) {
               onAccept={acceptChange}
               onReject={rejectChange}
               onSubmit={finalizeSubmission}
+              onQuickAnswer={submitQuickAnswer}
+              busy={busy}
               submittedId={submittedId}
               router={router}
             />
@@ -363,6 +371,8 @@ function RecertMessage({
   onAccept,
   onReject,
   onSubmit,
+  onQuickAnswer,
+  busy,
   submittedId,
   router,
 }: {
@@ -371,6 +381,8 @@ function RecertMessage({
   onAccept: (toolCallId: string, input: ProposeChangeInput, editedAfter?: string) => void
   onReject: (toolCallId: string, input: ProposeChangeInput) => void
   onSubmit: (toolCallId: string, input: SubmitForReviewInput) => void
+  onQuickAnswer: (answer: 'Yes' | 'No') => void
+  busy: boolean
   submittedId: string | null
   router: ReturnType<typeof useRouter>
 }) {
@@ -388,7 +400,34 @@ function RecertMessage({
     <AgentMessage>
       {message.parts.map((part, i) => {
         if (part.type === 'text') {
-          return part.text ? <AgentText key={i}>{part.text}</AgentText> : null
+          if (!part.text) return null
+          const binaryQuestion = /\?(?:\s|$)/.test(part.text) && /\b(?:yes|no|still|continue|remain|unchanged|accurate|correct)\b/i.test(part.text)
+          return (
+            <div key={i} className="flex flex-col gap-3">
+              <AgentText>{part.text}</AgentText>
+              {binaryQuestion && !submittedId && (
+                <div className="flex flex-wrap gap-2" aria-label="Quick answer choices">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => onQuickAnswer('Yes')}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Check className="size-4" aria-hidden="true" /> Yes
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => onQuickAnswer('No')}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3.5 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <X className="size-4" aria-hidden="true" /> No
+                  </button>
+                  <span className="self-center text-xs text-muted-foreground">You can also type your answer below.</span>
+                </div>
+              )}
+            </div>
+          )
         }
         if (part.type === 'tool-proposeChange') {
           const callId = part.toolCallId
