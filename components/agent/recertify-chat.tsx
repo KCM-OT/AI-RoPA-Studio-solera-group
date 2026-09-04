@@ -288,7 +288,14 @@ export function RecertifyChat({ record }: { record: ProcessingActivity }) {
               )
             })}
           </div>
-          <div className="mt-6 rounded-lg border border-border bg-background/60 p-3">
+          <div className={cn('mt-6 rounded-lg border bg-background/60 p-3 transition-colors', submittedId ? 'border-success/40 bg-success-muted/30' : 'border-border')}>
+            {submittedId && (
+              <div className="mb-3 flex animate-in items-center justify-center rounded-lg bg-success-muted py-4 zoom-in duration-500" role="status" aria-label="Review handoff complete">
+                <div className="flex size-16 animate-in items-center justify-center rounded-full bg-success text-success-foreground shadow-sm zoom-in duration-700">
+                  <Check className="size-10" strokeWidth={3} aria-hidden="true" />
+                </div>
+              </div>
+            )}
             <p className="text-[11px] font-medium text-foreground">Current focus</p>
             <p className="mt-1 text-xs text-muted-foreground">{submittedId ? 'Review handoff complete' : activeTopic.detail}</p>
           </div>
