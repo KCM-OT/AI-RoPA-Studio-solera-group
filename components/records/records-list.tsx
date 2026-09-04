@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Search, Sparkles, Plus, ChevronRight, FileText, CalendarClock, PieChart } from 'lucide-react'
+import { Search, Sparkles, Plus, ChevronRight, FileText, CalendarClock, PieChart, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -34,27 +34,36 @@ function KpiCard({
   value,
   sub,
   icon: Icon,
+  action,
   children,
 }: {
   label: string
   value: string
   sub: string
   icon: React.ElementType
+  action?: { label: string; onClick: () => void }
   children?: React.ReactNode
 }) {
   return (
-    <Card>
-      <CardContent className="p-5">
+    <Card className="h-full">
+      <CardContent className="flex h-full flex-col p-5">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-muted-foreground">{label}</span>
           <Icon className="size-4 text-muted-foreground" aria-hidden="true" />
         </div>
-        <div className="mt-2 flex items-end gap-4">
-          <div>
-            <div className="font-mono text-3xl font-semibold tracking-tight">{value}</div>
-            <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
+        <div className="mt-2 flex flex-1 flex-col justify-between gap-4">
+          <div className="flex items-end gap-4">
+            <div>
+              <div className="font-mono text-3xl font-semibold tracking-tight">{value}</div>
+              <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
+            </div>
+            {children}
           </div>
-          {children}
+          {action && (
+            <Button variant="default" size="sm" className="w-fit" onClick={action.onClick}>
+              {action.label}
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -113,6 +122,7 @@ export function RecordsList() {
   const { activities } = useStore()
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<RecordStatus | 'all'>('all')
+  const [certificationFilter, setCertificationFilter] = useState(false)
   const [recruitmentNeedsCertification, setRecruitmentNeedsCertification] = useState(false)
 
   useEffect(() => {
@@ -123,15 +133,16 @@ export function RecordsList() {
   const filtered = useMemo(() => {
     return activities.filter((a) => {
       const matchesFilter = filter === 'all' || a.status === filter
+      const matchesCertification = !certificationFilter || ['overdue', 'due_soon'].includes(reviewState(a))
       const q = query.trim().toLowerCase()
       const matchesQuery =
         !q ||
         a.name.toLowerCase().includes(q) ||
         a.purpose.toLowerCase().includes(q) ||
         a.managingOrganization.toLowerCase().includes(q)
-      return matchesFilter && matchesQuery
+      return matchesFilter && matchesCertification && matchesQuery
     })
-  }, [activities, filter, query])
+  }, [activities, certificationFilter, filter, query])
 
   const statusCounts = useMemo(
     () =>
@@ -165,12 +176,14 @@ export function RecordsList() {
             value={String(statusCounts.active)}
             sub={`${activities.length} total records in register`}
             icon={FileText}
+            action={{ label: 'View active', onClick: () => { setFilter('active'); setCertificationFilter(false) } }}
           />
           <KpiCard
             label="Due for certification"
             value={String(dueForCertification)}
             sub={dueForCertification === 0 ? 'All records are current' : 'Due soon or overdue'}
             icon={CalendarClock}
+            action={{ label: 'View records', onClick: () => { setFilter('all'); setCertificationFilter(true) } }}
           />
           <KpiCard
             label="Records by status"
@@ -183,20 +196,32 @@ export function RecordsList() {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative w-full sm:max-w-xs">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search activities…"
-              className="h-9 w-full rounded-lg border border-input bg-card pl-9 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            />
+          <div className="flex w-full flex-wrap items-center gap-2 sm:max-w-2xl">
+            <div className="relative min-w-[220px] flex-1">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search activities…"
+                className="h-9 w-full rounded-lg border border-input bg-card pl-9 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+            </div>
+            {filter === 'active' && !certificationFilter && (
+              <button type="button" onClick={() => setFilter('all')} className="inline-flex h-8 items-center gap-1.5 rounded-full bg-primary/10 px-3 text-xs font-medium text-primary hover:bg-primary/15">
+                Active <X className="size-3" aria-hidden="true" />
+              </button>
+            )}
+            {certificationFilter && (
+              <button type="button" onClick={() => { setCertificationFilter(false); setFilter('all') }} className="inline-flex h-8 items-center gap-1.5 rounded-full bg-warning/15 px-3 text-xs font-medium text-warning hover:bg-warning/20">
+                Due for certification <X className="size-3" aria-hidden="true" />
+              </button>
+            )}
           </div>
           <div className="flex flex-wrap gap-1.5">
             {FILTERS.map((f) => (
               <button
                 key={f.key}
-                onClick={() => setFilter(f.key)}
+                onClick={() => { setFilter(f.key); setCertificationFilter(false) }}
                 className={cn(
                   'rounded-full px-3 py-1 text-xs font-medium transition-colors',
                   filter === f.key
