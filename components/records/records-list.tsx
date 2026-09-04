@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Search, Sparkles, Plus, ChevronRight } from 'lucide-react'
+import { Search, Sparkles, Plus, ChevronRight, FileText, CalendarClock, PieChart, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/app-shell'
 import { StatusBadge, ProvenanceTag, CompletenessMeter } from '@/components/badges'
 import { useStore } from '@/lib/store'
@@ -21,11 +22,107 @@ const FILTERS: { key: RecordStatus | 'all'; label: string }[] = [
   { key: 'archived', label: 'Archived' },
 ]
 
+const STATUS_KPIS: { key: RecordStatus; label: string; tone: string }[] = [
+  { key: 'active', label: 'Active', tone: 'bg-primary' },
+  { key: 'draft', label: 'Draft', tone: 'bg-ai' },
+  { key: 'under_review', label: 'Under review', tone: 'bg-warning' },
+  { key: 'archived', label: 'Archived', tone: 'bg-muted-foreground' },
+]
+
+function KpiCard({
+  label,
+  value,
+  sub,
+  icon: Icon,
+  action,
+  children,
+}: {
+  label: string
+  value: string
+  sub: string
+  icon: React.ElementType
+  action?: { label: string; onClick: () => void }
+  children?: React.ReactNode
+}) {
+  return (
+    <Card className="h-full">
+      <CardContent className="flex h-full flex-col p-5">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium text-muted-foreground">{label}</span>
+          <Icon className="size-4 text-muted-foreground" aria-hidden="true" />
+        </div>
+        <div className="mt-2 flex flex-1 flex-col justify-between gap-4">
+          <div className="flex items-end gap-4">
+            <div>
+              <div className="font-mono text-3xl font-semibold tracking-tight">{value}</div>
+              <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
+            </div>
+            {children}
+          </div>
+          {action && (
+            <Button variant="default" size="sm" className="w-fit" onClick={action.onClick}>
+              {action.label}
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function StatusDonut({ counts, total }: { counts: Record<RecordStatus, number>; total: number }) {
+  const radius = 25
+  const circumference = 2 * Math.PI * radius
+  let offset = 0
+  const segments = STATUS_KPIS.map((status) => {
+    const length = total ? (counts[status.key] / total) * circumference : 0
+    const segment = { ...status, length, offset }
+    offset += length
+    return segment
+  })
+
+  return (
+    <div className="flex items-center gap-4">
+      <div className="relative size-16 shrink-0" aria-label={`Record status distribution: ${total} total records`} role="img">
+        <svg className="size-full -rotate-90" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r={radius} fill="none" className="stroke-muted" strokeWidth="8" />
+          {segments.map((segment) => (
+            <circle
+              key={segment.key}
+              cx="32"
+              cy="32"
+              r={radius}
+              fill="none"
+              className={segment.tone.replace('bg-', 'stroke-')}
+              strokeWidth="8"
+              strokeDasharray={`${segment.length} ${circumference - segment.length}`}
+              strokeDashoffset={-segment.offset}
+            />
+          ))}
+        </svg>
+        <span className="absolute inset-0 flex items-center justify-center font-mono text-sm font-semibold">{total}</span>
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col gap-1 text-xs">
+        {segments.map((segment) => (
+          <div key={segment.key} className="flex items-center justify-between gap-2">
+            <span className="flex min-w-0 items-center gap-1.5 text-muted-foreground">
+              <span className={`size-2 shrink-0 rounded-full ${segment.tone}`} aria-hidden="true" />
+              <span className="truncate">{segment.label}</span>
+            </span>
+            <span className="font-mono text-foreground">{counts[segment.key]}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function RecordsList() {
   const router = useRouter()
   const { activities } = useStore()
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<RecordStatus | 'all'>('all')
+  const [certificationFilter, setCertificationFilter] = useState(false)
   const [recruitmentNeedsCertification, setRecruitmentNeedsCertification] = useState(false)
 
   useEffect(() => {
@@ -36,15 +133,29 @@ export function RecordsList() {
   const filtered = useMemo(() => {
     return activities.filter((a) => {
       const matchesFilter = filter === 'all' || a.status === filter
+      const matchesCertification = !certificationFilter || ['overdue', 'due_soon'].includes(reviewState(a))
       const q = query.trim().toLowerCase()
       const matchesQuery =
         !q ||
         a.name.toLowerCase().includes(q) ||
         a.purpose.toLowerCase().includes(q) ||
         a.managingOrganization.toLowerCase().includes(q)
-      return matchesFilter && matchesQuery
+      return matchesFilter && matchesCertification && matchesQuery
     })
-  }, [activities, filter, query])
+  }, [activities, certificationFilter, filter, query])
+
+  const statusCounts = useMemo(
+    () =>
+      activities.reduce<Record<RecordStatus, number>>(
+        (counts, activity) => ({ ...counts, [activity.status]: counts[activity.status] + 1 }),
+        { active: 0, draft: 0, under_review: 0, archived: 0 },
+      ),
+    [activities],
+  )
+  const dueForCertification = activities.filter((activity) => {
+    const state = reviewState(activity)
+    return state === 'overdue' || state === 'due_soon'
+  }).length
 
   return (
     <>
@@ -59,21 +170,58 @@ export function RecordsList() {
         }
       />
       <div className="flex flex-col gap-4 py-6 pl-5 pr-5">
+        <div className="grid gap-4 md:grid-cols-3">
+          <KpiCard
+            label="Active records"
+            value={String(statusCounts.active)}
+            sub={`${activities.length} total records in register`}
+            icon={FileText}
+            action={{ label: 'View active', onClick: () => { setFilter('active'); setCertificationFilter(false) } }}
+          />
+          <KpiCard
+            label="Due for certification"
+            value={String(dueForCertification)}
+            sub={dueForCertification === 0 ? 'All records are current' : 'Due soon or overdue'}
+            icon={CalendarClock}
+            action={{ label: 'View records', onClick: () => { setFilter('all'); setCertificationFilter(true) } }}
+          />
+          <KpiCard
+            label="Records by status"
+            value={`${activities.length}`}
+            sub="Current register distribution"
+            icon={PieChart}
+          >
+            <StatusDonut counts={statusCounts} total={activities.length} />
+          </KpiCard>
+        </div>
+
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative w-full sm:max-w-xs">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search activities…"
-              className="h-9 w-full rounded-lg border border-input bg-card pl-9 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            />
+          <div className="flex w-full flex-wrap items-center gap-2 sm:max-w-2xl">
+            <div className="relative min-w-[220px] flex-1">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search activities…"
+                className="h-9 w-full rounded-lg border border-input bg-card pl-9 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+            </div>
+            {filter === 'active' && !certificationFilter && (
+              <button type="button" onClick={() => setFilter('all')} className="inline-flex h-8 items-center gap-1.5 rounded-full bg-primary/10 px-3 text-xs font-medium text-primary hover:bg-primary/15">
+                Active <X className="size-3" aria-hidden="true" />
+              </button>
+            )}
+            {certificationFilter && (
+              <button type="button" onClick={() => { setCertificationFilter(false); setFilter('all') }} className="inline-flex h-8 items-center gap-1.5 rounded-full bg-warning/15 px-3 text-xs font-medium text-warning hover:bg-warning/20">
+                Due for certification <X className="size-3" aria-hidden="true" />
+              </button>
+            )}
           </div>
           <div className="flex flex-wrap gap-1.5">
             {FILTERS.map((f) => (
               <button
                 key={f.key}
-                onClick={() => setFilter(f.key)}
+                onClick={() => { setFilter(f.key); setCertificationFilter(false) }}
                 className={cn(
                   'rounded-full px-3 py-1 text-xs font-medium transition-colors',
                   filter === f.key
