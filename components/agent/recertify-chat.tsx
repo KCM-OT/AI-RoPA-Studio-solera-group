@@ -14,6 +14,8 @@ import {
   MinusCircle,
   ClipboardCheck,
   CircleCheck,
+  ListChecks,
+  ShieldCheck,
 } from 'lucide-react'
 import {
   ChatShell,
@@ -72,6 +74,16 @@ interface AcceptedChange {
   reason: string
 }
 
+const RECERTIFY_TOPICS = [
+  { label: 'Ownership', detail: 'Who runs this process?' },
+  { label: 'Tools & systems', detail: 'Are the linked tools still accurate?' },
+  { label: 'Personal data', detail: 'What data is being collected?' },
+  { label: 'Purpose & legal basis', detail: 'Why is the processing needed?' },
+  { label: 'Retention', detail: 'How long is data kept?' },
+  { label: 'Transfers & jurisdictions', detail: 'Where does processing happen?' },
+  { label: 'Security & recipients', detail: 'Who receives it and how is it protected?' },
+] as const
+
 export function RecertifyChat({ record }: { record: ProcessingActivity }) {
   const router = useRouter()
   const store = useStore()
@@ -101,13 +113,17 @@ export function RecertifyChat({ record }: { record: ProcessingActivity }) {
   })
 
   const [input, setInput] = useState('')
+  const [answeredTopics, setAnsweredTopics] = useState(0)
   const busy = status === 'submitted' || status === 'streaming'
   const isEmpty = messages.length === 0
+  const completedTopics = Math.min(answeredTopics, RECERTIFY_TOPICS.length)
+  const activeTopic = RECERTIFY_TOPICS[Math.min(completedTopics, RECERTIFY_TOPICS.length - 1)]
 
   function submit() {
     const text = input.trim()
     if (!text || busy) return
     sendMessage({ text })
+    setAnsweredTopics((count) => Math.min(count + 1, RECERTIFY_TOPICS.length))
     setInput('')
   }
 
@@ -225,8 +241,54 @@ export function RecertifyChat({ record }: { record: ProcessingActivity }) {
 
   return (
     <div className="flex h-[calc(100svh-66px)] flex-col">
-      <ChatShell>
-        <ChatScroll>
+      <div className="border-b border-border bg-card/60 px-4 py-3">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-ai/10 text-ai">
+              <ShieldCheck className="size-5" aria-hidden="true" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h1 className="truncate text-sm font-semibold text-foreground">Chat based recertify</h1>
+                <Badge variant="outline" className="hidden sm:inline-flex">Annual check-in</Badge>
+              </div>
+              <p className="truncate text-xs text-muted-foreground">{record.name}</p>
+            </div>
+          </div>
+          {!submittedId && <span className="shrink-0 text-xs text-muted-foreground">{completedTopics}/{RECERTIFY_TOPICS.length} topics checked</span>}
+        </div>
+      </div>
+      <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col lg:flex-row">
+        <aside className="hidden w-72 shrink-0 border-r border-border bg-card/30 p-5 lg:block">
+          <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+            <ListChecks className="size-4 text-ai" aria-hidden="true" />
+            Check-in progress
+          </div>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">A fixed sequence keeps every yearly review consistent and easy to audit.</p>
+          <div className="mt-5 flex flex-col gap-3">
+            {RECERTIFY_TOPICS.map((topic, index) => {
+              const complete = index < completedTopics
+              const current = index === completedTopics && !submittedId
+              return (
+                <div key={topic.label} className="flex items-start gap-2.5">
+                  <span className={cn('mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-semibold', complete && 'border-success bg-success-muted text-success', current && 'border-ai bg-ai/10 text-ai', !complete && !current && 'border-border text-muted-foreground')}>
+                    {complete ? <Check className="size-3" aria-hidden="true" /> : index + 1}
+                  </span>
+                  <div className="min-w-0">
+                    <p className={cn('text-xs font-medium', (complete || current) ? 'text-foreground' : 'text-muted-foreground')}>{topic.label}</p>
+                    <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">{topic.detail}</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          <div className="mt-6 rounded-lg border border-border bg-background/60 p-3">
+            <p className="text-[11px] font-medium text-foreground">Current focus</p>
+            <p className="mt-1 text-xs text-muted-foreground">{submittedId ? 'Review handoff complete' : activeTopic.detail}</p>
+          </div>
+        </aside>
+        <ChatShell>
+          <ChatScroll>
           {isEmpty && <Welcome record={record} onStart={kickoff} busy={busy} />}
           {messages.map((m) => (
             <RecertMessage
@@ -256,6 +318,7 @@ export function RecertifyChat({ record }: { record: ProcessingActivity }) {
           />
         )}
       </ChatShell>
+      </div>
     </div>
   )
 }
@@ -665,9 +728,10 @@ function SubmittedCard({
           <span className="flex size-6 items-center justify-center rounded-full bg-success-muted text-success">
             <CircleCheck className="size-4" />
           </span>
-          Sent to the privacy team for review.
+          Chat based recertify complete
         </div>
-        <div className="flex gap-2">
+        <p className="text-xs leading-relaxed text-muted-foreground">Your answers and proposed changes are now pending privacy analyst review. Nothing is committed to the register until they approve it.</p>
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => router.push(`/review/${submissionId}`)}
             className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
