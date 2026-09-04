@@ -46,7 +46,7 @@ const REBECCA_PHOTO =
   'https://s3-alpha-sig.figma.com/img/20ed/b29f/549745f583646ef1d45b255c319fe3f9?Expires=1789344000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=QXZUWHke0aXi-I3NZ3JLM9ASLeAtQ4pID~f7~2he-opEc6cTB79LcM0ttpOIszotCFAzZA3MNPixlFGmAR3ZWKKB~Ie7V8m8Sp6ah3TMwcVfWl9RsuX3noXMylx-6~0PexYVzgbcAzGnnX9M57CI43M8LKRuTVo5tbXIwJCmsp8oVxT1QkCXojdQkZNPULgo8r9in~KD1gdDF7qR7LvluABV4HYEbzlZOJ-LZ7TdRvoivXXSICrKQa0-6mR9pBkadsmT6T0zJ5juEaX~k2YTVj9Tx3XiEHtEgMt4SxREEiBnO6DbpZvY4P9-oOv6PeV7~m2DV~4GBegiKfl-MH4dtg__'
 
 const RECORD_LINK_LABEL = 'AI-Assisted Candidate Screening & Recruitment'
-const RECORD_LINK_HREF = '/records/recertification-example'
+const RECORD_LINK_HREF = '/records/pa-recruitment'
 const SOLERA_PREFIX = 'Rebecca, the RoPA record titled \u201c'
 const SOLERA_SUFFIX = '\u201d is in need of recertification as of 09:34 AM 9/05/2026.'
 const SOLERA_MESSAGE_LENGTH = SOLERA_PREFIX.length + RECORD_LINK_LABEL.length + SOLERA_SUFFIX.length
