@@ -372,6 +372,22 @@ function Welcome({
   )
 }
 
+function getQuickAnswerLabels(question: string) {
+  if (/tools? and systems?|using all these|linked vendors|systems you use/i.test(question)) {
+    return { yes: 'Yes - I am still using these elements', no: 'No - these elements have changed' }
+  }
+  if (/personal data|collecting anything new|data elements|information about people/i.test(question)) {
+    return { yes: 'Yes - I am still collecting this data', no: 'No - this data has changed' }
+  }
+  if (/team that runs|owner|process/i.test(question)) {
+    return { yes: 'Yes - this process is still current', no: 'No - this process has changed' }
+  }
+  if (/keep the data|retention|how long/i.test(question)) {
+    return { yes: 'Yes - the retention is still current', no: 'No - the retention has changed' }
+  }
+  return { yes: 'Yes - this is still current', no: 'No - this has changed' }
+}
+
 function RecertMessage({
   message,
   record,
@@ -409,6 +425,7 @@ function RecertMessage({
         if (part.type === 'text') {
           if (!part.text) return null
           const binaryQuestion = /\?(?:\s|$)/.test(part.text) && /\b(?:yes|no|still|continue|remain|unchanged|accurate|correct)\b/i.test(part.text)
+          const quickAnswerLabels = binaryQuestion ? getQuickAnswerLabels(part.text) : null
           return (
             <div key={i} className="flex flex-col gap-3">
               <AgentText>{part.text}</AgentText>
@@ -420,7 +437,7 @@ function RecertMessage({
                     onClick={() => onQuickAnswer('Yes')}
                     className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <Check className="size-4" aria-hidden="true" /> Yes
+                    <Check className="size-4" aria-hidden="true" /> {quickAnswerLabels?.yes}
                   </button>
                   <button
                     type="button"
@@ -428,7 +445,7 @@ function RecertMessage({
                     onClick={() => onQuickAnswer('No')}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3.5 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <X className="size-4" aria-hidden="true" /> No
+                    <X className="size-4" aria-hidden="true" /> {quickAnswerLabels?.no}
                   </button>
                   <span className="self-center text-xs text-muted-foreground">You can also type your answer below.</span>
                 </div>
