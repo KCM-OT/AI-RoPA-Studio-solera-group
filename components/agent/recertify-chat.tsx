@@ -373,17 +373,26 @@ function Welcome({
 }
 
 function getQuickAnswerLabels(question: string) {
-  if (/tools? and systems?|using all these|linked vendors|systems you use/i.test(question)) {
+  if (/tools? and systems?|using all these|linked vendors|systems you use|software/i.test(question)) {
     return { yes: 'Yes - I am still using these elements', no: 'No - these elements have changed' }
   }
-  if (/personal data|collecting anything new|data elements|information about people/i.test(question)) {
+  if (/personal data|collecting anything new|data elements|information about people|data do you collect/i.test(question)) {
     return { yes: 'Yes - I am still collecting this data', no: 'No - this data has changed' }
   }
-  if (/team that runs|owner|process/i.test(question)) {
+  if (/team that runs|owner|process owner|who runs|responsible for/i.test(question)) {
     return { yes: 'Yes - this process is still current', no: 'No - this process has changed' }
   }
-  if (/keep the data|retention|how long/i.test(question)) {
+  if (/keep the data|retention|how long|delete|delet(e|ion)/i.test(question)) {
     return { yes: 'Yes - the retention is still current', no: 'No - the retention has changed' }
+  }
+  if (/transfer|jurisdiction|country|where.*process|international/i.test(question)) {
+    return { yes: 'Yes - these locations are still current', no: 'No - these locations have changed' }
+  }
+  if (/security|protected|safeguard|recipient|receive the data|who.*access/i.test(question)) {
+    return { yes: 'Yes - these protections and recipients are still current', no: 'No - these protections or recipients have changed' }
+  }
+  if (/purpose|legal basis|why.*process/i.test(question)) {
+    return { yes: 'Yes - this purpose and legal basis are still current', no: 'No - the purpose or legal basis has changed' }
   }
   return { yes: 'Yes - this is still current', no: 'No - this has changed' }
 }
