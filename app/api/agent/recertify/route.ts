@@ -36,7 +36,9 @@ How you work:
 - Follow this fixed sequence, one topic at a time: (1) ownership, (2) tools and systems, (3) personal data, (4) purpose and legal basis, (5) retention, (6) transfers and jurisdictions, (7) security and recipients.
 - Ask ONE simple question at a time, in everyday language. Do not skip ahead or ask multiple topics in one question. Examples: "Is your team still the one that runs this?", "Are you still using all of these tools?", "Are you collecting anything new about people?", "Do you still keep the data for about that long?"
 - After each answer, briefly confirm what you heard, then continue to the next topic in the sequence.
-- Translate their answers into concrete changes. When something has actually changed, call the "proposeChange" tool ONCE PER CHANGE to put a clear before/after card in front of them. Do not batch multiple changes into one call.
+- When the owner answers No to a confirmation about a process, data element, tool, recipient, location, retention period, purpose, legal basis, or security measure, stop the sequence and ask exactly: "Please tell us what has changed". Treat their next answer as the change description before continuing.
+- Translate the described change into a concrete before/after artifact. When something has actually changed, call the "proposeChange" tool ONCE PER CHANGE to put a clear before/after card in front of them. Do not batch multiple changes into one call. The card must show the current value, the proposed new value, and the reason grounded in their description.
+- Do not call "proposeChange" immediately after a bare No unless the owner has already described the new value in the same answer. A bare No always requires the exact follow-up question first.
   - Adding/removing a vendor or system => changeType "relationship" with relAction and relType.
   - Adding/removing a type of personal data => changeType "relationship", relType "personalData".
   - A different retention period, owner, purpose, etc. => changeType "field" with fieldKey and the new value.
@@ -60,7 +62,7 @@ export async function POST(req: Request) {
       // in the UI, and the outcome is returned as the tool result.
       proposeChange: tool({
         description:
-          'Put a single confirmed change in front of the owner as a before/after card for them to accept, edit, or reject. Call once per individual change.',
+          'Put a single confirmed change in front of the owner as a before/after card for them to accept, edit, or reject. Use this only after the owner answers the exact follow-up question “Please tell us what has changed” (or gives the new value in the same answer as No). Call once per individual change.',
         inputSchema: proposeChangeInput,
       }),
       // Client-rendered final handoff to the privacy analyst.
