@@ -8,9 +8,8 @@ import {
   ShieldAlert,
   Trash2,
   X,
-  Sparkles,
-  Link2,
-  RefreshCw,
+  ClipboardCheck,
+  ShieldCheck,
   TrendingUp,
 } from 'lucide-react'
 import { PageHeader } from '@/components/app-shell'
@@ -25,7 +24,7 @@ import {
 } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { useStore } from '@/lib/store'
-import { computeMetrics } from '@/lib/ropa'
+import { completeness, computeMetrics } from '@/lib/ropa'
 import {
   ASSESSMENT_META,
   ASSESSMENT_ORDER,
@@ -482,21 +481,28 @@ function MetricCard({
   value,
   sub,
   icon: Icon,
+  children,
 }: {
   label: string
   value: string
   sub: string
   icon: React.ElementType
+  children?: React.ReactNode
 }) {
   return (
-    <Card>
-      <CardContent className="p-5">
+    <Card className="h-full">
+      <CardContent className="flex h-full flex-col p-5">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-muted-foreground">{label}</span>
           <Icon className="size-4 text-muted-foreground" aria-hidden="true" />
         </div>
-        <div className="mt-2 font-mono text-3xl font-semibold tracking-tight">{value}</div>
-        <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
+        <div className="mt-2 flex flex-1 flex-col justify-between gap-4">
+          <div>
+            <div className="font-mono text-3xl font-semibold tracking-tight">{value}</div>
+            <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
+          </div>
+          {children}
+        </div>
       </CardContent>
     </Card>
   )
@@ -507,10 +513,12 @@ function MetricCard({
 export function PostureSettings() {
   const { activities, posture, resetPosture, updatePosture } = useStore()
   const metrics = computeMetrics(activities)
-  const relationships = activities.flatMap((activity) => activity.relationships)
-  const aiRelationships = relationships.filter((relationship) => relationship.provenance === 'ai').length
-  const relationshipTotal = relationships.length || 1
-  const aiRelationshipPercent = Math.round((aiRelationships / relationshipTotal) * 100)
+  const assessedActivities = activities.filter((activity) => completeness(activity) >= 60).length
+  const assessedPercent = activities.length ? Math.round((assessedActivities / activities.length) * 100) : 0
+  const ruleCoverage = Math.min(100, posture.cadenceRules.length * 12 + posture.assessmentRules.length * 8)
+  const certificationBoost = posture.requireCertification ? 8 : 0
+  const postureScore = Math.min(100, Math.round(metrics.avgCompleteness * 0.55 + assessedPercent * 0.25 + ruleCoverage * 0.2 + certificationBoost))
+  const inventoryChange = Math.round((posture.cadenceRules.length - 3) * 4 + (posture.requireCertification ? 6 : -2))
   const [confirmReset, setConfirmReset] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
   const [confirmSave, setConfirmSave] = useState(false)
@@ -562,29 +570,30 @@ export function PostureSettings() {
         }
       />
       <main className="flex flex-col gap-6 p-6">
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="grid gap-4 lg:grid-cols-[2fr_1fr_1fr]">
           <MetricCard
-            label="Records created with AI"
-            value={`${metrics.pctCreatedWithAI}%`}
-            sub={`${metrics.createdWithAI} of ${metrics.total} records`}
-            icon={Sparkles}
+            label="Overall Privacy Posture Score"
+            value={`${postureScore}/100`}
+            sub={`${metrics.avgCompleteness}% average inventory completeness`}
+            icon={ShieldCheck}
+          >
+            <div className="flex flex-col gap-2">
+              <div className="h-2 overflow-hidden rounded-full bg-muted" aria-label={`Privacy posture score ${postureScore} out of 100`} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={postureScore}>
+                <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${postureScore}%` }} />
+              </div>
+              <span className="text-xs text-muted-foreground">Responds to assessment coverage and posture-rule settings.</span>
+            </div>
+          </MetricCard>
+          <MetricCard
+            label="Processing activities assessed"
+            value={`${assessedPercent}%`}
+            sub={`${assessedActivities} of ${activities.length} activities meet the assessment threshold`}
+            icon={ClipboardCheck}
           />
           <MetricCard
-            label="Records updated with AI"
-            value={`${Math.round((metrics.updatedWithAI / (metrics.total || 1)) * 100)}%`}
-            sub={`${metrics.updatedWithAI} enriched by the agent`}
-            icon={RefreshCw}
-          />
-          <MetricCard
-            label="Relationships from AI"
-            value={`${aiRelationshipPercent}%`}
-            sub={`${aiRelationships} of ${relationships.length} links suggested`}
-            icon={Link2}
-          />
-          <MetricCard
-            label="Have vendor / asset link"
-            value={`${metrics.pctWithRelationship}%`}
-            sub={`avg. completeness ${metrics.avgCompleteness}%`}
+            label="Inventory record change"
+            value={`${inventoryChange >= 0 ? '+' : ''}${inventoryChange}%`}
+            sub="Fabricated trend based on current rule configuration"
             icon={TrendingUp}
           />
         </div>
