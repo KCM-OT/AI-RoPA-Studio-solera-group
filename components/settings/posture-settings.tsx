@@ -8,6 +8,10 @@ import {
   ShieldAlert,
   Trash2,
   X,
+  Sparkles,
+  Link2,
+  RefreshCw,
+  TrendingUp,
 } from 'lucide-react'
 import { PageHeader } from '@/components/app-shell'
 import { Button } from '@/components/ui/button'
@@ -21,6 +25,7 @@ import {
 } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { useStore } from '@/lib/store'
+import { computeMetrics } from '@/lib/ropa'
 import {
   ASSESSMENT_META,
   ASSESSMENT_ORDER,
@@ -472,10 +477,40 @@ function ImpactPreview() {
   )
 }
 
+function MetricCard({
+  label,
+  value,
+  sub,
+  icon: Icon,
+}: {
+  label: string
+  value: string
+  sub: string
+  icon: React.ElementType
+}) {
+  return (
+    <Card>
+      <CardContent className="p-5">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium text-muted-foreground">{label}</span>
+          <Icon className="size-4 text-muted-foreground" aria-hidden="true" />
+        </div>
+        <div className="mt-2 font-mono text-3xl font-semibold tracking-tight">{value}</div>
+        <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
+      </CardContent>
+    </Card>
+  )
+}
+
 // ---- Page composition ----
 
 export function PostureSettings() {
-  const { posture, resetPosture, updatePosture } = useStore()
+  const { activities, posture, resetPosture, updatePosture } = useStore()
+  const metrics = computeMetrics(activities)
+  const relationships = activities.flatMap((activity) => activity.relationships)
+  const aiRelationships = relationships.filter((relationship) => relationship.provenance === 'ai').length
+  const relationshipTotal = relationships.length || 1
+  const aiRelationshipPercent = Math.round((aiRelationships / relationshipTotal) * 100)
   const [confirmReset, setConfirmReset] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
   const [confirmSave, setConfirmSave] = useState(false)
@@ -527,6 +562,32 @@ export function PostureSettings() {
         }
       />
       <main className="flex flex-col gap-6 p-6">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <MetricCard
+            label="Records created with AI"
+            value={`${metrics.pctCreatedWithAI}%`}
+            sub={`${metrics.createdWithAI} of ${metrics.total} records`}
+            icon={Sparkles}
+          />
+          <MetricCard
+            label="Records updated with AI"
+            value={`${Math.round((metrics.updatedWithAI / (metrics.total || 1)) * 100)}%`}
+            sub={`${metrics.updatedWithAI} enriched by the agent`}
+            icon={RefreshCw}
+          />
+          <MetricCard
+            label="Relationships from AI"
+            value={`${aiRelationshipPercent}%`}
+            sub={`${aiRelationships} of ${relationships.length} links suggested`}
+            icon={Link2}
+          />
+          <MetricCard
+            label="Have vendor / asset link"
+            value={`${metrics.pctWithRelationship}%`}
+            sub={`avg. completeness ${metrics.avgCompleteness}%`}
+            icon={TrendingUp}
+          />
+        </div>
         <CadenceEditor onChange={() => setHasChanges(true)} />
         <AssessmentEditor onChange={() => setHasChanges(true)} />
         <ImpactPreview />
