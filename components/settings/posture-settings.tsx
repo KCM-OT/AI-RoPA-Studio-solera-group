@@ -561,7 +561,7 @@ export function PostureSettings() {
         }
       />
       <main className="flex flex-col gap-6 p-6">
-        <div className="grid gap-4 bg-[#f5f5f4] p-4 sm:p-6 lg:grid-cols-3">
+        <div className="grid gap-4 lg:grid-cols-3">
           <FigmaKpiCard>
             <p className="text-[13px] leading-4 text-[#6b6b69]">Posture score</p>
             <div className="flex items-baseline gap-1">
