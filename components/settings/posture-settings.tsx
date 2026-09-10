@@ -496,24 +496,32 @@ function ProgressBar({ value, color }: { value: number; color: string }) {
 export function PostureSettings() {
   const { activities, posture, resetPosture, updatePosture } = useStore()
   const metrics = computeMetrics(activities)
-  const assessedActivities = activities.filter((activity) => completeness(activity) >= 60).length
-  const assessedPercent = activities.length ? Math.round((assessedActivities / activities.length) * 100) : 0
-  const ruleCoverage = Math.min(100, posture.cadenceRules.length * 12 + posture.assessmentRules.length * 8)
-  const certificationBoost = posture.requireCertification ? 8 : 0
-  const postureScore = Math.min(100, Math.round(metrics.avgCompleteness * 0.55 + assessedPercent * 0.25 + ruleCoverage * 0.2 + certificationBoost))
-  const inventoryChange = Math.round((posture.cadenceRules.length - 3) * 4 + (posture.requireCertification ? 6 : -2))
-  const ropaScore = Math.min(100, Math.round(metrics.avgCompleteness + (posture.requireCertification ? 5 : 0)))
-  const dpiaScore = Math.min(100, Math.round(assessedPercent * 0.75 + (posture.assessmentRules.length > 0 ? 12 : 0)))
-  const mappingScore = Math.min(100, Math.round(metrics.pctWithRelationship * 0.85 + posture.cadenceRules.length * 3))
-  const documentationCoverage = Math.round((assessedPercent + dpiaScore + mappingScore) / 3)
-  const overdueCount = activities.filter((activity) => activity.status === 'under_review' || activity.status === 'draft').length
-  const unmappedCount = activities.filter((activity) => activity.relationships.length === 0).length
-  const inconsistentCount = activities.filter((activity) => completeness(activity) < 60).length
-  const openItems = overdueCount + unmappedCount + inconsistentCount
   const [confirmReset, setConfirmReset] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
   const [confirmSave, setConfirmSave] = useState(false)
   const [savedPosture, setSavedPosture] = useState(posture)
+
+  const calculateKpis = (settings: typeof posture) => {
+    const assessedActivities = activities.filter((activity) => completeness(activity) >= 60).length
+    const assessedPercent = activities.length ? Math.round((assessedActivities / activities.length) * 100) : 0
+    const ruleCoverage = Math.min(100, settings.cadenceRules.length * 12 + settings.assessmentRules.length * 8)
+    const certificationBoost = settings.requireCertification ? 8 : 0
+    const postureScore = Math.min(100, Math.round(metrics.avgCompleteness * 0.55 + assessedPercent * 0.25 + ruleCoverage * 0.2 + certificationBoost))
+    const inventoryChange = Math.round((settings.cadenceRules.length - 3) * 4 + (settings.requireCertification ? 6 : -2))
+    const ropaScore = Math.min(100, Math.round(metrics.avgCompleteness + (settings.requireCertification ? 5 : 0)))
+    const dpiaScore = Math.min(100, Math.round(assessedPercent * 0.75 + (settings.assessmentRules.length > 0 ? 12 : 0)))
+    const mappingScore = Math.min(100, Math.round(metrics.pctWithRelationship * 0.85 + settings.cadenceRules.length * 3))
+    const documentationCoverage = Math.round((assessedPercent + dpiaScore + mappingScore) / 3)
+    const overdueCount = activities.filter((activity) => activity.status === 'under_review' || activity.status === 'draft').length
+    const unmappedCount = activities.filter((activity) => activity.relationships.length === 0).length
+    const inconsistentCount = activities.filter((activity) => completeness(activity) < 60).length
+    return { assessedActivities, assessedPercent, postureScore, inventoryChange, ropaScore, dpiaScore, mappingScore, documentationCoverage, overdueCount, unmappedCount, inconsistentCount, openItems: overdueCount + unmappedCount + inconsistentCount }
+  }
+
+  const savedKpis = calculateKpis(savedPosture)
+  const draftKpis = calculateKpis(posture)
+  const kpis = hasChanges ? draftKpis : savedKpis
+  const previewDelta = (value: number, savedValue: number) => value - savedValue
 
   return (
     <>
@@ -561,30 +569,36 @@ export function PostureSettings() {
         }
       />
       <main className="flex flex-col gap-6 p-6">
+        {hasChanges && (
+          <div className="flex items-center justify-between rounded-lg border border-warning/30 bg-warning-muted/40 px-4 py-3 text-xs">
+            <div><span className="font-semibold text-warning">Preview</span><span className="ml-2 text-muted-foreground">Simulated impact from your unsaved posture-rule changes.</span></div>
+            <span className="text-muted-foreground">Save changes to apply</span>
+          </div>
+        )}
         <div className="grid gap-4 lg:grid-cols-3">
           <FigmaKpiCard>
             <p className="text-[13px] leading-4 text-[#6b6b69]">Posture score</p>
             <div className="flex items-baseline gap-1">
-              <span className="text-[32px] font-medium leading-10 tracking-tight text-[#1a1a1a]">{postureScore}</span>
+              <span className="text-[32px] font-medium leading-10 tracking-tight text-[#1a1a1a]">{kpis.postureScore}</span>
               <span className="text-sm text-[#8c8c87]">/100</span>
             </div>
-            <div className="flex h-[6px] gap-0.5 overflow-hidden rounded-full" role="progressbar" aria-label={`Posture score ${postureScore} out of 100`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={postureScore}>
-              <div className="bg-[#1d9e75]" style={{ width: `${ropaScore}%` }} />
-              <div className="bg-[#ef9f27]" style={{ width: `${Math.max(0, dpiaScore - 10)}%` }} />
-              <div className="bg-[#1d9e75]" style={{ width: `${Math.max(0, mappingScore)}%` }} />
+            <div className="flex h-[6px] gap-0.5 overflow-hidden rounded-full" role="progressbar" aria-label={`Posture score ${kpis.postureScore} out of 100`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={kpis.postureScore}>
+              <div className="bg-[#1d9e75]" style={{ width: `${kpis.ropaScore}%` }} />
+              <div className="bg-[#ef9f27]" style={{ width: `${Math.max(0, kpis.dpiaScore - 10)}%` }} />
+              <div className="bg-[#1d9e75]" style={{ width: `${Math.max(0, kpis.mappingScore)}%` }} />
             </div>
-            <div className="flex justify-between text-xs text-[#8c8c87]"><span>RoPA {ropaScore}</span><span>DPIA/PIA {dpiaScore}</span><span>Mapping {mappingScore}</span></div>
-            <p className="text-[13px] leading-4 text-[#0f6e56]">↑ Up {Math.max(1, inventoryChange)} points since last quarter</p>
+            <div className="flex justify-between text-xs text-[#8c8c87]"><span>RoPA {kpis.ropaScore}</span><span>DPIA/PIA {kpis.dpiaScore}</span><span>Mapping {kpis.mappingScore}</span></div>
+            <p className="text-[13px] leading-4 text-[#0f6e56]">{previewDelta(kpis.postureScore, savedKpis.postureScore) >= 0 ? '↑' : '↓'} {Math.abs(previewDelta(kpis.postureScore, savedKpis.postureScore)) || 1} points {hasChanges ? 'in preview' : 'since last quarter'}</p>
           </FigmaKpiCard>
 
           <FigmaKpiCard>
             <p className="text-[13px] leading-4 text-[#6b6b69]">Documentation coverage</p>
-            <span className="text-[32px] font-medium leading-10 tracking-tight text-[#1a1a1a]">{documentationCoverage}%</span>
+            <span className="text-[32px] font-medium leading-10 tracking-tight text-[#1a1a1a]">{kpis.documentationCoverage}%</span>
             <div className="flex flex-col gap-2.5">
               {[
-                ['RoPA entries complete', assessedPercent, '#1d9e75'],
-                ['DPIA/PIA current', dpiaScore, '#ef9f27'],
-                ['Data flows mapped', mappingScore, '#e24b4a'],
+                ['RoPA entries complete', kpis.assessedPercent, '#1d9e75'],
+                ['DPIA/PIA current', kpis.dpiaScore, '#ef9f27'],
+                ['Data flows mapped', kpis.mappingScore, '#e24b4a'],
               ].map(([label, value, color]) => (
                 <div key={label as string} className="flex flex-col gap-1">
                   <div className="flex justify-between text-xs text-[#6b6b69]"><span>{label}</span><span>{value}%</span></div>
@@ -592,16 +606,16 @@ export function PostureSettings() {
                 </div>
               ))}
             </div>
-            <p className="text-[13px] leading-4 text-[#8c8c87]">{inconsistentCount} processing activities are missing a current assessment.</p>
+            <p className="text-[13px] leading-4 text-[#8c8c87]">{kpis.inconsistentCount} processing activities are missing a current assessment.</p>
           </FigmaKpiCard>
 
           <FigmaKpiCard>
             <p className="text-[13px] leading-4 text-[#6b6b69]">Needs attention</p>
-            <span className="text-[32px] font-medium leading-10 tracking-tight text-[#1a1a1a]">{openItems} open items</span>
+            <span className="text-[32px] font-medium leading-10 tracking-tight text-[#1a1a1a]">{kpis.openItems} open items</span>
             <div className="flex flex-col gap-2 text-[13px] leading-4 text-[#1a1a1a]">
-              <div className="flex items-center gap-2"><span className="size-2 rounded-full bg-[#e24b4a]" aria-hidden="true" />{overdueCount} DPIAs overdue for review</div>
-              <div className="flex items-center gap-2"><span className="size-2 rounded-full bg-[#ef9f27]" aria-hidden="true" />{unmappedCount} data flows unmapped</div>
-              <div className="flex items-center gap-2"><span className="size-2 rounded-full bg-[#ef9f27]" aria-hidden="true" />{inconsistentCount} RoPA entries flagged inconsistent</div>
+              <div className="flex items-center gap-2"><span className="size-2 rounded-full bg-[#e24b4a]" aria-hidden="true" />{kpis.overdueCount} DPIAs overdue for review</div>
+              <div className="flex items-center gap-2"><span className="size-2 rounded-full bg-[#ef9f27]" aria-hidden="true" />{kpis.unmappedCount} data flows unmapped</div>
+              <div className="flex items-center gap-2"><span className="size-2 rounded-full bg-[#ef9f27]" aria-hidden="true" />{kpis.inconsistentCount} RoPA entries flagged inconsistent</div>
             </div>
             <button type="button" className="w-fit text-[13px] leading-4 text-[#185fa5] hover:underline">Review flagged items →</button>
           </FigmaKpiCard>
