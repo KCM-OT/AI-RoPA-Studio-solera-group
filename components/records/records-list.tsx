@@ -23,10 +23,10 @@ const FILTERS: { key: RecordStatus | 'all'; label: string }[] = [
 ]
 
 const STATUS_KPIS: { key: RecordStatus; label: string; tone: string }[] = [
-  { key: 'active', label: 'Active', tone: 'bg-primary' },
-  { key: 'draft', label: 'Draft', tone: 'bg-ai' },
-  { key: 'under_review', label: 'Under review', tone: 'bg-warning' },
-  { key: 'archived', label: 'Archived', tone: 'bg-muted-foreground' },
+  { key: 'active', label: 'Active', tone: 'bg-[#185fa5]' },
+  { key: 'draft', label: 'Draft', tone: 'bg-[#1d9e75]' },
+  { key: 'under_review', label: 'Under review', tone: 'bg-[#ef9f27]' },
+  { key: 'archived', label: 'Archived', tone: 'bg-[#8c8c87]' },
 ]
 
 function KpiCard({
@@ -45,17 +45,17 @@ function KpiCard({
   children?: React.ReactNode
 }) {
   return (
-    <Card className="h-full">
-      <CardContent className="flex h-full flex-col p-5">
+    <Card className="h-full rounded-xl border-[#e6e5e2] bg-white shadow-none">
+      <CardContent className="flex h-full flex-col gap-3 p-6 text-[#1a1a1a]">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-muted-foreground">{label}</span>
-          <Icon className="size-4 text-muted-foreground" aria-hidden="true" />
+          <span className="text-[13px] leading-4 text-[#6b6b69]">{label}</span>
+          <Icon className="size-4 text-[#8c8c87]" aria-hidden="true" />
         </div>
-        <div className="mt-2 flex flex-1 flex-col justify-between gap-4">
+        <div className="flex flex-1 flex-col justify-between gap-4">
           <div className="flex items-end gap-4">
             <div>
-              <div className="font-mono text-3xl font-semibold tracking-tight">{value}</div>
-              <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
+              <div className="text-[32px] font-medium leading-10 tracking-tight text-[#1a1a1a]">{value}</div>
+              <div className="mt-1 text-[13px] leading-4 text-[#8c8c87]">{sub}</div>
             </div>
             {children}
           </div>
@@ -85,7 +85,7 @@ function StatusDonut({ counts, total }: { counts: Record<RecordStatus, number>; 
     <div className="flex items-center gap-4">
       <div className="relative size-16 shrink-0" aria-label={`Record status distribution: ${total} total records`} role="img">
         <svg className="size-full -rotate-90" viewBox="0 0 64 64" aria-hidden="true">
-          <circle cx="32" cy="32" r={radius} fill="none" className="stroke-muted" strokeWidth="8" />
+          <circle cx="32" cy="32" r={radius} fill="none" className="stroke-[#e6e5e2]" strokeWidth="8" />
           {segments.map((segment) => (
             <circle
               key={segment.key}
@@ -100,16 +100,16 @@ function StatusDonut({ counts, total }: { counts: Record<RecordStatus, number>; 
             />
           ))}
         </svg>
-        <span className="absolute inset-0 flex items-center justify-center font-mono text-sm font-semibold">{total}</span>
+        <span className="absolute inset-0 flex items-center justify-center font-mono text-sm font-semibold text-[#1a1a1a]">{total}</span>
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-1 text-xs">
         {segments.map((segment) => (
           <div key={segment.key} className="flex items-center justify-between gap-2">
-            <span className="flex min-w-0 items-center gap-1.5 text-muted-foreground">
+            <span className="flex min-w-0 items-center gap-1.5 text-[#6b6b69]">
               <span className={`size-2 shrink-0 rounded-full ${segment.tone}`} aria-hidden="true" />
               <span className="truncate">{segment.label}</span>
             </span>
-            <span className="font-mono text-foreground">{counts[segment.key]}</span>
+            <span className="font-mono text-[#1a1a1a]">{counts[segment.key]}</span>
           </div>
         ))}
       </div>

@@ -33,14 +33,14 @@ function MetricCard({
   icon: React.ElementType
 }) {
   return (
-    <Card>
-      <CardContent className="p-5">
+    <Card className="h-full rounded-xl border-[#e6e5e2] bg-white shadow-none">
+      <CardContent className="flex h-full flex-col gap-3 p-6 text-[#1a1a1a]">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-muted-foreground">{label}</span>
-          <Icon className="size-4 text-muted-foreground" />
+          <span className="text-[13px] leading-4 text-[#6b6b69]">{label}</span>
+          <Icon className="size-4 text-[#8c8c87]" aria-hidden="true" />
         </div>
-        <div className="mt-2 font-mono text-3xl font-semibold tracking-tight">{value}</div>
-        <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
+        <span className="text-[32px] font-medium leading-10 tracking-tight text-[#1a1a1a]">{value}</span>
+        <p className="mt-auto text-[13px] leading-4 text-[#8c8c87]">{sub}</p>
       </CardContent>
     </Card>
   )
