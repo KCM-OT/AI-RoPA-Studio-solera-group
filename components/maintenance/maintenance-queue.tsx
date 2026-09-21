@@ -126,23 +126,21 @@ function StatTile({
   tone: 'danger' | 'warning' | 'primary'
   icon: typeof Clock
 }) {
-  const toneCls = {
-    danger: 'text-danger bg-danger/10',
-    warning: 'text-warning bg-warning/10',
-    primary: 'text-primary bg-primary/10',
+  const toneColor = {
+    danger: '#e24b4a',
+    warning: '#ef9f27',
+    primary: '#1d9e75',
   }[tone]
   return (
-    <Card>
-      <CardContent className="flex items-center gap-3 py-4">
-        <div className={cn('flex size-10 items-center justify-center rounded-lg', toneCls)}>
-          <Icon className="size-5" />
-        </div>
-        <div>
-          <div className="text-2xl font-semibold tabular-nums text-foreground">{value}</div>
-          <div className="text-xs text-muted-foreground">{label}</div>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="rounded-xl border border-[#e6e5e2] bg-white p-6 shadow-none">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-[13px] text-[#6b6b69]">{label}</p>
+        <Icon className="size-4 shrink-0" style={{ color: toneColor }} />
+      </div>
+      <div className="mt-3 text-[32px] font-medium leading-none tabular-nums" style={{ color: toneColor }}>
+        {value}
+      </div>
+    </div>
   )
 }
 
