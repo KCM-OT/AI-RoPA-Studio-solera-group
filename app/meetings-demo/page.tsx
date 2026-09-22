@@ -44,7 +44,7 @@ const TEAM_ICONS = {
 const REBECCA_PHOTO = '/meetings-demo/rebecca-nordstrum.png'
 
 const RECORD_LINK_LABEL = 'AI-Assisted Candidate Screening & Recruitment'
-const RECORD_LINK_HREF = '/records/pa-recruitment'
+const RECORD_LINK_HREF = '/recertify/pa-recruitment'
 const SOLERA_PREFIX = 'Rebecca, the RoPA record titled \u201c'
 const SOLERA_SUFFIX = '\u201d is in need of recertification as of 09:34 AM 9/05/2026.'
 const SOLERA_MESSAGE_LENGTH = SOLERA_PREFIX.length + RECORD_LINK_LABEL.length + SOLERA_SUFFIX.length
