@@ -311,9 +311,9 @@ export function RecordsList() {
         <div className="flex justify-end pt-3">
           <Link
             href="/meetings-demo"
-            className="text-xs text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+            className="text-sm font-medium text-primary hover:underline"
           >
-            Meetings demo
+            Teams Demo
           </Link>
         </div>
       </div>
