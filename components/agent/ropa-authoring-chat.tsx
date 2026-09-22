@@ -264,112 +264,127 @@ export function RopaAuthoringChat() {
     setInput('')
   }
 
-  const chat = (
+  const messagesArea = (
     <div className="flex min-h-0 flex-1 flex-col">
       <ChatShell>
-      <ChatScroll>
-        {isEmpty && !hasSubmitted && (
-          <Welcome
-            value={input}
-            onChange={setInput}
-            onSubmit={submit}
-            disabled={busy}
-            onFocus={() => { setPromptAnimationActive(false); setInput('') }}
-            onPromptSelect={() => setPromptAnimationActive(false)}
-            fillPasteText={fillPasteText}
-            onUploadDocument={triggerUploadDocument}
-            uploadState={uploadState}
-            uploadFilename={uploadFilename}
-            uploadError={uploadError}
-            onDismissUpload={() => { setUploadState('idle'); setUploadError(null) }}
-          />
-        )}
-        {messages.map((m) => <MessageRenderer key={m.id} message={m} store={store} router={router} hideDraft />)}
-        {status === 'submitted' && <AgentMessage><TypingDots /></AgentMessage>}
-      </ChatScroll>
-      {hasSubmitted && (
-        <div className="sticky bottom-0 z-10 border-t border-border bg-background px-3 py-3 shadow-[0_-8px_20px_rgba(0,0,0,0.06)]">
-          {(uploadState === 'uploading' || uploadState === 'error') && (
-            <UploadStatus
-              state={uploadState}
-              filename={uploadFilename}
-              error={uploadError}
-              onDismiss={() => {
-                setUploadState('idle')
-                setUploadError(null)
-              }}
+        <ChatScroll>
+          {isEmpty && !hasSubmitted && (
+            <Welcome
+              value={input}
+              onChange={setInput}
+              onSubmit={submit}
+              disabled={busy}
+              onFocus={() => { setPromptAnimationActive(false); setInput('') }}
+              onPromptSelect={() => setPromptAnimationActive(false)}
+              fillPasteText={fillPasteText}
+              onUploadDocument={triggerUploadDocument}
+              uploadState={uploadState}
+              uploadFilename={uploadFilename}
+              uploadError={uploadError}
+              onDismissUpload={() => { setUploadState('idle'); setUploadError(null) }}
             />
           )}
-          <textarea value={input} disabled={busy} rows={2} placeholder="Ask a follow-up…" onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) { e.preventDefault(); submit() } }} className="block w-full resize-none rounded-lg border border-border bg-card px-3 py-2 text-sm outline-none focus:border-ai/50" />
-          <div className="flex items-center gap-2 pt-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <button
-                    type="button"
-                    aria-label="Add source"
-                    className="flex size-8 items-center justify-center rounded-md border border-[#d9d9d9] bg-white shadow-sm hover:bg-[#f7f7f7]"
-                  >
-                    <img src="/figma/plus.svg" alt="" className="size-4" />
-                  </button>
-                }
-              />
-              <DropdownMenuContent side="top" align="start" className="w-56">
-                <DropdownMenuItem onClick={triggerUploadDocument}><FileText />Upload document</DropdownMenuItem>
-                <DropdownMenuItem><Database />Connect data source</DropdownMenuItem>
-                <DropdownMenuItem><FileInput />Import existing RoPA</DropdownMenuItem>
-                <DropdownMenuItem onClick={fillPasteText}><ClipboardPaste />Paste text</DropdownMenuItem>
-                <DropdownMenuItem><LayoutTemplate />Start from template</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <button
-                    type="button"
-                    aria-label="Attach document"
-                    className="flex size-8 items-center justify-center rounded-md border border-[#d9d9d9] bg-white shadow-sm hover:bg-[#f7f7f7]"
-                  >
-                    <img src="/figma/attachment-button.svg" alt="" className="size-4" />
-                  </button>
-                }
-              />
-              <TooltipContent>Quick Attach</TooltipContent>
-            </Tooltip>
-            <button type="button" aria-label="Send message" disabled={busy || !input.trim()} onClick={() => submit()} className="ml-auto flex size-8 items-center justify-center rounded-md bg-[#167cbb] transition-opacity hover:bg-[#126a9f] disabled:cursor-not-allowed disabled:opacity-40"><img src="/figma/arrow-up.svg" alt="" className="size-4" /></button>
-          </div>
-        </div>
-      )}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".docx,.rtf,.txt,.pdf,application/pdf,text/plain,text/rtf,application/rtf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        className="hidden"
-        onChange={handleFileSelected}
-      />
+          {messages.map((m) => <MessageRenderer key={m.id} message={m} store={store} router={router} hideDraft />)}
+          {status === 'submitted' && <AgentMessage><TypingDots /></AgentMessage>}
+        </ChatScroll>
       </ChatShell>
     </div>
   )
 
-  return hasSubmitted ? (
-    <div className="flex min-h-0 flex-1 flex-col lg:h-[calc(100vh-174px)] lg:flex-row">
-      <div className="flex h-full min-h-0 w-full flex-col overflow-hidden border-r border-border lg:w-[30%]">{chat}</div>
-      <section aria-label="Draft record artifact" className="min-h-0 w-full overflow-y-auto bg-muted/20 p-4 lg:w-[70%]">
-        <div className="mx-auto max-w-4xl">
-          <h2 className="mb-3 text-sm font-semibold text-foreground">Draft record artifact</h2>
-          {messages.map((m) => <MessageRenderer key={`artifact-${m.id}`} message={m} store={store} router={router} artifactOnly />)}
-  {busy && !messages.some((message) => message.parts.some((part) => part.type === 'tool-extractRecord' && part.state === 'output-available')) && (
-  <div className="flex min-h-32 translate-y-50 items-center justify-center" aria-label="Building draft artifact">
-  <div className="relative flex size-16 items-center justify-center">
-                <div className="absolute inset-0 rounded-full border-2 border-purple-400/20 border-t-purple-400/80 animate-spin" aria-hidden="true" />
-                <Sparkles className="relative size-8 animate-pulse text-ai" aria-hidden="true" />
-              </div>
-            </div>
-          )}
+  const fileInput = (
+    <input
+      ref={fileInputRef}
+      type="file"
+      accept=".docx,.rtf,.txt,.pdf,application/pdf,text/plain,text/rtf,application/rtf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      className="hidden"
+      onChange={handleFileSelected}
+    />
+  )
+
+  const composerFooter = (
+    <footer className="shrink-0 border-t border-border bg-background px-3 py-3 shadow-[0_-8px_20px_rgba(0,0,0,0.06)]">
+      <div className="mx-auto max-w-3xl">
+        {(uploadState === 'uploading' || uploadState === 'error') && (
+          <UploadStatus
+            state={uploadState}
+            filename={uploadFilename}
+            error={uploadError}
+            onDismiss={() => {
+              setUploadState('idle')
+              setUploadError(null)
+            }}
+          />
+        )}
+        <textarea value={input} disabled={busy} rows={2} placeholder="Ask a follow-up…" onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) { e.preventDefault(); submit() } }} className="block w-full resize-none rounded-lg border border-border bg-card px-3 py-2 text-sm outline-none focus:border-ai/50" />
+        <div className="flex items-center gap-2 pt-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <button
+                  type="button"
+                  aria-label="Add source"
+                  className="flex size-8 items-center justify-center rounded-md border border-[#d9d9d9] bg-white shadow-sm hover:bg-[#f7f7f7]"
+                >
+                  <img src="/figma/plus.svg" alt="" className="size-4" />
+                </button>
+              }
+            />
+            <DropdownMenuContent side="top" align="start" className="w-56">
+              <DropdownMenuItem onClick={triggerUploadDocument}><FileText />Upload document</DropdownMenuItem>
+              <DropdownMenuItem><Database />Connect data source</DropdownMenuItem>
+              <DropdownMenuItem><FileInput />Import existing RoPA</DropdownMenuItem>
+              <DropdownMenuItem onClick={fillPasteText}><ClipboardPaste />Paste text</DropdownMenuItem>
+              <DropdownMenuItem><LayoutTemplate />Start from template</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <button
+                  type="button"
+                  aria-label="Attach document"
+                  className="flex size-8 items-center justify-center rounded-md border border-[#d9d9d9] bg-white shadow-sm hover:bg-[#f7f7f7]"
+                >
+                  <img src="/figma/attachment-button.svg" alt="" className="size-4" />
+                </button>
+              }
+            />
+            <TooltipContent>Quick Attach</TooltipContent>
+          </Tooltip>
+          <button type="button" aria-label="Send message" disabled={busy || !input.trim()} onClick={() => submit()} className="ml-auto flex size-8 items-center justify-center rounded-md bg-[#167cbb] transition-opacity hover:bg-[#126a9f] disabled:cursor-not-allowed disabled:opacity-40"><img src="/figma/arrow-up.svg" alt="" className="size-4" /></button>
         </div>
-      </section>
+      </div>
+    </footer>
+  )
+
+  return hasSubmitted ? (
+    <div className="flex h-[calc(100svh-167px)] min-h-0 flex-col overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
+        <div className="flex h-full min-h-0 w-full flex-col overflow-hidden border-r border-border lg:w-[30%]">{messagesArea}</div>
+        <section aria-label="Draft record artifact" className="min-h-0 w-full overflow-y-auto bg-muted/20 p-4 lg:w-[70%]">
+          <div className="mx-auto max-w-4xl">
+            <h2 className="mb-3 text-sm font-semibold text-foreground">Draft record artifact</h2>
+            {messages.map((m) => <MessageRenderer key={`artifact-${m.id}`} message={m} store={store} router={router} artifactOnly />)}
+            {busy && !messages.some((message) => message.parts.some((part) => part.type === 'tool-extractRecord' && part.state === 'output-available')) && (
+              <div className="flex min-h-32 translate-y-50 items-center justify-center" aria-label="Building draft artifact">
+                <div className="relative flex size-16 items-center justify-center">
+                  <div className="absolute inset-0 rounded-full border-2 border-purple-400/20 border-t-purple-400/80 animate-spin" aria-hidden="true" />
+                  <Sparkles className="relative size-8 animate-pulse text-ai" aria-hidden="true" />
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+      {composerFooter}
+      {fileInput}
     </div>
-  ) : <div className="flex min-h-0 flex-1 flex-col">{chat}</div>
+  ) : (
+    <div className="flex min-h-0 flex-1 flex-col">
+      {messagesArea}
+      {fileInput}
+    </div>
+  )
 }
 
 function Welcome({
