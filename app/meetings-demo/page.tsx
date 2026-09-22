@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
-const WALLPAPER =
-  'https://s3-alpha-sig.figma.com/img/0b46/3309/588cf1a48db6d1310cf6781dbec6138e?Expires=1789344000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=YwPBbKB7v3~fhroVNXJNHtqovfvJOTfG1A4e0IwS1H3NIg~rfsJjjNKOdDv5ZhCSb~ZucgBNnoSP-T3nUV4TNdTbGLT46aYoDAk~4gO6BlanBHF85FxyHQBndfOMlMYL053r8SPyx4O~afGJUCQNC~DkMlGuRq46G8sQO5Nl25Br2LCy6oE4FQjORQSehRnDUJ01dlZf2XrAQV2iywjtcSqf4TT0HDlLQ886FERXQ-H2BIQjF8O05qVOV5C-lPLkXOnPhtoXgRBT73dPbvl28MhnTamEi1EF1L1STXmfDYA72zpyarMPUusZFQDu49IyRO0OLyhwAtJxiSdGTNvZYQ__'
+const WALLPAPER = '/meetings-demo/windows-blue-wallpaper.png'
 
 const icons = [
   ['https://hebbkx1anhila5yf.public.blob.vercel-storage.com/figma-assets/613dd97001679bd28cb0c8661ed7d2e274b58b30c21c4ee87745fa956b635a62.svg', 'Search'],
@@ -42,8 +41,7 @@ const TEAM_ICONS = {
   plus: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/figma-assets/615de3c58bfab08121c1047861fdf49529059de6737e2711216c7e76b49586ad.svg',
 }
 
-const REBECCA_PHOTO =
-  'https://s3-alpha-sig.figma.com/img/20ed/b29f/549745f583646ef1d45b255c319fe3f9?Expires=1789344000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=QXZUWHke0aXi-I3NZ3JLM9ASLeAtQ4pID~f7~2he-opEc6cTB79LcM0ttpOIszotCFAzZA3MNPixlFGmAR3ZWKKB~Ie7V8m8Sp6ah3TMwcVfWl9RsuX3noXMylx-6~0PexYVzgbcAzGnnX9M57CI43M8LKRuTVo5tbXIwJCmsp8oVxT1QkCXojdQkZNPULgo8r9in~KD1gdDF7qR7LvluABV4HYEbzlZOJ-LZ7TdRvoivXXSICrKQa0-6mR9pBkadsmT6T0zJ5juEaX~k2YTVj9Tx3XiEHtEgMt4SxREEiBnO6DbpZvY4P9-oOv6PeV7~m2DV~4GBegiKfl-MH4dtg__'
+const REBECCA_PHOTO = '/meetings-demo/rebecca-nordstrum.png'
 
 const RECORD_LINK_LABEL = 'AI-Assisted Candidate Screening & Recruitment'
 const RECORD_LINK_HREF = '/records/pa-recruitment'
