@@ -358,8 +358,8 @@ export function RopaAuthoringChat() {
   )
 
   return hasSubmitted ? (
-    <div className="flex min-h-0 flex-1 flex-col lg:h-[calc(100vh-174px)]">
-      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+    <div className="flex h-[calc(100svh-167px)] min-h-0 flex-col overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
         <div className="flex h-full min-h-0 w-full flex-col overflow-hidden border-r border-border lg:w-[30%]">{messagesArea}</div>
         <section aria-label="Draft record artifact" className="min-h-0 w-full overflow-y-auto bg-muted/20 p-4 lg:w-[70%]">
           <div className="mx-auto max-w-4xl">
