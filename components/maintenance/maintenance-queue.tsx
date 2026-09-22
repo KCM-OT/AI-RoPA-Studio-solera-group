@@ -88,6 +88,13 @@ export function MaintenanceQueue() {
           reviewingIds={reviewingIds}
           emptyText="Nothing overdue. Nice."
         />
+  <Link
+    href="/meetings-demo"
+    className="self-end text-sm font-medium text-primary hover:underline"
+  >
+    Teams Demo
+  </Link>
+
         <QueueSection
           title="Due soon"
           tone="warning"
