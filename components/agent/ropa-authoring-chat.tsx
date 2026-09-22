@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
@@ -186,6 +186,47 @@ export function RopaAuthoringChat() {
     setInput(PASTE_TEXT)
   }
 
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'error'>('idle')
+  const [uploadFilename, setUploadFilename] = useState<string | null>(null)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+
+  const triggerUploadDocument = () => {
+    setPromptAnimationActive(false)
+    setUploadError(null)
+    fileInputRef.current?.click()
+  }
+
+  async function handleFileSelected(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+
+    setUploadState('uploading')
+    setUploadFilename(file.name)
+    setUploadError(null)
+
+    try {
+      const body = new FormData()
+      body.append('file', file)
+      const response = await fetch('/api/agent/parse-document', { method: 'POST', body })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data?.error ?? 'That document could not be read.')
+      }
+
+      setUploadState('idle')
+      setUploadFilename(null)
+      setHasSubmitted(true)
+      sendMessage({ text: `I've uploaded a document called "${data.filename}". Here is its content:\n\n${data.text}` })
+      setInput('')
+    } catch (error) {
+      setUploadState('error')
+      setUploadError(error instanceof Error ? error.message : 'That document could not be read.')
+    }
+  }
+
   useEffect(() => {
     if (!promptAnimationActive || !isEmpty) return
 
@@ -228,13 +269,37 @@ export function RopaAuthoringChat() {
       <ChatShell>
       <ChatScroll>
         {isEmpty && !hasSubmitted && (
-          <Welcome value={input} onChange={setInput} onSubmit={submit} disabled={busy} onFocus={() => { setPromptAnimationActive(false); setInput('') }} onPromptSelect={() => setPromptAnimationActive(false)} fillPasteText={fillPasteText} />
+          <Welcome
+            value={input}
+            onChange={setInput}
+            onSubmit={submit}
+            disabled={busy}
+            onFocus={() => { setPromptAnimationActive(false); setInput('') }}
+            onPromptSelect={() => setPromptAnimationActive(false)}
+            fillPasteText={fillPasteText}
+            onUploadDocument={triggerUploadDocument}
+            uploadState={uploadState}
+            uploadFilename={uploadFilename}
+            uploadError={uploadError}
+            onDismissUpload={() => { setUploadState('idle'); setUploadError(null) }}
+          />
         )}
         {messages.map((m) => <MessageRenderer key={m.id} message={m} store={store} router={router} hideDraft />)}
         {status === 'submitted' && <AgentMessage><TypingDots /></AgentMessage>}
       </ChatScroll>
       {hasSubmitted && (
         <div className="sticky bottom-0 z-10 border-t border-border bg-background px-3 py-3 shadow-[0_-8px_20px_rgba(0,0,0,0.06)]">
+          {(uploadState === 'uploading' || uploadState === 'error') && (
+            <UploadStatus
+              state={uploadState}
+              filename={uploadFilename}
+              error={uploadError}
+              onDismiss={() => {
+                setUploadState('idle')
+                setUploadError(null)
+              }}
+            />
+          )}
           <textarea value={input} disabled={busy} rows={2} placeholder="Ask a follow-up…" onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) { e.preventDefault(); submit() } }} className="block w-full resize-none rounded-lg border border-border bg-card px-3 py-2 text-sm outline-none focus:border-ai/50" />
           <div className="flex items-center gap-2 pt-2">
             <DropdownMenu>
@@ -250,7 +315,7 @@ export function RopaAuthoringChat() {
                 }
               />
               <DropdownMenuContent side="top" align="start" className="w-56">
-                <DropdownMenuItem><FileText />Upload document</DropdownMenuItem>
+                <DropdownMenuItem onClick={triggerUploadDocument}><FileText />Upload document</DropdownMenuItem>
                 <DropdownMenuItem><Database />Connect data source</DropdownMenuItem>
                 <DropdownMenuItem><FileInput />Import existing RoPA</DropdownMenuItem>
                 <DropdownMenuItem onClick={fillPasteText}><ClipboardPaste />Paste text</DropdownMenuItem>
@@ -275,6 +340,13 @@ export function RopaAuthoringChat() {
           </div>
         </div>
       )}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".docx,.rtf,.txt,.pdf,application/pdf,text/plain,text/rtf,application/rtf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        className="hidden"
+        onChange={handleFileSelected}
+      />
       </ChatShell>
     </div>
   )
@@ -308,6 +380,11 @@ function Welcome({
   onFocus,
   onPromptSelect,
   fillPasteText,
+  onUploadDocument,
+  uploadState,
+  uploadFilename,
+  uploadError,
+  onDismissUpload,
 }: {
   value: string
   onChange: (value: string) => void
@@ -316,6 +393,11 @@ function Welcome({
   onFocus?: () => void
   onPromptSelect?: () => void
   fillPasteText?: () => void
+  onUploadDocument?: () => void
+  uploadState?: 'idle' | 'uploading' | 'error'
+  uploadFilename?: string | null
+  uploadError?: string | null
+  onDismissUpload?: () => void
 }) {
   const samples = [
     { title: 'Recruitment process', description: 'Create a record for hiring and onboarding employees.', body: SUGGESTIONS[0].value },
@@ -337,6 +419,9 @@ function Welcome({
         <span>What are you working on?</span>
       </div>
       <div className="w-full rounded-md border border-[#d9d9d9] bg-white p-3 text-left shadow-sm">
+        {uploadState && uploadState !== 'idle' && (
+          <UploadStatus state={uploadState} filename={uploadFilename ?? null} error={uploadError ?? null} onDismiss={onDismissUpload} />
+        )}
         <textarea
           value={value}
           disabled={disabled}
@@ -362,7 +447,7 @@ function Welcome({
                 }
               />
               <DropdownMenuContent side="top" align="start" className="w-56">
-                <DropdownMenuItem><FileText />Upload document</DropdownMenuItem>
+                <DropdownMenuItem onClick={onUploadDocument}><FileText />Upload document</DropdownMenuItem>
                 <DropdownMenuItem><Database />Connect data source</DropdownMenuItem>
                 <DropdownMenuItem><FileInput />Import existing RoPA</DropdownMenuItem>
                 <DropdownMenuItem onClick={fillPasteText}><ClipboardPaste />Paste text</DropdownMenuItem>
@@ -405,6 +490,38 @@ function Welcome({
           ))}
         </div>
       </div>
+    </div>
+  )
+}
+
+function UploadStatus({
+  state,
+  filename,
+  error,
+  onDismiss,
+}: {
+  state: 'uploading' | 'error'
+  filename: string | null
+  error: string | null
+  onDismiss?: () => void
+}) {
+  if (state === 'uploading') {
+    return (
+      <div className="mb-2 flex items-center gap-2 rounded-md border border-[#d9d9d9] bg-[#f7f7f7] px-3 py-2 text-xs text-[#4d4d4d]">
+        <LoaderCircle className="size-3.5 shrink-0 animate-spin text-[#167cbb]" aria-hidden="true" />
+        <span className="truncate">Reading {filename ?? 'document'}…</span>
+      </div>
+    )
+  }
+  return (
+    <div className="mb-2 flex items-start gap-2 rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-xs text-danger">
+      <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+      <span className="flex-1">{error ?? 'That document could not be read.'}</span>
+      {onDismiss && (
+        <button type="button" onClick={onDismiss} aria-label="Dismiss" className="shrink-0 text-danger/70 hover:text-danger">
+          <X className="size-3.5" aria-hidden="true" />
+        </button>
+      )}
     </div>
   )
 }
