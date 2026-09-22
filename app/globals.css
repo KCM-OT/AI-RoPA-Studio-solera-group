@@ -188,6 +188,25 @@
   }
 }
 
+@keyframes teams-icon-bounce {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  30% {
+    transform: translate3d(0, -8px, 0);
+  }
+  50% {
+    transform: translate3d(0, 0, 0);
+  }
+  65% {
+    transform: translate3d(0, -3px, 0);
+  }
+  80% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

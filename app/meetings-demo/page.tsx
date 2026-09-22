@@ -228,6 +228,21 @@ function Clock() {
 
 export default function MeetingsDemoPage() {
   const [teamsOpen, setTeamsOpen] = useState(false)
+  const [showNotification, setShowNotification] = useState(false)
+  const [isBouncing, setIsBouncing] = useState(false)
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setShowNotification(true)
+      setIsBouncing(true)
+    }, 1000)
+    return () => window.clearTimeout(timer)
+  }, [])
+
+  const handleTeamsClick = () => {
+    setTeamsOpen(true)
+    setIsBouncing(false)
+  }
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#9bbbd4]" aria-label="Meetings demo">
@@ -241,14 +256,20 @@ export default function MeetingsDemoPage() {
           ))}
           <button
             type="button"
-            onClick={() => setTeamsOpen(true)}
+            onClick={handleTeamsClick}
             aria-label="Teams"
             className="relative flex h-[41px] items-center bg-white px-3"
           >
-            <span className="flex size-7 items-center justify-center rounded bg-[#426ec2] text-lg font-semibold text-white">
+            <span
+              className={`flex size-7 items-center justify-center rounded bg-[#426ec2] text-lg font-semibold text-white ${
+                isBouncing ? 'animate-[teams-icon-bounce_1s_ease-in-out_infinite]' : ''
+              }`}
+            >
               T
             </span>
-            <span className="absolute right-1.5 top-1.5 size-2.5 rounded-full bg-[#e81123] ring-2 ring-[#deebf5]" />
+            {showNotification && (
+              <span className="absolute right-1.5 top-1.5 size-2.5 rounded-full bg-[#e81123] ring-2 ring-[#deebf5]" />
+            )}
           </button>
         </div>
         <div className="absolute right-5">
