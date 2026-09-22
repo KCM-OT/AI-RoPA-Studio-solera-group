@@ -103,6 +103,7 @@ const NAV: NavItemDef[] = [
   { href: '/maintenance', label: 'Maintenance', icon: { src: '/nav/icon-calendar-clock.svg', w: 15, h: 15 } },
   { href: '/activity', label: 'Activity Log', icon: { src: '/nav/icon-scroll.svg', w: 15, h: 13 } },
   { href: '/settings', label: 'Posture Rules', icon: { src: '/nav/icon-square-sliders.svg', w: 15, h: 15 } },
+  { href: '/dm-manual', label: 'DM Manual', icon: { src: '/nav/icon-scroll.svg', w: 15, h: 13 } },
 ]
 
 // No destination yet — rendered per design but inert until product scope defines
