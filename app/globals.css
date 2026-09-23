@@ -207,6 +207,63 @@
   }
 }
 
+@keyframes artifact-in {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.99);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes artifact-pulse-ring {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--ai) 35%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--ai) 20%, transparent);
+  }
+}
+
+@keyframes artifact-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes artifact-badge-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-artifact-in {
+  animation: artifact-in 0.35s ease-out both;
+}
+
+.animate-artifact-pulse-ring {
+  animation: artifact-pulse-ring 1.4s ease-in-out infinite;
+}
+
+.animate-artifact-shimmer {
+  animation: artifact-shimmer 1.4s ease-in-out infinite;
+}
+
+.animate-artifact-badge-in {
+  animation: artifact-badge-in 0.25s ease-out both;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
