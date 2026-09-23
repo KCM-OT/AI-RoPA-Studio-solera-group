@@ -181,6 +181,23 @@ export function RopaAuthoringChat() {
   const [hasSubmitted, setHasSubmitted] = useState(false)
   const isEmpty = messages.length === 0
   const busy = status === 'submitted' || status === 'streaming'
+
+  // Track only the most recent extraction so a follow-up answer replaces the
+  // artifact in place instead of stacking a new card underneath the old one.
+  const latestDraftPartKey = useMemo(() => {
+    let key: string | null = null
+    for (const m of messages) {
+      if (m.role !== 'assistant') continue
+      m.parts.forEach((part, i) => {
+        if (part.type === 'tool-extractRecord' && part.state === 'output-available') {
+          key = `${m.id}-${i}`
+        }
+      })
+    }
+    return key
+  }, [messages])
+  const hasDraft = latestDraftPartKey !== null
+  const isUpdatingDraft = busy && hasDraft
   const fillPasteText = () => {
     setPromptAnimationActive(false)
     setInput(PASTE_TEXT)
@@ -364,8 +381,18 @@ export function RopaAuthoringChat() {
         <section aria-label="Draft record artifact" className="min-h-0 w-full overflow-y-auto bg-muted/20 p-4 lg:w-[70%]">
           <div className="mx-auto max-w-4xl">
             <h2 className="mb-3 text-sm font-semibold text-foreground">Draft record artifact</h2>
-            {messages.map((m) => <MessageRenderer key={`artifact-${m.id}`} message={m} store={store} router={router} artifactOnly />)}
-            {busy && !messages.some((message) => message.parts.some((part) => part.type === 'tool-extractRecord' && part.state === 'output-available')) && (
+            {messages.map((m) => (
+              <MessageRenderer
+                key={`artifact-${m.id}`}
+                message={m}
+                store={store}
+                router={router}
+                artifactOnly
+                latestDraftPartKey={latestDraftPartKey}
+                isUpdatingDraft={isUpdatingDraft}
+              />
+            ))}
+            {busy && !hasDraft && (
               <div className="flex min-h-32 translate-y-50 items-center justify-center" aria-label="Building draft artifact">
                 <div className="relative flex size-16 items-center justify-center">
                   <div className="absolute inset-0 rounded-full border-2 border-purple-400/20 border-t-purple-400/80 animate-spin" aria-hidden="true" />
@@ -547,12 +574,16 @@ function MessageRenderer({
   router,
   hideDraft = false,
   artifactOnly = false,
+  latestDraftPartKey = null,
+  isUpdatingDraft = false,
 }: {
   message: ReturnType<typeof useChat>['messages'][number]
   store: ReturnType<typeof useStore>
   router: ReturnType<typeof useRouter>
   hideDraft?: boolean
   artifactOnly?: boolean
+  latestDraftPartKey?: string | null
+  isUpdatingDraft?: boolean
 }) {
   if (artifactOnly && message.role !== 'assistant') return null
   if (message.role === 'user') {
@@ -576,7 +607,20 @@ function MessageRenderer({
           }
           if (part.state === 'output-available') {
             const scan = part.output as ScanResult
-            return hideDraft && !artifactOnly ? null : <DraftCard key={i} scan={scan} store={store} router={router} />
+            if (hideDraft && !artifactOnly) return null
+            // In the artifact column, only the most recent extraction renders —
+            // a follow-up answer replaces the card in place instead of stacking.
+            const partKey = `${message.id}-${i}`
+            if (artifactOnly && partKey !== latestDraftPartKey) return null
+            return (
+              <DraftCard
+                key={partKey}
+                scan={scan}
+                store={store}
+                router={router}
+                isUpdating={artifactOnly && isUpdatingDraft}
+              />
+            )
           }
           if (part.state === 'output-error') {
             return (
@@ -606,10 +650,12 @@ function DraftCard({
   scan,
   store,
   router,
+  isUpdating = false,
 }: {
   scan: ScanResult
   store: ReturnType<typeof useStore>
   router: ReturnType<typeof useRouter>
+  isUpdating?: boolean
 }) {
   const initial = useMemo<Draft>(() => {
     const fields: DraftField[] = scan.fields.map((f) => ({
@@ -804,7 +850,8 @@ function DraftCard({
   }
 
   return (
-    <ActionCard>
+    <div className={cn('relative', !isUpdating && 'animate-artifact-in')}>
+      <ActionCard>
       <div className="flex items-center justify-between border-b border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground">
         <span>{approvedItems.size}/{orderedFields.length + draft.relationships.length} Approved</span>
       </div>
@@ -942,7 +989,23 @@ function DraftCard({
           <Check className="size-3.5" /> Save to inventory
         </button>
       </div>
-    </ActionCard>
+      </ActionCard>
+
+      {isUpdating && (
+        <>
+          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl ring-2 ring-ai/50 animate-artifact-pulse-ring" aria-hidden="true">
+            <div className="absolute inset-0 -translate-x-full animate-artifact-shimmer bg-gradient-to-r from-transparent via-ai/20 to-transparent" />
+          </div>
+          <div
+            role="status"
+            className="absolute -top-3 right-3 flex items-center gap-1.5 rounded-full bg-ai px-2.5 py-1 text-[11px] font-medium text-ai-foreground shadow-md animate-artifact-badge-in"
+          >
+            <LoaderCircle className="size-3 animate-spin" aria-hidden="true" />
+            Updating record…
+          </div>
+        </>
+      )}
+    </div>
   )
 }
 
