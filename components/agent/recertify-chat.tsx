@@ -373,6 +373,9 @@ function Welcome({
 }
 
 function getQuickAnswerLabels(question: string) {
+  if (/pause this recertification|reach out to/i.test(question)) {
+    return { yes: 'Yes - pause and reach out', no: 'No - keep going' }
+  }
   if (/tools? and systems?|using all these|linked vendors|systems you use|software/i.test(question)) {
     return { yes: 'Yes - I am still using these elements', no: 'No - these elements have changed' }
   }
@@ -433,7 +436,7 @@ function RecertMessage({
       {message.parts.map((part, i) => {
         if (part.type === 'text') {
           if (!part.text) return null
-          const binaryQuestion = /\?(?:\s|$)/.test(part.text) && /\b(?:yes|no|still|continue|remain|unchanged|accurate|correct)\b/i.test(part.text)
+          const binaryQuestion = /\?(?:\s|$)/.test(part.text) && /\b(?:yes|no|still|continue|remain|unchanged|accurate|correct|pause)\b/i.test(part.text)
           const quickAnswerLabels = binaryQuestion ? getQuickAnswerLabels(part.text) : null
           return (
             <div key={i} className="flex flex-col gap-3">
