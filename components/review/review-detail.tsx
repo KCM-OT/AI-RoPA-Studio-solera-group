@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge'
 import { PageHeader } from '@/components/app-shell'
 import { useStore } from '@/lib/store'
 import { formatDate } from '@/lib/ropa'
+import { FIELD_LABELS, FIELD_ORDER } from '@/lib/authoring'
 import {
   AUDIENCE_LABEL,
   CHANNEL_LABEL,
@@ -31,11 +32,19 @@ import {
 } from '@/lib/recert'
 import type {
   ChangeSubmission,
+  FieldKey,
   FollowUpAudience,
   FollowUpChannel,
   FollowUpQuestion,
+  ProcessingActivity,
 } from '@/lib/types'
 import { cn } from '@/lib/utils'
+
+function fieldValue(pa: ProcessingActivity, key: FieldKey): string {
+  if (key === 'dataSubjectCategories') return pa.dataSubjectCategories.join(', ')
+  const v = pa[key as keyof ProcessingActivity]
+  return typeof v === 'string' ? v : ''
+}
 
 export function ReviewDetail({ id }: { id: string }) {
   const router = useRouter()
@@ -101,7 +110,7 @@ export function ReviewDetail({ id }: { id: string }) {
 
           <OwnerNoteCard submission={submission} />
 
-          <ChangeReviewCard submission={submission} />
+          <RecordWithChangesCard record={record} submission={submission} />
         </div>
 
         <div className="flex flex-col gap-6">
@@ -240,107 +249,134 @@ function OwnerNoteCard({ submission }: { submission: ChangeSubmission }) {
   )
 }
 
-/* ---------------- Change review / diff ---------------- */
+/* ---------------- Record with proposed changes highlighted ---------------- */
 
-function ChangeReviewCard({ submission }: { submission: ChangeSubmission }) {
+function RecordWithChangesCard({
+  record,
+  submission,
+}: {
+  record: ProcessingActivity
+  submission: ChangeSubmission
+}) {
   const count = changeCount(submission)
-
-  if (count === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <CheckCircle2 className="size-4 text-success" />
-            Recertified with no changes
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground text-pretty">
-            {submission.submittedBy} confirmed this record is still accurate. Approve to stamp a
-            fresh certification date, or send a follow-up if something looks off.
-          </p>
-        </CardContent>
-      </Card>
-    )
-  }
+  const changeByKey = new Map(submission.fieldChanges.map((fc) => [fc.key, fc]))
 
   const relByGroup = {
     vendor: submission.relationshipChanges.filter((r) => r.type === 'vendor'),
     asset: submission.relationshipChanges.filter((r) => r.type === 'asset'),
     personalData: submission.relationshipChanges.filter((r) => r.type === 'personalData'),
   }
+  const hasRelChanges =
+    relByGroup.vendor.length > 0 || relByGroup.asset.length > 0 || relByGroup.personalData.length > 0
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex-row items-center justify-between gap-2">
         <CardTitle className="flex items-center gap-2 text-base">
-          Proposed changes
-          <Badge variant="outline" className="text-xs">
-            {count}
-          </Badge>
+          <FileText className="size-4 text-muted-foreground" />
+          Record with proposed changes
         </CardTitle>
+        {count > 0 ? (
+          <Badge variant="outline" className="text-xs">
+            {count} change{count === 1 ? '' : 's'}
+          </Badge>
+        ) : (
+          <Badge
+            variant="outline"
+            className="gap-1 border-success/30 bg-success/10 text-xs text-success"
+          >
+            <CheckCircle2 className="size-3" />
+            No changes
+          </Badge>
+        )}
       </CardHeader>
-      <CardContent className="flex flex-col gap-5">
-        {submission.fieldChanges.length > 0 && (
-          <div className="flex flex-col gap-3">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Field updates
-            </h3>
-            {submission.fieldChanges.map((fc) => (
-              <div key={fc.key} className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium text-foreground">{fc.label}</span>
-                <div className="grid gap-2 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
-                  <span className="rounded-md bg-destructive/10 px-2.5 py-1.5 text-sm text-destructive line-through decoration-destructive/50">
-                    {fc.before || '—'}
+      <CardContent className="divide-y divide-border">
+        {FIELD_ORDER.map((key) => {
+          const change = changeByKey.get(key)
+          const currentValue = fieldValue(record, key)
+          return (
+            <div key={key} className="py-3 first:pt-0 last:pb-0">
+              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {FIELD_LABELS[key]}
+              </span>
+              {change ? (
+                <div className="mt-1.5 grid gap-2 sm:grid-cols-[1fr_auto_1fr] sm:items-start">
+                  <span className="rounded-md bg-destructive/10 px-2.5 py-1.5 text-sm text-destructive line-through decoration-destructive/50 text-pretty">
+                    {change.before || '—'}
                   </span>
-                  <ChevronRight className="hidden size-4 shrink-0 text-muted-foreground sm:block" />
-                  <span className="rounded-md bg-success/10 px-2.5 py-1.5 text-sm text-success">
-                    {fc.after || '—'}
+                  <ChevronRight className="hidden size-4 shrink-0 text-muted-foreground sm:mt-1.5 sm:block" />
+                  <span className="rounded-md bg-success/10 px-2.5 py-1.5 text-sm text-success text-pretty">
+                    {change.after || '—'}
                   </span>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {(['personalData', 'vendor', 'asset'] as const).map((group) =>
-          relByGroup[group].length > 0 ? (
-            <div key={group} className="flex flex-col gap-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                {RELATIONSHIP_GROUP_LABEL[group]}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {relByGroup[group].map((rc, i) => (
-                  <span
-                    key={`${rc.name}-${i}`}
-                    className={cn(
-                      'inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-sm',
-                      rc.action === 'added'
-                        ? 'border-success/30 bg-success/10 text-success'
-                        : 'border-destructive/30 bg-destructive/10 text-destructive',
-                    )}
-                  >
-                    {rc.action === 'added' ? (
-                      <Plus className="size-3.5" />
-                    ) : (
-                      <Minus className="size-3.5" />
-                    )}
-                    {rc.name}
-                    {rc.action === 'added' && !rc.inventoryId && (
-                      <Badge
-                        variant="outline"
-                        className="ml-1 border-warning/30 bg-warning/10 text-[10px] text-warning"
-                      >
-                        new to inventory
-                      </Badge>
-                    )}
-                  </span>
-                ))}
-              </div>
+              ) : (
+                <p
+                  className={cn(
+                    'mt-1 text-sm text-pretty',
+                    currentValue ? 'text-foreground' : 'italic text-muted-foreground/60',
+                  )}
+                >
+                  {currentValue || 'Not documented'}
+                </p>
+              )}
             </div>
-          ) : null,
-        )}
+          )
+        })}
       </CardContent>
+
+      {hasRelChanges && (
+        <CardContent className="flex flex-col gap-4 border-t border-border pt-4">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Relationship changes
+          </h3>
+          {(['personalData', 'vendor', 'asset'] as const).map((group) =>
+            relByGroup[group].length > 0 ? (
+              <div key={group} className="flex flex-col gap-2">
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {RELATIONSHIP_GROUP_LABEL[group]}
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {relByGroup[group].map((rc, i) => (
+                    <span
+                      key={`${rc.name}-${i}`}
+                      className={cn(
+                        'inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-sm',
+                        rc.action === 'added'
+                          ? 'border-success/30 bg-success/10 text-success'
+                          : 'border-destructive/30 bg-destructive/10 text-destructive',
+                      )}
+                    >
+                      {rc.action === 'added' ? (
+                        <Plus className="size-3.5" />
+                      ) : (
+                        <Minus className="size-3.5" />
+                      )}
+                      {rc.name}
+                      {rc.action === 'added' && !rc.inventoryId && (
+                        <Badge
+                          variant="outline"
+                          className="ml-1 border-warning/30 bg-warning/10 text-[10px] text-warning"
+                        >
+                          new to inventory
+                        </Badge>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null,
+          )}
+        </CardContent>
+      )}
+
+      {count === 0 && (
+        <CardContent className="border-t border-border pt-4">
+          <p className="text-sm text-muted-foreground text-pretty">
+            {submission.submittedBy} confirmed this record is still accurate. Approve to stamp a
+            fresh certification date, or send a follow-up if something looks off.
+          </p>
+        </CardContent>
+      )}
     </Card>
   )
 }
