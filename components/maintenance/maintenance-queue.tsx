@@ -5,11 +5,12 @@ import Link from 'next/link'
 import {
   CalendarClock,
   CircleCheck,
-  Clock,
-  AlertTriangle,
-  Sparkles,
   ClipboardCheck,
   LoaderCircle,
+  AlertTriangle,
+  Clock,
+  ShieldCheck,
+  type LucideIcon,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button, buttonVariants } from '@/components/ui/button'
@@ -19,7 +20,6 @@ import { useStore } from '@/lib/store'
 import { reviewState, formatDate, relativeDays, completeness } from '@/lib/ropa'
 import type { ProcessingActivity } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import { ReviewQueueContent } from '@/components/review/review-queue'
 
 export function MaintenanceQueue() {
   const { activities, updateActivity, logEvent } = useStore()
@@ -74,12 +74,29 @@ export function MaintenanceQueue() {
         description="Keep the register current — the agent surfaces records that are stale, due, or incomplete."
       />
       <div className="flex flex-col gap-5 p-6">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <StatTile label="Overdue" value={overdue.length} tone="danger" icon={AlertTriangle} />
-          <StatTile label="Due within 30 days" value={dueSoon.length} tone="warning" icon={Clock} />
-          <StatTile label="Below 70% complete" value={incomplete.length} tone="primary" icon={Sparkles} />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <KpiCard
+            label="Overdue"
+            value={overdue.length}
+            tone="danger"
+            icon={AlertTriangle}
+            description="Past their review date"
+          />
+          <KpiCard
+            label="Due soon"
+            value={dueSoon.length}
+            tone="warning"
+            icon={Clock}
+            description="Due within 30 days"
+          />
+          <KpiCard
+            label="On track"
+            value={onTrack.length}
+            tone="ok"
+            icon={ShieldCheck}
+            description="No action needed"
+          />
         </div>
-
         <QueueSection
           title="Overdue review"
           tone="danger"
@@ -112,42 +129,43 @@ export function MaintenanceQueue() {
           emptyText="No scheduled records yet."
           collapsedByDefault
         />
-
-        <section className="flex flex-col gap-3">
-          <h2 className="text-base font-semibold text-foreground">Recertification review</h2>
-          <ReviewQueueContent />
-        </section>
       </div>
     </>
   )
 }
 
-function StatTile({
+function KpiCard({
   label,
   value,
+  description,
   tone,
   icon: Icon,
 }: {
   label: string
   value: number
-  tone: 'danger' | 'warning' | 'primary'
-  icon: typeof Clock
+  description: string
+  tone: 'danger' | 'warning' | 'ok'
+  icon: LucideIcon
 }) {
-  const toneColor = {
-    danger: '#e24b4a',
-    warning: '#ef9f27',
-    primary: '#1d9e75',
+  const styles = {
+    danger: { icon: 'text-danger', ring: 'bg-danger/10' },
+    warning: { icon: 'text-warning', ring: 'bg-warning/10' },
+    ok: { icon: 'text-success', ring: 'bg-success/10' },
   }[tone]
+
   return (
-    <div className="rounded-xl border border-[#e6e5e2] bg-white p-6 shadow-none">
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-[13px] text-[#6b6b69]">{label}</p>
-        <Icon className="size-4 shrink-0" style={{ color: toneColor }} />
-      </div>
-      <div className="mt-3 text-[32px] font-medium leading-none tabular-nums" style={{ color: toneColor }}>
-        {value}
-      </div>
-    </div>
+    <Card>
+      <CardContent className="flex items-center gap-4 py-5">
+        <div className={cn('flex size-10 shrink-0 items-center justify-center rounded-full', styles.ring)}>
+          <Icon className={cn('size-5', styles.icon)} />
+        </div>
+        <div className="min-w-0">
+          <p className="text-2xl font-semibold tabular-nums text-foreground">{value}</p>
+          <p className="text-sm font-medium text-foreground">{label}</p>
+          <p className="text-xs text-muted-foreground">{description}</p>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 
