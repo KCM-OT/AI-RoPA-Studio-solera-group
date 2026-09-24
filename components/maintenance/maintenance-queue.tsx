@@ -5,9 +5,6 @@ import Link from 'next/link'
 import {
   CalendarClock,
   CircleCheck,
-  Clock,
-  AlertTriangle,
-  Sparkles,
   ClipboardCheck,
   LoaderCircle,
 } from 'lucide-react'
@@ -19,7 +16,6 @@ import { useStore } from '@/lib/store'
 import { reviewState, formatDate, relativeDays, completeness } from '@/lib/ropa'
 import type { ProcessingActivity } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import { ReviewQueueContent } from '@/components/review/review-queue'
 
 export function MaintenanceQueue() {
   const { activities, updateActivity, logEvent } = useStore()
@@ -74,12 +70,6 @@ export function MaintenanceQueue() {
         description="Keep the register current — the agent surfaces records that are stale, due, or incomplete."
       />
       <div className="flex flex-col gap-5 p-6">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <StatTile label="Overdue" value={overdue.length} tone="danger" icon={AlertTriangle} />
-          <StatTile label="Due within 30 days" value={dueSoon.length} tone="warning" icon={Clock} />
-          <StatTile label="Below 70% complete" value={incomplete.length} tone="primary" icon={Sparkles} />
-        </div>
-
         <QueueSection
           title="Overdue review"
           tone="danger"
@@ -112,42 +102,8 @@ export function MaintenanceQueue() {
           emptyText="No scheduled records yet."
           collapsedByDefault
         />
-
-        <section className="flex flex-col gap-3">
-          <h2 className="text-base font-semibold text-foreground">Recertification review</h2>
-          <ReviewQueueContent />
-        </section>
       </div>
     </>
-  )
-}
-
-function StatTile({
-  label,
-  value,
-  tone,
-  icon: Icon,
-}: {
-  label: string
-  value: number
-  tone: 'danger' | 'warning' | 'primary'
-  icon: typeof Clock
-}) {
-  const toneColor = {
-    danger: '#e24b4a',
-    warning: '#ef9f27',
-    primary: '#1d9e75',
-  }[tone]
-  return (
-    <div className="rounded-xl border border-[#e6e5e2] bg-white p-6 shadow-none">
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-[13px] text-[#6b6b69]">{label}</p>
-        <Icon className="size-4 shrink-0" style={{ color: toneColor }} />
-      </div>
-      <div className="mt-3 text-[32px] font-medium leading-none tabular-nums" style={{ color: toneColor }}>
-        {value}
-      </div>
-    </div>
   )
 }
 
