@@ -377,7 +377,7 @@ function getQuickAnswerLabels(question: string) {
     return { yes: 'Yes - pause and reach out', no: 'No - keep going' }
   }
   if (/tools? and systems?|using all these|linked vendors|systems you use|software/i.test(question)) {
-    return { yes: 'Yes - I am still using these elements', no: 'No - these elements have changed' }
+    return { yes: 'Yes - I am still using these tools and systems', no: 'No - these tools and systems have changed' }
   }
   if (/personal data|collecting anything new|data elements|information about people|data do you collect/i.test(question)) {
     return { yes: 'Yes - I am still collecting this data', no: 'No - this data has changed' }
