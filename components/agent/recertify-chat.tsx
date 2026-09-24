@@ -372,7 +372,21 @@ function Welcome({
   )
 }
 
-function getQuickAnswerLabels(question: string) {
+// Assistant turns often lead with a confirmation of the PREVIOUS topic before asking
+// the actual question, e.g. "Thanks, still using the same tools...\n\nAre you still
+// collecting the same personal data?". Matching keywords against that whole block lets
+// the previous topic's phrasing win and duplicates its button labels onto the new
+// question, so we only match against the final question sentence.
+function extractFinalQuestion(text: string): string {
+  const sentences = text.split(/(?<=[.!?])\s+/).filter(Boolean)
+  for (let i = sentences.length - 1; i >= 0; i--) {
+    if (/\?$/.test(sentences[i].trim())) return sentences[i]
+  }
+  return text
+}
+
+function getQuickAnswerLabels(text: string) {
+  const question = extractFinalQuestion(text)
   if (/pause this recertification|reach out to/i.test(question)) {
     return { yes: 'Yes - pause and reach out', no: 'No - keep going' }
   }
