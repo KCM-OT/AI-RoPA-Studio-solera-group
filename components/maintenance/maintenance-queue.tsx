@@ -7,6 +7,10 @@ import {
   CircleCheck,
   ClipboardCheck,
   LoaderCircle,
+  AlertTriangle,
+  Clock,
+  ShieldCheck,
+  type LucideIcon,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button, buttonVariants } from '@/components/ui/button'
@@ -70,6 +74,29 @@ export function MaintenanceQueue() {
         description="Keep the register current — the agent surfaces records that are stale, due, or incomplete."
       />
       <div className="flex flex-col gap-5 p-6">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <KpiCard
+            label="Overdue"
+            value={overdue.length}
+            tone="danger"
+            icon={AlertTriangle}
+            description="Past their review date"
+          />
+          <KpiCard
+            label="Due soon"
+            value={dueSoon.length}
+            tone="warning"
+            icon={Clock}
+            description="Due within 30 days"
+          />
+          <KpiCard
+            label="On track"
+            value={onTrack.length}
+            tone="ok"
+            icon={ShieldCheck}
+            description="No action needed"
+          />
+        </div>
         <QueueSection
           title="Overdue review"
           tone="danger"
@@ -104,6 +131,41 @@ export function MaintenanceQueue() {
         />
       </div>
     </>
+  )
+}
+
+function KpiCard({
+  label,
+  value,
+  description,
+  tone,
+  icon: Icon,
+}: {
+  label: string
+  value: number
+  description: string
+  tone: 'danger' | 'warning' | 'ok'
+  icon: LucideIcon
+}) {
+  const styles = {
+    danger: { icon: 'text-danger', ring: 'bg-danger/10' },
+    warning: { icon: 'text-warning', ring: 'bg-warning/10' },
+    ok: { icon: 'text-success', ring: 'bg-success/10' },
+  }[tone]
+
+  return (
+    <Card>
+      <CardContent className="flex items-center gap-4 py-5">
+        <div className={cn('flex size-10 shrink-0 items-center justify-center rounded-full', styles.ring)}>
+          <Icon className={cn('size-5', styles.icon)} />
+        </div>
+        <div className="min-w-0">
+          <p className="text-2xl font-semibold tabular-nums text-foreground">{value}</p>
+          <p className="text-sm font-medium text-foreground">{label}</p>
+          <p className="text-xs text-muted-foreground">{description}</p>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 
