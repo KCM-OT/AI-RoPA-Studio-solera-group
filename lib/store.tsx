@@ -233,10 +233,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         recordName: record.name,
         detail:
           submission.decision === 'approved_as_is'
-            ? `Recertification by ${submission.submittedBy} approved and committed to the register.`
+            ? `Recertification by ${submission.submittedBy} approved and committed to the inventory.`
             : `Committed ${
                 submission.fieldChanges.length + submission.relationshipChanges.length
-              } recertification change(s) from ${submission.submittedBy} to the register.`,
+              } recertification change(s) from ${submission.submittedBy} to the inventory.`,
       })
     },
     [submissions, activities, logEvent],

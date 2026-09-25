@@ -71,7 +71,7 @@ export function MaintenanceQueue() {
     <>
       <PageHeader
         title="Maintenance"
-        description="Keep the register current — the agent surfaces records that are stale, due, or incomplete."
+        description="Keep the inventory current — the agent surfaces records that are stale, due, or incomplete."
       />
       <div className="flex flex-col gap-5 p-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

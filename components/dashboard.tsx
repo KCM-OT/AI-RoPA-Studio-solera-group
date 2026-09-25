@@ -543,7 +543,7 @@ export function Dashboard() {
       {/* Control bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground text-pretty">
-          Everything that needs your attention across the register — metrics, actions, and related
+          Everything that needs your attention across the inventory — metrics, actions, and related
           objects — in one place.
         </p>
         <div className="flex shrink-0 items-center gap-2">
@@ -575,7 +575,7 @@ export function Dashboard() {
         </SectionTitle>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <MetricCard
-            label="Register completeness"
+            label="Inventory completeness"
             value={`${m.avgCompleteness}%`}
             sub={`${completeCount} of ${m.total} records ≥ 80% complete`}
             icon={TrendingUp}

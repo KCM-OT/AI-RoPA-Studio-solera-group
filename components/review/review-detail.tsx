@@ -402,7 +402,7 @@ function DecisionCard({
         <CardContent className="flex items-center gap-3 py-5">
           <CheckCircle2 className="size-6 text-success" />
           <div className="flex flex-col">
-            <span className="font-medium text-foreground">Committed to the register</span>
+              <span className="font-medium text-foreground">Committed to the inventory</span>
             <span className="text-sm text-muted-foreground">
               These changes are now part of the official RoPA.
             </span>
@@ -420,7 +420,7 @@ function DecisionCard({
       <CardContent className="flex flex-col gap-3">
         <p className="text-sm text-muted-foreground text-pretty">
           Once you&apos;re satisfied, commit the recertification to the permanent inventory. This
-          records a fresh certification date and updates the register.
+              records a fresh certification date and updates the inventory.
         </p>
         {openFollowUps > 0 && (
           <p className="rounded-md bg-warning/10 px-3 py-2 text-xs text-warning">
@@ -431,7 +431,7 @@ function DecisionCard({
         <div className="flex flex-col gap-2">
           <Button onClick={onCommit}>
             <CheckCircle2 className="mr-1.5 size-4" />
-            Approve &amp; commit to register
+                Approve &amp; commit to inventory
           </Button>
           <Button variant="outline" onClick={onRequestChanges}>
             Send back to owner

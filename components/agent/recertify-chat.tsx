@@ -784,7 +784,7 @@ function SubmitCard({
           </p>
         )}
         <p className="mt-2 text-xs text-muted-foreground">
-          A privacy analyst will review everything before it&apos;s committed to the register.
+              A privacy analyst will review everything before it&apos;s committed to the inventory.
         </p>
       </div>
       <div className="flex items-center justify-end border-t border-border bg-muted/30 px-4 py-2.5">
@@ -819,7 +819,7 @@ function SubmittedCard({
           </span>
           Chat based recertify complete
         </div>
-        <p className="text-xs leading-relaxed text-muted-foreground">Your answers and proposed changes are now pending privacy analyst review. Nothing is committed to the register until they approve it.</p>
+        <p className="text-xs leading-relaxed text-muted-foreground">Your answers and proposed changes are now pending privacy analyst review. Nothing is committed to the inventory until they approve it.</p>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => router.push(`/review/${submissionId}`)}

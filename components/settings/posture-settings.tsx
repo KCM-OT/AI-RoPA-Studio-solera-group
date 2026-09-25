@@ -422,7 +422,7 @@ function ImpactPreview() {
   return (
     <Card className="bg-muted/30">
       <CardHeader>
-        <CardTitle>Impact on current register</CardTitle>
+            <CardTitle>Impact on current inventory</CardTitle>
         <CardDescription>
           How these rules classify your {activities.length} existing records right now.
         </CardDescription>

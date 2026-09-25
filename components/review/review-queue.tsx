@@ -23,7 +23,7 @@ export function ReviewQueue() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Recertification review"
-        description="Change submissions from business process owners waiting for privacy operations sign-off before they hit the register."
+        description="Change submissions from business process owners waiting for privacy operations sign-off before they hit the inventory."
       />
       <ReviewQueueContent />
     </div>

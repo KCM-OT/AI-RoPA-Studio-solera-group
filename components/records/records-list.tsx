@@ -187,7 +187,7 @@ export function RecordsList() {
     <>
       <PageHeader
         title="RoPA Records"
-        description={`${activities.length} processing activities in the register`}
+        description={`${activities.length} processing activities in the inventory`}
         actions={
           <Button onClick={() => router.push('/ropa-authoring')} className="gap-2">
             <Sparkles className="size-4" />
@@ -200,7 +200,7 @@ export function RecordsList() {
           <KpiCard
             label="Active records"
             value={String(statusCounts.active)}
-            sub={`${activities.length} total records in register`}
+            sub={`${activities.length} total records in inventory`}
             icon={FileText}
             action={{ label: 'View active', onClick: () => { setFilter('active'); setSpecialFilter(null) } }}
           />
@@ -214,7 +214,7 @@ export function RecordsList() {
           <KpiCard
             label="Records by status"
             value={`${activities.length}`}
-            sub="Current register distribution"
+            sub="Current inventory distribution"
             icon={PieChart}
           >
             <StatusDonut counts={statusCounts} total={activities.length} />

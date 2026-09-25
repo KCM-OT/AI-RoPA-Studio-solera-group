@@ -277,7 +277,7 @@ export interface FollowUpQuestion {
 }
 
 // A change set submitted by a Business Process Owner during recertification,
-// awaiting analyst review before it is committed to the register.
+  // awaiting analyst review before it is committed to the inventory.
 export interface ChangeSubmission {
   id: string
   recordId: string

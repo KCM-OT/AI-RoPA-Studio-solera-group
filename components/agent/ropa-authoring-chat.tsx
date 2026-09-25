@@ -1016,7 +1016,7 @@ function ProposeBanner({ summary }: { summary: string }) {
         <Building2 className="mt-0.5 size-4 shrink-0 text-ai" />
         <div className="text-sm text-foreground">
           <span className="font-medium">Ready to save. </span>
-          {summary || 'Review the draft above, make any edits, and save it to the register.'}
+          {summary || 'Review the draft above, make any edits, and save it to the inventory.'}
         </div>
       </div>
     </ActionCard>
