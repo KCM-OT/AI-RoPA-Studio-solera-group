@@ -7,8 +7,8 @@ export default function Page() {
   return (
     <AppShell>
       <PageHeader
-        title="RoPA Overview"
-        description="AI-assisted authoring and maintenance of your Article 30 records."
+        title="Control centre"
+        description="Your ROPA metrics, next best actions, and related objects in one place."
       />
       <Dashboard />
     </AppShell>

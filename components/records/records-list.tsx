@@ -10,9 +10,12 @@ import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/app-shell'
 import { StatusBadge, ProvenanceTag, CompletenessMeter } from '@/components/badges'
 import { useStore } from '@/lib/store'
-import { reviewState, formatDate, completeness, STATUS_LABEL } from '@/lib/ropa'
+import { reviewState, formatDate, completeness, relativeDays, STATUS_LABEL } from '@/lib/ropa'
 import type { RecordStatus } from '@/lib/types'
 import { cn } from '@/lib/utils'
+
+// Records not touched within this many days are considered stale (freshness drill-down).
+const STALE_DAYS = 180
 
 const FILTERS: { key: RecordStatus | 'all'; label: string }[] = [
   { key: 'all', label: 'All' },
@@ -22,12 +25,13 @@ const FILTERS: { key: RecordStatus | 'all'; label: string }[] = [
   { key: 'archived', label: 'Archived' },
 ]
 
-type SpecialFilter = 'certification' | 'incomplete' | 'ai'
+type SpecialFilter = 'certification' | 'incomplete' | 'ai' | 'stale'
 
 const SPECIAL_FILTER_LABEL: Record<SpecialFilter, string> = {
   certification: 'Due for certification',
   incomplete: 'Below 80% complete',
   ai: 'AI-assisted',
+  stale: 'Not updated recently',
 }
 
 const STATUS_KPIS: { key: RecordStatus; label: string; tone: string }[] = [
@@ -141,7 +145,7 @@ export function RecordsList() {
   // Apply a drill-down view requested from the dashboard metric cards.
   useEffect(() => {
     const view = new URLSearchParams(window.location.search).get('view')
-    if (view === 'certification' || view === 'incomplete' || view === 'ai') {
+    if (view === 'certification' || view === 'incomplete' || view === 'ai' || view === 'stale') {
       setSpecialFilter(view)
       setFilter('all')
     }
@@ -154,7 +158,8 @@ export function RecordsList() {
         !specialFilter ||
         (specialFilter === 'certification' && ['overdue', 'due_soon'].includes(reviewState(a))) ||
         (specialFilter === 'incomplete' && completeness(a) < 80) ||
-        (specialFilter === 'ai' && (a.createdWithAI || a.updatedWithAI))
+        (specialFilter === 'ai' && (a.createdWithAI || a.updatedWithAI)) ||
+        (specialFilter === 'stale' && (relativeDays(a.updatedAt) ?? 0) < -STALE_DAYS)
       const q = query.trim().toLowerCase()
       const matchesQuery =
         !q ||
@@ -242,7 +247,7 @@ export function RecordsList() {
             {FILTERS.map((f) => (
               <button
                 key={f.key}
-                onClick={() => { setFilter(f.key); setCertificationFilter(false) }}
+                onClick={() => { setFilter(f.key); setSpecialFilter(null) }}
                 className={cn(
                   'rounded-full px-3 py-1 text-xs font-medium transition-colors',
                   filter === f.key
