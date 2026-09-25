@@ -21,27 +21,50 @@ import { useStore } from '@/lib/store'
 import { completeness, computeMetrics, formatDate, reviewState } from '@/lib/ropa'
 import type { ActivityLogEntry } from '@/lib/types'
 import { ReviewBadge, StatusBadge } from '@/components/badges'
+import { cn } from '@/lib/utils'
 
 function MetricCard({
   label,
   value,
   sub,
   icon: Icon,
+  onClick,
+  actionLabel,
 }: {
   label: string
   value: string
   sub: string
   icon: React.ElementType
+  onClick?: () => void
+  actionLabel?: string
 }) {
   return (
-    <Card className="h-full rounded-xl border-[#e6e5e2] bg-white shadow-none">
-      <CardContent className="flex h-full flex-col gap-3 p-6 text-[#1a1a1a]">
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] leading-4 text-[#6b6b69]">{label}</span>
-          <Icon className="size-4 text-[#8c8c87]" aria-hidden="true" />
-        </div>
-        <span className="text-[32px] font-medium leading-10 tracking-tight text-[#1a1a1a]">{value}</span>
-        <p className="mt-auto text-[13px] leading-4 text-[#8c8c87]">{sub}</p>
+    <Card
+      className={cn(
+        'h-full rounded-xl border-[#e6e5e2] bg-white shadow-none',
+        onClick && 'transition-colors hover:border-[#c9c8c4]',
+      )}
+    >
+      <CardContent className="p-0">
+        <button
+          type="button"
+          onClick={onClick}
+          disabled={!onClick}
+          aria-label={actionLabel}
+          className="group flex h-full w-full flex-col gap-3 rounded-xl p-6 text-left text-[#1a1a1a] outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[13px] leading-4 text-[#6b6b69]">{label}</span>
+            <Icon className="size-4 text-[#8c8c87]" aria-hidden="true" />
+          </div>
+          <span className="text-[32px] font-medium leading-10 tracking-tight text-[#1a1a1a]">{value}</span>
+          <div className="mt-auto flex items-center justify-between gap-2">
+            <p className="text-[13px] leading-4 text-[#8c8c87]">{sub}</p>
+            {onClick && (
+              <ArrowRight className="size-4 shrink-0 text-[#8c8c87] transition-colors group-hover:text-primary" aria-hidden="true" />
+            )}
+          </div>
+        </button>
       </CardContent>
     </Card>
   )
@@ -136,18 +159,24 @@ export function Dashboard() {
           value={`${pctCurrent}%`}
           sub={`${m.overdue} overdue · ${m.dueSoon} due soon`}
           icon={CalendarClock}
+          onClick={() => router.push('/records?view=certification')}
+          actionLabel="View records due for review"
         />
         <MetricCard
           label="Register completeness"
           value={`${m.avgCompleteness}%`}
           sub={`${completeCount} of ${m.total} records ≥ 80% complete`}
           icon={TrendingUp}
+          onClick={() => router.push('/records?view=incomplete')}
+          actionLabel="View records below 80% complete"
         />
         <MetricCard
           label="AI-assisted records"
           value={`${pctAiAssisted}%`}
           sub={`${m.createdWithAI} drafted · ${m.updatedWithAI} enriched by the agent`}
           icon={Sparkles}
+          onClick={() => router.push('/records?view=ai')}
+          actionLabel="View AI-assisted records"
         />
       </div>
 

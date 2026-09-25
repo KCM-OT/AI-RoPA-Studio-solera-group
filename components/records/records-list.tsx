@@ -22,6 +22,14 @@ const FILTERS: { key: RecordStatus | 'all'; label: string }[] = [
   { key: 'archived', label: 'Archived' },
 ]
 
+type SpecialFilter = 'certification' | 'incomplete' | 'ai'
+
+const SPECIAL_FILTER_LABEL: Record<SpecialFilter, string> = {
+  certification: 'Due for certification',
+  incomplete: 'Below 80% complete',
+  ai: 'AI-assisted',
+}
+
 const STATUS_KPIS: { key: RecordStatus; label: string; tone: string }[] = [
   { key: 'active', label: 'Active', tone: 'bg-[#185fa5]' },
   { key: 'draft', label: 'Draft', tone: 'bg-[#1d9e75]' },
@@ -122,7 +130,7 @@ export function RecordsList() {
   const { activities } = useStore()
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<RecordStatus | 'all'>('all')
-  const [certificationFilter, setCertificationFilter] = useState(false)
+  const [specialFilter, setSpecialFilter] = useState<SpecialFilter | null>(null)
   const [recruitmentNeedsCertification, setRecruitmentNeedsCertification] = useState(false)
 
   useEffect(() => {
@@ -130,19 +138,32 @@ export function RecordsList() {
     return () => window.clearTimeout(timer)
   }, [])
 
+  // Apply a drill-down view requested from the dashboard metric cards.
+  useEffect(() => {
+    const view = new URLSearchParams(window.location.search).get('view')
+    if (view === 'certification' || view === 'incomplete' || view === 'ai') {
+      setSpecialFilter(view)
+      setFilter('all')
+    }
+  }, [])
+
   const filtered = useMemo(() => {
     return activities.filter((a) => {
       const matchesFilter = filter === 'all' || a.status === filter
-      const matchesCertification = !certificationFilter || ['overdue', 'due_soon'].includes(reviewState(a))
+      const matchesSpecial =
+        !specialFilter ||
+        (specialFilter === 'certification' && ['overdue', 'due_soon'].includes(reviewState(a))) ||
+        (specialFilter === 'incomplete' && completeness(a) < 80) ||
+        (specialFilter === 'ai' && (a.createdWithAI || a.updatedWithAI))
       const q = query.trim().toLowerCase()
       const matchesQuery =
         !q ||
         a.name.toLowerCase().includes(q) ||
         a.purpose.toLowerCase().includes(q) ||
         a.managingOrganization.toLowerCase().includes(q)
-      return matchesFilter && matchesCertification && matchesQuery
+      return matchesFilter && matchesSpecial && matchesQuery
     })
-  }, [activities, certificationFilter, filter, query])
+  }, [activities, specialFilter, filter, query])
 
   const statusCounts = useMemo(
     () =>
@@ -176,14 +197,14 @@ export function RecordsList() {
             value={String(statusCounts.active)}
             sub={`${activities.length} total records in register`}
             icon={FileText}
-            action={{ label: 'View active', onClick: () => { setFilter('active'); setCertificationFilter(false) } }}
+            action={{ label: 'View active', onClick: () => { setFilter('active'); setSpecialFilter(null) } }}
           />
           <KpiCard
             label="Due for certification"
             value={String(dueForCertification)}
             sub={dueForCertification === 0 ? 'All records are current' : 'Due soon or overdue'}
             icon={CalendarClock}
-            action={{ label: 'View records', onClick: () => { setFilter('all'); setCertificationFilter(true) } }}
+            action={{ label: 'View records', onClick: () => { setFilter('all'); setSpecialFilter('certification') } }}
           />
           <KpiCard
             label="Records by status"
@@ -206,14 +227,14 @@ export function RecordsList() {
                 className="h-9 w-full rounded-lg border border-input bg-card pl-9 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
               />
             </div>
-            {filter === 'active' && !certificationFilter && (
+            {filter === 'active' && !specialFilter && (
               <button type="button" onClick={() => setFilter('all')} className="inline-flex h-8 items-center gap-1.5 rounded-full bg-primary/10 px-3 text-xs font-medium text-primary hover:bg-primary/15">
                 Active <X className="size-3" aria-hidden="true" />
               </button>
             )}
-            {certificationFilter && (
-              <button type="button" onClick={() => { setCertificationFilter(false); setFilter('all') }} className="inline-flex h-8 items-center gap-1.5 rounded-full bg-warning/15 px-3 text-xs font-medium text-warning hover:bg-warning/20">
-                Due for certification <X className="size-3" aria-hidden="true" />
+            {specialFilter && (
+              <button type="button" onClick={() => { setSpecialFilter(null); setFilter('all') }} className="inline-flex h-8 items-center gap-1.5 rounded-full bg-warning/15 px-3 text-xs font-medium text-warning hover:bg-warning/20">
+                {SPECIAL_FILTER_LABEL[specialFilter]} <X className="size-3" aria-hidden="true" />
               </button>
             )}
           </div>
