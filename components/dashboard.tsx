@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import {
   Sparkles,
   TrendingUp,
+  CalendarClock,
   Link2,
   RefreshCw,
   ArrowRight,
@@ -74,11 +75,21 @@ export function Dashboard() {
   const router = useRouter()
   const { activities, log } = useStore()
   const m = computeMetrics(activities)
+  const totalRecords = activities.length || 1
 
-  const allRel = activities.flatMap((a) => a.relationships)
-  const relTotal = allRel.length || 1
-  const relWithAI = allRel.filter((r) => r.provenance === 'ai').length
-  const pctRelWithAI = Math.round((relWithAI / relTotal) * 100)
+  // Recency: how current are scheduled reviews across the register.
+  const withCadence = activities.filter((a) => a.nextReviewAt !== null)
+  const currentCount = withCadence.length - m.overdue
+  const pctCurrent = withCadence.length
+    ? Math.round((currentCount / withCadence.length) * 100)
+    : 100
+
+  // Completeness: records meeting the Article 30 completeness bar.
+  const completeCount = activities.filter((a) => completeness(a) >= 80).length
+
+  // Automation: records the agent drafted or enriched.
+  const aiAssisted = activities.filter((a) => a.createdWithAI || a.updatedWithAI).length
+  const pctAiAssisted = Math.round((aiAssisted / totalRecords) * 100)
 
   const attention = activities
     .map((a) => {
@@ -119,30 +130,24 @@ export function Dashboard() {
       </Card>
 
       {/* Metrics */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <MetricCard
-          label="Records created with AI"
-          value={`${m.pctCreatedWithAI}%`}
-          sub={`${m.createdWithAI} of ${m.total} records`}
-          icon={Sparkles}
+          label="Reviews up to date"
+          value={`${pctCurrent}%`}
+          sub={`${m.overdue} overdue · ${m.dueSoon} due soon`}
+          icon={CalendarClock}
         />
         <MetricCard
-          label="Records updated with AI"
-          value={`${Math.round((m.updatedWithAI / (m.total || 1)) * 100)}%`}
-          sub={`${m.updatedWithAI} enriched by the agent`}
-          icon={RefreshCw}
-        />
-        <MetricCard
-          label="Relationships from AI"
-          value={`${pctRelWithAI}%`}
-          sub={`${relWithAI} of ${allRel.length} links suggested`}
-          icon={Link2}
-        />
-        <MetricCard
-          label="Have vendor / asset link"
-          value={`${m.pctWithRelationship}%`}
-          sub={`avg. completeness ${m.avgCompleteness}%`}
+          label="Register completeness"
+          value={`${m.avgCompleteness}%`}
+          sub={`${completeCount} of ${m.total} records ≥ 80% complete`}
           icon={TrendingUp}
+        />
+        <MetricCard
+          label="AI-assisted records"
+          value={`${pctAiAssisted}%`}
+          sub={`${m.createdWithAI} drafted · ${m.updatedWithAI} enriched by the agent`}
+          icon={Sparkles}
         />
       </div>
 
