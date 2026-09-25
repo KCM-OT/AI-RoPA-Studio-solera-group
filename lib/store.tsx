@@ -41,6 +41,11 @@ interface StoreValue {
   getActivity: (id: string) => ProcessingActivity | undefined
   addActivity: (pa: ProcessingActivity) => void
   updateActivity: (id: string, patch: Partial<ProcessingActivity>) => void
+  updateRelationship: (
+    recordId: string,
+    relId: string,
+    status: SuggestionStatus,
+  ) => void
   logEvent: (entry: Omit<ActivityLogEntry, 'id' | 'timestamp'>) => void
   updatePosture: (patch: Partial<PostureConfig>) => void
   resetPosture: () => void
@@ -102,6 +107,37 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       ])
     },
     [],
+  )
+
+  const updateRelationship = useCallback(
+    (recordId: string, relId: string, status: SuggestionStatus) => {
+      let matched: { name: string; type: string; recordName: string } | null = null
+      setActivities((prev) =>
+        prev.map((a) => {
+          if (a.id !== recordId) return a
+          const rel = a.relationships.find((r) => r.id === relId)
+          if (rel) matched = { name: rel.name, type: rel.type, recordName: a.name }
+          return {
+            ...a,
+            relationships: a.relationships.map((r) =>
+              r.id === relId ? { ...r, status } : r,
+            ),
+            updatedAt: new Date().toISOString(),
+          }
+        }),
+      )
+      if (matched) {
+        logEvent({
+          actor: 'You',
+          action:
+            status === 'accepted' ? 'relationship_accepted' : 'relationship_rejected',
+          recordId,
+          recordName: matched.recordName,
+          detail: `${status === 'accepted' ? 'Linked' : 'Rejected'} ${matched.type} "${matched.name}"`,
+        })
+      }
+    },
+    [logEvent],
   )
 
   const getSubmission = useCallback(
@@ -218,6 +254,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       getActivity,
       addActivity,
       updateActivity,
+      updateRelationship,
       logEvent,
       updatePosture,
       resetPosture,
@@ -236,6 +273,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       getActivity,
       addActivity,
       updateActivity,
+      updateRelationship,
       logEvent,
       updatePosture,
       resetPosture,

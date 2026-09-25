@@ -50,7 +50,9 @@ export interface Relationship {
   inventoryId: string | null // null => unresolved (not found in inventory)
   provenance: Provenance
   confidence?: number
-  evidence?: string
+  evidence?: string // verbatim quote from a source document
+  rationale?: string // AI's plain-language reasoning for the suggestion
+  sourceDocId?: string // id of the SourceDocument the evidence came from
   status: SuggestionStatus
   note?: string
 }

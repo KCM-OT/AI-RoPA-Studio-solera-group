@@ -43,7 +43,7 @@ function fieldValue(pa: ProcessingActivity, key: FieldKey): string {
 
 export function RecordDetail({ id }: { id: string }) {
   const router = useRouter()
-  const { getActivity, updateActivity, logEvent, submissions } = useStore()
+  const { getActivity, updateActivity, updateRelationship, logEvent, submissions } = useStore()
   const record = getActivity(id)
   const pendingSubmission = submissions.find(
     (s) =>
@@ -92,21 +92,6 @@ export function RecordDetail({ id }: { id: string }) {
       detail: `Edited "${FIELD_LABELS[key]}"`,
     })
     setEditing(null)
-  }
-
-  function updateRelationship(relId: string, status: Relationship['status']) {
-    const rels = record!.relationships.map((r) =>
-      r.id === relId ? { ...r, status } : r,
-    )
-    updateActivity(record!.id, { relationships: rels })
-    const rel = record!.relationships.find((r) => r.id === relId)
-    logEvent({
-      actor: 'You',
-      action: status === 'accepted' ? 'relationship_accepted' : 'relationship_rejected',
-      recordId: record!.id,
-      recordName: record!.name,
-      detail: `${status === 'accepted' ? 'Linked' : 'Rejected'} ${rel?.type} "${rel?.name}"`,
-    })
   }
 
   const rs = reviewState(record)

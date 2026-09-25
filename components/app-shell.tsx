@@ -100,6 +100,7 @@ const NAV: NavItemDef[] = [
   { href: '/', label: 'Dashboard', icon: { src: '/nav/icon-dashboard.svg', w: 16, h: 14 } },
   { href: '/ropa-authoring', label: 'RoPA Authoring', icon: 'sparkle' },
   { href: '/records', label: 'RoPA Records', icon: { src: '/nav/icon-database.svg', w: 15, h: 18 } },
+  { href: '/triage', label: 'Relationship Triage', icon: { src: '/nav/icon-database.svg', w: 15, h: 18 } },
   { href: '/maintenance', label: 'Maintenance', icon: { src: '/nav/icon-calendar-clock.svg', w: 15, h: 15 } },
   { href: '/activity', label: 'Activity Log', icon: { src: '/nav/icon-scroll.svg', w: 15, h: 13 } },
   { href: '/settings', label: 'Posture Rules', icon: { src: '/nav/icon-square-sliders.svg', w: 15, h: 15 } },
@@ -230,6 +231,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const { activities, submissions } = useStore()
   const attention = activities.filter((a) => reviewState(a) === 'overdue').length
+  const pendingSuggestions = activities.reduce(
+    (sum, a) => sum + a.relationships.filter((r) => r.status === 'suggested').length,
+    0,
+  )
   const pendingReviews = submissions.filter(
     (s) => s.status === 'pending_review' || s.status === 'changes_requested',
   ).length
@@ -268,7 +273,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 collapsed={collapsed}
                 divider={i === 0}
                 badge={
-                  item.href === '/maintenance' ? attention + pendingReviews : undefined
+                  item.href === '/maintenance'
+                    ? attention + pendingReviews
+                    : item.href === '/triage'
+                      ? pendingSuggestions
+                      : undefined
                 }
               />
             )
